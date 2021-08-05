@@ -18,7 +18,9 @@
         </activity>
 
         <activity android:name=".graphic.TriangleActivity" />
-        <activity android:name=".graphic.Triangle2Activity" />
+        <activity android:name=".graphic.TriangleModalActivity" />
+        <activity android:name=".graphic.TriangleMatrixActivity" />
+
 
     </application>
 

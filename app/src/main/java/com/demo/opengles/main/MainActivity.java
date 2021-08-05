@@ -8,7 +8,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.demo.opengles.databinding.MainActivityBinding;
-import com.demo.opengles.graphic.Triangle2Activity;
+import com.demo.opengles.graphic.TriangleMatrixActivity;
+import com.demo.opengles.graphic.TriangleModalActivity;
 import com.demo.opengles.graphic.TriangleActivity;
 
 import java.util.ArrayList;
@@ -22,7 +23,8 @@ public class MainActivity extends AppCompatActivity {
     private List<MainItemBean> dataList = new ArrayList<MainItemBean>() {
         {
             add(new MainItemBean("三角形", TriangleActivity.class));
-            add(new MainItemBean("三角形-模", Triangle2Activity.class));
+            add(new MainItemBean("三角形-模运算", TriangleModalActivity.class));
+            add(new MainItemBean("三角形-矩阵变换-无拉伸", TriangleMatrixActivity.class));
         }
     };
 

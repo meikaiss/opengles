@@ -14,7 +14,7 @@ import java.nio.FloatBuffer;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class Triangle2Activity extends AppCompatActivity {
+public class TriangleModalActivity extends AppCompatActivity {
 
     private final String vertexShaderCode =
             "attribute vec4 vPosition;" +
@@ -40,7 +40,7 @@ public class Triangle2Activity extends AppCompatActivity {
      * .0f就表示人眼与图形的距离是标准距离的两倍，那么等价于这一顶点上的xyz数值缩小为原来的一半。
      */
     static float triangleCoords[] = {
-            0.0f, 0.5f, 0.0f, 1.0f, // top
+            0.0f, 0.5f, 0.0f, 0.5f, // top
             -0.5f, -0.5f, 0.0f, 1.0f, // bottom left
             0.5f, -0.5f, 0.0f, 1.0f  // bottom right
     };
@@ -48,14 +48,10 @@ public class Triangle2Activity extends AppCompatActivity {
     private int mPositionHandle;
     private int mColorHandle;
 
-    private float[] mViewMatrix = new float[16];
-
     //顶点个数
     private final int vertexCount = triangleCoords.length / COORDS_PER_VERTEX;
     //顶点之间的偏移量，即每一个顶点所占用的字节大小，每个顶点的坐标有3个float数字，所以为3*4
     private final int vertexStride = COORDS_PER_VERTEX * 4; // 每个顶点四个字节
-
-    private int mMatrixHandler;
 
     //设置颜色，依次为红绿蓝和透明通道
     float color[] = {1.0f, 0.0f, 0.0f, 1.0f};
@@ -65,13 +61,13 @@ public class Triangle2Activity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         GLSurfaceView glSurfaceView = new GLSurfaceView(this);
-        setContentView(glSurfaceView);
-
         glSurfaceView.setEGLContextClientVersion(2);
 
         glSurfaceView.setRenderer(new GLSurfaceView.Renderer() {
             @Override
             public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+                //将背景设置为灰色
+                GLES20.glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 
                 ByteBuffer bb = ByteBuffer.allocateDirect(
                         triangleCoords.length * 4); //其中4的来源是因为每一个float占用4个字节
@@ -99,11 +95,14 @@ public class Triangle2Activity extends AppCompatActivity {
 
             @Override
             public void onSurfaceChanged(GL10 gl, int width, int height) {
-
+                GLES20.glViewport(0, 0, width, height);
             }
 
             @Override
             public void onDrawFrame(GL10 gl) {
+                //用onCreate中通过GLES20.glClearColor指定的颜色来刷新缓冲区
+                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+
                 //将程序加入到OpenGLES2.0环境
                 GLES20.glUseProgram(mProgram);
 
@@ -130,6 +129,8 @@ public class Triangle2Activity extends AppCompatActivity {
 
         //必须在setRenderer之后才能调用
         glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+
+        setContentView(glSurfaceView);
     }
 
     public int loadShader(int type, String shaderCode) {
