@@ -8,6 +8,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.demo.opengles.databinding.MainActivityBinding;
+import com.demo.opengles.graphic.OvalActivity;
+import com.demo.opengles.graphic.SquareActivity;
 import com.demo.opengles.graphic.TriangleActivity;
 import com.demo.opengles.graphic.TriangleColorActivity;
 import com.demo.opengles.graphic.TriangleMatrixActivity;
@@ -27,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("三角形-模运算", TriangleModalActivity.class));
             add(new MainItemBean("三角形-颜色属性", TriangleColorActivity.class));
             add(new MainItemBean("三角形-矩阵变换-无拉伸", TriangleMatrixActivity.class));
+            add(new MainItemBean("正方形", SquareActivity.class));
+            add(new MainItemBean("圆形", OvalActivity.class));
         }
     };
 

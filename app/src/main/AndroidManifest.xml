@@ -21,6 +21,8 @@
         <activity android:name=".graphic.TriangleModalActivity" />
         <activity android:name=".graphic.TriangleColorActivity" />
         <activity android:name=".graphic.TriangleMatrixActivity" />
+        <activity android:name=".graphic.SquareActivity" />
+        <activity android:name=".graphic.OvalActivity" />
 
 
     </application>

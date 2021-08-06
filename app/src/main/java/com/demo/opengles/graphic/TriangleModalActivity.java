@@ -51,7 +51,7 @@ public class TriangleModalActivity extends AppCompatActivity {
     //顶点个数
     private final int vertexCount = triangleCoords.length / COORDS_PER_VERTEX;
     //顶点之间的偏移量，即每一个顶点所占用的字节大小，每个顶点的坐标有3个float数字，所以为3*4
-    private final int vertexStride = COORDS_PER_VERTEX * 4; // 每个顶点四个字节
+    private final int vertexStride = COORDS_PER_VERTEX * 4; // 每个float四个字节
 
     //设置颜色，依次为红绿蓝和透明通道
     float color[] = {1.0f, 0.0f, 0.0f, 1.0f};

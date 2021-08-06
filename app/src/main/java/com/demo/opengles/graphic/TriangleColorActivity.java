@@ -54,10 +54,9 @@ public class TriangleColorActivity extends AppCompatActivity {
     //顶点个数
     private final int vertexCount = triangleCoords.length / COORDS_PER_VERTEX;
     //顶点之间的偏移量，即每一个顶点所占用的字节大小，每个顶点的坐标有3个float数字，所以为3*4
-    private final int vertexStride = COORDS_PER_VERTEX * 4; // 每个顶点四个字节
+    private final int vertexStride = COORDS_PER_VERTEX * 4; // 每个float四个字节
 
     //设置颜色，依次为红绿蓝和透明通道
-    //设置颜色
     float color[] = {
             0.0f, 1.0f, 0.0f, 1.0f,
             1.0f, 0.0f, 0.0f, 1.0f,
@@ -140,6 +139,7 @@ public class TriangleColorActivity extends AppCompatActivity {
                 GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount);
                 //禁止顶点数组的句柄
                 GLES20.glDisableVertexAttribArray(mPositionHandle);
+                GLES20.glDisableVertexAttribArray(mColorHandle);
             }
         });
 
