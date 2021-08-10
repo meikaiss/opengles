@@ -35,7 +35,8 @@ public class TriangleColorActivity extends AppCompatActivity {
     private int mProgram;
     private FloatBuffer vertexBuffer, colorBuffer;
 
-    static final int COORDS_PER_VERTEX = 4;  //每个顶点有三个数字来表示它的坐标
+    static final int COORDS_PER_VERTEX = 4;  //每个顶点有4个数字来表示它的坐标
+    static final int COORDS_PER_COLOR = 4;  //每个颜色值有4个数字来表示它的内容
 
     /**
      * 每个坐标用4个float表示，xyz分别表示横纵Z坐标范围[-1.0f,-1.0f]。
@@ -55,6 +56,7 @@ public class TriangleColorActivity extends AppCompatActivity {
     private final int vertexCount = triangleCoords.length / COORDS_PER_VERTEX;
     //顶点之间的偏移量，即每一个顶点所占用的字节大小，每个顶点的坐标有3个float数字，所以为3*4
     private final int vertexStride = COORDS_PER_VERTEX * 4; // 每个float四个字节
+    private final int colorStride = COORDS_PER_COLOR * 4; // 每个float四个字节
 
     //设置颜色，依次为红绿蓝和透明通道
     float color[] = {
@@ -132,8 +134,8 @@ public class TriangleColorActivity extends AppCompatActivity {
                 mColorHandle = GLES20.glGetAttribLocation(mProgram, "aColor");
                 //设置绘制三角形的颜色
                 GLES20.glEnableVertexAttribArray(mColorHandle);
-                GLES20.glVertexAttribPointer(mColorHandle, 4, GLES20.GL_FLOAT, false,
-                        0, colorBuffer);
+                GLES20.glVertexAttribPointer(mColorHandle, COORDS_PER_COLOR, GLES20.GL_FLOAT, false,
+                        colorStride, colorBuffer);
 
                 //绘制三角形
                 GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount);

@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.demo.opengles.databinding.MainActivityBinding;
+import com.demo.opengles.graphic.CubeActivity;
 import com.demo.opengles.graphic.OvalActivity;
 import com.demo.opengles.graphic.SquareActivity;
 import com.demo.opengles.graphic.TriangleActivity;
@@ -31,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("三角形-矩阵变换-无拉伸", TriangleMatrixActivity.class));
             add(new MainItemBean("正方形", SquareActivity.class));
             add(new MainItemBean("圆形", OvalActivity.class));
+            add(new MainItemBean("正方体", CubeActivity.class));
         }
     };
 
