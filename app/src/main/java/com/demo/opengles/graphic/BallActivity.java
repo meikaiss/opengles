@@ -61,7 +61,6 @@ public class BallActivity extends AppCompatActivity {
     private final int vertexStride = COORDS_PER_VERTEX * 4; // 每个顶点四个字节
 
     private int mMatrixHandler;
-    private int mVColorCenterHandler;
 
     private float step = 2f;
 
@@ -173,9 +172,6 @@ public class BallActivity extends AppCompatActivity {
                 mMatrixHandler = GLES20.glGetUniformLocation(mProgram, "vMatrix");
                 //指定vMatrix的值
                 GLES20.glUniformMatrix4fv(mMatrixHandler, 1, false, mMVPMatrix, 0);
-
-                mVColorCenterHandler = GLES20.glGetUniformLocation(mProgram, "vColorCenter");
-                GLES20.glUniform4fv(mVColorCenterHandler, 1, centerColor, 0);
 
                 //获取顶点着色器的vPosition成员句柄
                 mPositionHandle = GLES20.glGetAttribLocation(mProgram, "vPosition");
