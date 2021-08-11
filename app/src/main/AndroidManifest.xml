@@ -22,8 +22,11 @@
         <activity android:name=".graphic.TriangleColorActivity" />
         <activity android:name=".graphic.TriangleMatrixActivity" />
         <activity android:name=".graphic.SquareActivity" />
-        <activity android:name=".graphic.OvalActivity" />
+        <activity android:name=".graphic.CircleActivity" />
         <activity android:name=".graphic.CubeActivity" />
+        <activity android:name=".graphic.ConeActivity" />
+        <activity android:name=".graphic.CylinderActivity" />
+        <activity android:name=".graphic.BallActivity" />
 
 
     </application>

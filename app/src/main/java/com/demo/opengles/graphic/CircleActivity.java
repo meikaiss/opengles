@@ -11,13 +11,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
+import java.util.ArrayList;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class SquareActivity extends AppCompatActivity {
+public class CircleActivity extends AppCompatActivity {
 
+    private FloatBuffer vertexBuffer;
     private final String vertexShaderCode =
             "attribute vec4 vPosition;" +
                     "uniform mat4 vMatrix;" +
@@ -33,20 +34,8 @@ public class SquareActivity extends AppCompatActivity {
                     "}";
 
     private int mProgram;
-    private FloatBuffer vertexBuffer;
-    private ShortBuffer indexBuffer;
 
     static final int COORDS_PER_VERTEX = 3;
-    static float triangleCoords[] = {
-            -0.5f, 0.5f, 0.0f, // top left
-            -0.5f, -0.5f, 0.0f, // bottom left
-            0.5f, -0.5f, 0.0f, // bottom right
-            0.5f, 0.5f, 0.0f  // top right
-    };
-
-    static short index[] = {
-            0, 1, 2, 0, 2, 3
-    };
 
     private int mPositionHandle;
     private int mColorHandle;
@@ -55,15 +44,38 @@ public class SquareActivity extends AppCompatActivity {
     private float[] mProjectMatrix = new float[16];
     private float[] mMVPMatrix = new float[16];
 
-    //顶点个数
-    private final int vertexCount = triangleCoords.length / COORDS_PER_VERTEX;
-    //顶点之间的偏移量，即每一个顶点所占用的字节大小，每个顶点的坐标有3个float数字，所以为3*4
+    //顶点之间的偏移量
     private final int vertexStride = COORDS_PER_VERTEX * 4; // 每个顶点四个字节
 
     private int mMatrixHandler;
 
+    private float radius = 0.5f;
+    private int n = 360;  //切割份数
+
+    private float[] shapePos;
+
+    private float height = 0.0f;
+
     //设置颜色，依次为红绿蓝和透明通道
     float color[] = {0.0f, 1.0f, 0.0f, 1.0f};
+
+    private float[] createPositions() {
+        ArrayList<Float> data = new ArrayList<>();
+        data.add(0.0f);             //设置圆心坐标
+        data.add(0.0f);
+        data.add(height);
+        float angDegSpan = 360f / n;
+        for (float i = 0; i < 360 + angDegSpan; i += angDegSpan) {
+            data.add((float) (radius * Math.sin(i * Math.PI / 180f)));
+            data.add((float) (radius * Math.cos(i * Math.PI / 180f)));
+            data.add(height);
+        }
+        float[] f = new float[data.size()];
+        for (int i = 0; i < f.length; i++) {
+            f[i] = data.get(i);
+        }
+        return f;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -78,19 +90,17 @@ public class SquareActivity extends AppCompatActivity {
             @Override
             public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 
+                //将背景设置为灰色
+                GLES20.glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+
+                shapePos = createPositions();
                 ByteBuffer bb = ByteBuffer.allocateDirect(
-                        triangleCoords.length * 4); //其中4的来源是因为每一个float占用4个字节
+                        shapePos.length * 4);
                 bb.order(ByteOrder.nativeOrder());
+
                 vertexBuffer = bb.asFloatBuffer();
-                vertexBuffer.put(triangleCoords);
+                vertexBuffer.put(shapePos);
                 vertexBuffer.position(0);
-
-                ByteBuffer cc = ByteBuffer.allocateDirect(index.length * 2);
-                cc.order(ByteOrder.nativeOrder());
-                indexBuffer = cc.asShortBuffer();
-                indexBuffer.put(index);
-                indexBuffer.position(0);
-
                 int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER,
                         vertexShaderCode);
                 int fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER,
@@ -104,7 +114,6 @@ public class SquareActivity extends AppCompatActivity {
                 GLES20.glAttachShader(mProgram, fragmentShader);
                 //连接到着色器程序
                 GLES20.glLinkProgram(mProgram);
-
             }
 
             @Override
@@ -121,6 +130,9 @@ public class SquareActivity extends AppCompatActivity {
 
             @Override
             public void onDrawFrame(GL10 gl) {
+                //用onCreate中通过GLES20.glClearColor指定的颜色来刷新缓冲区
+                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+
                 //将程序加入到OpenGLES2.0环境
                 GLES20.glUseProgram(mProgram);
 
@@ -144,11 +156,7 @@ public class SquareActivity extends AppCompatActivity {
                 GLES20.glUniform4fv(mColorHandle, 1, color, 0);
 
                 //绘制三角形
-                //GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount);
-
-                //索引法绘制正方形
-                GLES20.glDrawElements(GLES20.GL_TRIANGLES, index.length, GLES20.GL_UNSIGNED_SHORT
-                        , indexBuffer);
+                GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, shapePos.length / 3);
 
                 //禁止顶点数组的句柄
                 GLES20.glDisableVertexAttribArray(mPositionHandle);
