@@ -62,7 +62,7 @@ public class BallActivity extends AppCompatActivity {
 
     private int mMatrixHandler;
 
-    private float step = 2f;
+    private float step = 0.5f;
 
 
     private float[] shapePos;
@@ -155,7 +155,7 @@ public class BallActivity extends AppCompatActivity {
                 //设置透视投影
                 Matrix.frustumM(mProjectMatrix, 0, -ratio, ratio, -1, 1, 3, 20);
                 //设置相机位置
-                Matrix.setLookAtM(mViewMatrix, 0, 10.0f, 0.0f, 0.0f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+                Matrix.setLookAtM(mViewMatrix, 0, 5.0f, 5.0f, 5.0f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
                 //计算变换矩阵
                 Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0);
             }
