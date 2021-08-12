@@ -27,6 +27,7 @@
         <activity android:name=".graphic.ConeActivity" />
         <activity android:name=".graphic.CylinderActivity" />
         <activity android:name=".graphic.BallActivity" />
+        <activity android:name=".graphic.TextureActivity" />
 
 
     </application>
