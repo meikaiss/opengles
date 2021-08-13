@@ -25,7 +25,7 @@ public class TextureActivity extends AppCompatActivity {
 
     private final String vertexShaderCode =
             "uniform mat4 vMatrix;\n" +
-            "attribute vec4 vPosition;\n" +
+                    "attribute vec4 vPosition;\n" +
                     "attribute vec2 vCoordinate;\n" +
                     "varying vec2 aCoordinate;\n" +
                     "void main(){\n" +
@@ -44,12 +44,22 @@ public class TextureActivity extends AppCompatActivity {
     private int mProgram;
 
     //顶点坐标
-    private final float[] vertexCoords = {
+    private final float[] vertexCoords_1 = {
             -1.0f, 1.0f,    //左上角
             -1.0f, -1.0f,   //左下角
             1.0f, 1.0f,     //右上角
             1.0f, -1.0f     //右下角
     };
+
+    //顶点坐标-显示在中心区域
+    private final float[] vertexCoords_2 = {
+            -0.5f, 0.5f,    //左上角
+            -0.5f, -0.5f,   //左下角
+            0.5f, 0.5f,     //右上角
+            0.5f, -0.5f     //右下角
+    };
+
+    private float[] vertexCoords = vertexCoords_1;
 
     //纹理坐标-正放图片，纹理坐标与顶点坐标出现的顺序完全相同，则可以呈现出正放的图片
     private final float[] textureCoord_1 = {
@@ -83,6 +93,13 @@ public class TextureActivity extends AppCompatActivity {
             0.0f, 0.0f, //左上、原点
     };
 
+    private final float[] textureCoord_5 = {
+            0.25f, 0.25f, //左上、原点
+            0.25f, 0.75f, //左下
+            0.75f, 0.25f, //右上
+            0.75f, 0.75f, //右下
+    };
+
     private float[] textureCoord = textureCoord_1;
 
     private int glVPosition;
@@ -109,6 +126,28 @@ public class TextureActivity extends AppCompatActivity {
 
     private GLSurfaceView glSurfaceView;
 
+    private View.OnClickListener onClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (v.getId() == R.id.btn_1) {
+                textureCoord = textureCoord_1;
+            } else if (v.getId() == R.id.btn_2) {
+                textureCoord = textureCoord_2;
+            } else if (v.getId() == R.id.btn_3) {
+                textureCoord = textureCoord_3;
+            } else if (v.getId() == R.id.btn_4) {
+                textureCoord = textureCoord_4;
+            } else if (v.getId() == R.id.btn_5) {
+                vertexCoords = vertexCoords_2;
+                textureCoord = textureCoord_1;
+            } else if (v.getId() == R.id.btn_6) {
+                vertexCoords = vertexCoords_1;
+                textureCoord = textureCoord_5;
+            }
+            glSurfaceView.requestRender();
+        }
+    };
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,42 +158,18 @@ public class TextureActivity extends AppCompatActivity {
         textureBmp = BitmapFactory.decodeResource(getResources(), R.mipmap.texture_image);
         glSurfaceView.setEGLContextClientVersion(2);
 
-        findViewById(R.id.btn_1).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                textureCoord = textureCoord_1;
-                glSurfaceView.requestRender();
-            }
-        });
-
-        findViewById(R.id.btn_2).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                textureCoord = textureCoord_2;
-                glSurfaceView.requestRender();
-            }
-        });
-
-        findViewById(R.id.btn_3).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                textureCoord = textureCoord_3;
-                glSurfaceView.requestRender();
-            }
-        });
-
-        findViewById(R.id.btn_4).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                textureCoord = textureCoord_4;
-                glSurfaceView.requestRender();
-            }
-        });
+        findViewById(R.id.btn_1).setOnClickListener(onClickListener);
+        findViewById(R.id.btn_2).setOnClickListener(onClickListener);
+        findViewById(R.id.btn_3).setOnClickListener(onClickListener);
+        findViewById(R.id.btn_4).setOnClickListener(onClickListener);
+        findViewById(R.id.btn_5).setOnClickListener(onClickListener);
+        findViewById(R.id.btn_6).setOnClickListener(onClickListener);
 
         glSurfaceView.setRenderer(new GLSurfaceView.Renderer() {
             @Override
             public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-                GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                //rgb=0.4表示背景为灰色
+                GLES20.glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
                 //启用2d纹理功能，包含2d采样
                 GLES20.glEnable(GLES20.GL_TEXTURE_2D);
 
@@ -233,11 +248,14 @@ public class TextureActivity extends AppCompatActivity {
                 GLES20.glUniformMatrix4fv(glVMatrix, 1, false, mMVPMatrix, 0);
 
                 GLES20.glEnableVertexAttribArray(glVPosition);
-                GLES20.glVertexAttribPointer(glVPosition, 2, GLES20.GL_FLOAT, false, vertexStride, vertexBuffer);
+                GLES20.glVertexAttribPointer(glVPosition, 2, GLES20.GL_FLOAT, false, vertexStride
+                        , vertexBuffer);
 
                 GLES20.glEnableVertexAttribArray(glVCoordinate);
-                GLES20.glVertexAttribPointer(glVCoordinate, 2, GLES20.GL_FLOAT, false, vertexStride, textureCoordBuffer);
+                GLES20.glVertexAttribPointer(glVCoordinate, 2, GLES20.GL_FLOAT, false,
+                        vertexStride, textureCoordBuffer);
 
+                //将显卡中的第0号纹理单元 赋值给 纹理句柄
                 GLES20.glUniform1i(glVTexture, 0);
                 textureId = createTexture();
 
@@ -247,10 +265,11 @@ public class TextureActivity extends AppCompatActivity {
             private int createTexture() {
                 int[] texture = new int[1];
                 if (textureBmp != null && !textureBmp.isRecycled()) {
-                    //生成纹理，将生成的纹理的句柄保存到int数组中
+                    //从offset=0号纹理单元开始生成n=1个纹理，并将纹理id保存到int[]=texture数组中
                     GLES20.glGenTextures(1, texture, 0);
-                    //将生成的纹理与gpu关联，操作纹理，传入纹理id作为参数，每次bing之后，后续操作的纹理都是该纹理
-                    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture[0]);
+                    textureId = texture[0];
+                    //将生成的纹理与gpu关联为2d纹理类型，传入纹理id作为参数，每次bing之后，后续操作的纹理都是该纹理
+                    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
                     //设置缩小过滤为使用纹理中坐标最接近的一个像素的颜色作为需要绘制的像素颜色
                     GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER,
                             GLES20.GL_NEAREST);

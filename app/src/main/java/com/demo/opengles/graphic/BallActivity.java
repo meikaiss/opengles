@@ -21,7 +21,7 @@ public class BallActivity extends AppCompatActivity {
     private FloatBuffer vertexBuffer;  //球面顶点buffer
 
     /**
-     * 此shader的算法让z越高的地方颜色越折，z越小的地方颜色越黑；
+     * 此shader的算法让z越高的地方颜色越白，z越小的地方颜色越黑；
      * 当眼睛位于x轴向原点方向观察时，屏幕显示即为左右为白色，中间为黑色
      */
     private final String vertexShaderCode =
@@ -110,7 +110,6 @@ public class BallActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         GLSurfaceView glSurfaceView = new GLSurfaceView(this);
         setContentView(glSurfaceView);
 
