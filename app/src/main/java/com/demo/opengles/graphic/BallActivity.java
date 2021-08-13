@@ -4,9 +4,16 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Bundle;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.FrameLayout;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.demo.opengles.util.ToastUtil;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -62,7 +69,7 @@ public class BallActivity extends AppCompatActivity {
 
     private int mMatrixHandler;
 
-    private float step = 0.5f;
+    private float step = 1f;
 
 
     private float[] shapePos;
@@ -110,8 +117,52 @@ public class BallActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FrameLayout frameLayout = new FrameLayout(this);
         GLSurfaceView glSurfaceView = new GLSurfaceView(this);
-        setContentView(glSurfaceView);
+        frameLayout.addView(glSurfaceView);
+        {
+            Button button = new Button(this);
+            button.setText("+");
+            frameLayout.addView(button,
+                    new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT));
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (step == 0.5f) {
+                        step = 1.0f;
+                    } else {
+                        step++;
+                    }
+
+                    ToastUtil.show("step=" + step);
+                    glSurfaceView.requestRender();
+                }
+            });
+        }
+        {
+            Button button = new Button(this);
+            button.setText("-");
+            FrameLayout.LayoutParams lp =
+                    new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.gravity = Gravity.END;
+            frameLayout.addView(button, lp);
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    step--;
+                    if (step <= 0) {
+                        step = 0.5f;
+                    }
+                    ToastUtil.show("step=" + step);
+                    glSurfaceView.requestRender();
+                }
+            });
+        }
+
+
+        setContentView(frameLayout);
 
         glSurfaceView.setEGLContextClientVersion(2);
 
@@ -123,14 +174,6 @@ public class BallActivity extends AppCompatActivity {
                 GLES20.glEnable(GLES20.GL_DEPTH_TEST);
                 //将背景设置为灰色
                 GLES20.glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-
-                shapePos = createBallPos();
-                ByteBuffer bb = ByteBuffer.allocateDirect(shapePos.length * 4);
-                bb.order(ByteOrder.nativeOrder());
-
-                vertexBuffer = bb.asFloatBuffer();
-                vertexBuffer.put(shapePos);
-                vertexBuffer.position(0);
 
                 int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER,
                         vertexShaderCode);
@@ -154,7 +197,7 @@ public class BallActivity extends AppCompatActivity {
                 //设置透视投影
                 Matrix.frustumM(mProjectMatrix, 0, -ratio, ratio, -1, 1, 3, 20);
                 //设置相机位置
-                Matrix.setLookAtM(mViewMatrix, 0, 5.0f, 5.0f, 5.0f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+                Matrix.setLookAtM(mViewMatrix, 0, 7.0f, 0.0f, 0.0f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
                 //计算变换矩阵
                 Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0);
             }
@@ -166,6 +209,14 @@ public class BallActivity extends AppCompatActivity {
 
                 //将程序加入到OpenGLES2.0环境
                 GLES20.glUseProgram(mProgram);
+
+                shapePos = createBallPos();
+                ByteBuffer bb = ByteBuffer.allocateDirect(shapePos.length * 4);
+                bb.order(ByteOrder.nativeOrder());
+
+                vertexBuffer = bb.asFloatBuffer();
+                vertexBuffer.put(shapePos);
+                vertexBuffer.position(0);
 
                 //获取变换矩阵vMatrix成员句柄
                 mMatrixHandler = GLES20.glGetUniformLocation(mProgram, "vMatrix");
