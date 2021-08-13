@@ -83,7 +83,7 @@ public class TextureActivity extends AppCompatActivity {
             0.0f, 0.0f, //左上、原点
     };
 
-    private float[] textureCoord = textureCoord_4;
+    private float[] textureCoord = textureCoord_1;
 
     private int glVPosition;
     private int glVTexture;
@@ -123,7 +123,31 @@ public class TextureActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 textureCoord = textureCoord_1;
-                glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+                glSurfaceView.requestRender();
+            }
+        });
+
+        findViewById(R.id.btn_2).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                textureCoord = textureCoord_2;
+                glSurfaceView.requestRender();
+            }
+        });
+
+        findViewById(R.id.btn_3).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                textureCoord = textureCoord_3;
+                glSurfaceView.requestRender();
+            }
+        });
+
+        findViewById(R.id.btn_4).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                textureCoord = textureCoord_4;
+                glSurfaceView.requestRender();
             }
         });
 
@@ -154,19 +178,6 @@ public class TextureActivity extends AppCompatActivity {
                 glVCoordinate = GLES20.glGetAttribLocation(mProgram, "vCoordinate");
                 glVTexture = GLES20.glGetUniformLocation(mProgram, "vTexture");
 
-                //将内存中的顶点坐标数组，转换为字节缓冲区，因为opengl只能接受整块的字节缓冲区的数据
-                ByteBuffer bb = ByteBuffer.allocateDirect(vertexCoords.length * 4);
-                bb.order(ByteOrder.nativeOrder());
-                vertexBuffer = bb.asFloatBuffer();
-                vertexBuffer.put(vertexCoords);
-                vertexBuffer.position(0);
-
-                //将内存中的纹理坐标数组，转换为字节缓冲区，因为opengl只能接受整块的字节缓冲区的数据
-                ByteBuffer cc = ByteBuffer.allocateDirect(textureCoord.length * 4);
-                cc.order(ByteOrder.nativeOrder());
-                textureCoordBuffer = cc.asFloatBuffer();
-                textureCoordBuffer.put(textureCoord);
-                textureCoordBuffer.position(0);
             }
 
             @Override
@@ -202,6 +213,20 @@ public class TextureActivity extends AppCompatActivity {
 
             @Override
             public void onDrawFrame(GL10 gl) {
+                //将内存中的顶点坐标数组，转换为字节缓冲区，因为opengl只能接受整块的字节缓冲区的数据
+                ByteBuffer bb = ByteBuffer.allocateDirect(vertexCoords.length * 4);
+                bb.order(ByteOrder.nativeOrder());
+                vertexBuffer = bb.asFloatBuffer();
+                vertexBuffer.put(vertexCoords);
+                vertexBuffer.position(0);
+
+                //将内存中的纹理坐标数组，转换为字节缓冲区，因为opengl只能接受整块的字节缓冲区的数据
+                ByteBuffer cc = ByteBuffer.allocateDirect(textureCoord.length * 4);
+                cc.order(ByteOrder.nativeOrder());
+                textureCoordBuffer = cc.asFloatBuffer();
+                textureCoordBuffer.put(textureCoord);
+                textureCoordBuffer.position(0);
+
                 GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
                 GLES20.glUseProgram(mProgram);
 
@@ -224,7 +249,7 @@ public class TextureActivity extends AppCompatActivity {
                 if (textureBmp != null && !textureBmp.isRecycled()) {
                     //生成纹理
                     GLES20.glGenTextures(1, texture, 0);
-                    //将生成的纹理与gpu关联
+                    //将生成的纹理与gpu关联，操作纹理，传入纹理id作为参数，每次bing之后，后续操作的纹理都是该纹理
                     GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture[0]);
                     //设置缩小过滤为使用纹理中坐标最接近的一个像素的颜色作为需要绘制的像素颜色
                     GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER,
@@ -238,7 +263,8 @@ public class TextureActivity extends AppCompatActivity {
                     //设置环绕方向T，截取纹理坐标到[1/2n,1-1/2n]。将导致永远不会与border融合
                     GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T,
                             GLES20.GL_CLAMP_TO_EDGE);
-                    //根据以上指定的参数，生成一个2D纹理
+
+                    //给纹理传入图像数据，至此，此纹理相关设置已经结束。后续想使用或者操作这个纹理，只要再glBindTexture这个纹理的id即可
                     GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, textureBmp, 0);
 
                     //返回生成的纹理的句柄
