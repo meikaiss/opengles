@@ -106,12 +106,23 @@ public class TextureColorfulActivity extends AppCompatActivity {
         findViewById(R.id.btn_6).setOnClickListener(onClickListener);
 
         render = new ColorRender();
-        render.vertexShaderCode = vertexShaderCode;
-        render.fragmentShaderCode = fragmentShaderCode_2;
-        render.vertexCoords = vertexCoords_1;
-        render.textureCoord = textureCoord_1;
-        render.textureBmp = textureBmp;
-        render.init();
+        render.object1 = new RenderObject();
+        render.object1.vertexShaderCode = vertexShaderCode;
+        render.object1.fragmentShaderCode = fragmentShaderCode_1;
+        render.object1.vertexCoords = vertexCoords_1;
+        render.object1.textureCoord = textureCoord_1;
+        render.object1.textureBmp = textureBmp;
+        render.object1.isEffective = true;
+        render.object1.init();
+
+        render.object2 = new RenderObject();
+        render.object2.vertexShaderCode = vertexShaderCode;
+        render.object2.fragmentShaderCode = fragmentShaderCode_2;
+        render.object2.vertexCoords = vertexCoords_1;
+        render.object2.textureCoord = textureCoord_1;
+        render.object2.textureBmp = textureBmp;
+        render.object2.isEffective = false;
+        render.object2.init();
         glSurfaceView.setRenderer(render);
 
         //必须在setRenderer之后才能调用
@@ -122,23 +133,13 @@ public class TextureColorfulActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             if (v.getId() == R.id.btn_1) {
-                surfaceContainer.removeAllViews();
-
-                glSurfaceView = new GLSurfaceView(TextureColorfulActivity.this);
-                surfaceContainer.addView(glSurfaceView);
-
-                render = new ColorRender();
-                render.vertexShaderCode = vertexShaderCode;
-                render.fragmentShaderCode = fragmentShaderCode_1;
-                render.vertexCoords = vertexCoords_1;
-                render.textureCoord = textureCoord_1;
-                render.textureBmp = textureBmp;
-                render.init();
-                glSurfaceView.setRenderer(render);
-
-                glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+                render.object1.isEffective = true;
+                render.object2.isEffective = false;
+                glSurfaceView.requestRender();
             } else if (v.getId() == R.id.btn_2) {
-
+                render.object1.isEffective = false;
+                render.object2.isEffective = true;
+                glSurfaceView.requestRender();
             } else if (v.getId() == R.id.btn_3) {
 
             } else if (v.getId() == R.id.btn_4) {
@@ -153,11 +154,7 @@ public class TextureColorfulActivity extends AppCompatActivity {
         }
     };
 
-
-    /**
-     * ////////////////////////////////////////////////////
-     */
-    private static class ColorRender implements GLSurfaceView.Renderer {
+    private static class RenderObject {
 
         private String vertexShaderCode;
         private String fragmentShaderCode;
@@ -175,10 +172,6 @@ public class TextureColorfulActivity extends AppCompatActivity {
         private int glVCoordinate;
         private int glVMatrix;
 
-        private float[] mViewMatrix = new float[16];
-        private float[] mProjectMatrix = new float[16];
-        private float[] mMVPMatrix = new float[16];
-
         private int textureId;
 
         private static int COORDS_PER_VERTEX = 2;
@@ -187,7 +180,16 @@ public class TextureColorfulActivity extends AppCompatActivity {
         //顶点之间的偏移量，即每一个顶点所占用的字节大小，每个顶点的坐标有3个float数字，所以为3*4
         private int vertexStride; // 每个float四个字节
 
-        private Bitmap textureBmp;
+        private int vertexShaderIns;
+        private int fragmentShaderIns;
+
+        private float[] mViewMatrix = new float[16];
+        private float[] mProjectMatrix = new float[16];
+        private float[] mMVPMatrix = new float[16];
+
+        public Bitmap textureBmp;
+
+        public boolean isEffective;
 
         public void init() {
             vertexCount = vertexCoords.length / COORDS_PER_VERTEX;
@@ -200,15 +202,15 @@ public class TextureColorfulActivity extends AppCompatActivity {
             //启用2d纹理功能，包含2d采样
             GLES20.glEnable(GLES20.GL_TEXTURE_2D);
 
-            int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
-            int fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
+            vertexShaderIns = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
+            fragmentShaderIns = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
 
             //创建一个空的OpenGLES程序
             mProgram = GLES20.glCreateProgram();
             //将顶点着色器加入到程序
-            GLES20.glAttachShader(mProgram, vertexShader);
+            GLES20.glAttachShader(mProgram, vertexShaderIns);
             //将片元着色器加入到程序中
-            GLES20.glAttachShader(mProgram, fragmentShader);
+            GLES20.glAttachShader(mProgram, fragmentShaderIns);
             //连接到着色器程序
             GLES20.glLinkProgram(mProgram);
 
@@ -219,78 +221,6 @@ public class TextureColorfulActivity extends AppCompatActivity {
             //获取句柄，用于将内存中的纹理坐标传递给GPU
             glVCoordinate = GLES20.glGetAttribLocation(mProgram, "vCoordinate");
             glVTexture = GLES20.glGetUniformLocation(mProgram, "vTexture");
-        }
-
-        @Override
-        public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-            createProgram();
-        }
-
-        @Override
-        public void onSurfaceChanged(GL10 gl, int width, int height) {
-            GLES20.glViewport(0, 0, width, height);
-
-            int w = textureBmp.getWidth();
-            int h = textureBmp.getHeight();
-            float sWH = w / (float) h;
-            float sWidthHeight = width / (float) height;
-            if (width > height) {
-                if (sWH > sWidthHeight) {
-                    Matrix.orthoM(mProjectMatrix, 0, -sWidthHeight * sWH, sWidthHeight * sWH,
-                            -1, 1, 3, 7);
-                } else {
-                    Matrix.orthoM(mProjectMatrix, 0, -sWidthHeight / sWH, sWidthHeight / sWH,
-                            -1, 1, 3, 7);
-                }
-            } else {
-                if (sWH > sWidthHeight) {
-                    Matrix.orthoM(mProjectMatrix, 0, -1, 1, -1 / sWidthHeight * sWH,
-                            1 / sWidthHeight * sWH, 3, 7);
-                } else {
-                    Matrix.orthoM(mProjectMatrix, 0, -1, 1, -sWH / sWidthHeight,
-                            sWH / sWidthHeight, 3, 7);
-                }
-            }
-            //设置相机位置
-            Matrix.setLookAtM(mViewMatrix, 0, 0, 0, 7.0f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
-            //计算变换矩阵
-            Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0);
-        }
-
-        @Override
-        public void onDrawFrame(GL10 gl) {
-            //将内存中的顶点坐标数组，转换为字节缓冲区，因为opengl只能接受整块的字节缓冲区的数据
-            ByteBuffer bb = ByteBuffer.allocateDirect(vertexCoords.length * 4);
-            bb.order(ByteOrder.nativeOrder());
-            vertexBuffer = bb.asFloatBuffer();
-            vertexBuffer.put(vertexCoords);
-            vertexBuffer.position(0);
-
-            //将内存中的纹理坐标数组，转换为字节缓冲区，因为opengl只能接受整块的字节缓冲区的数据
-            ByteBuffer cc = ByteBuffer.allocateDirect(textureCoord.length * 4);
-            cc.order(ByteOrder.nativeOrder());
-            textureCoordBuffer = cc.asFloatBuffer();
-            textureCoordBuffer.put(textureCoord);
-            textureCoordBuffer.position(0);
-
-            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-            GLES20.glUseProgram(mProgram);
-
-            GLES20.glUniformMatrix4fv(glVMatrix, 1, false, mMVPMatrix, 0);
-
-            GLES20.glEnableVertexAttribArray(glVPosition);
-            GLES20.glVertexAttribPointer(glVPosition, 2, GLES20.GL_FLOAT, false, vertexStride
-                    , vertexBuffer);
-
-            GLES20.glEnableVertexAttribArray(glVCoordinate);
-            GLES20.glVertexAttribPointer(glVCoordinate, 2, GLES20.GL_FLOAT, false,
-                    vertexStride, textureCoordBuffer);
-
-            //将显卡中的第0号纹理单元 赋值给 纹理句柄
-            GLES20.glUniform1i(glVTexture, 0);
-            textureId = createTexture();
-
-            GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, vertexCount);
         }
 
         private int createTexture() {
@@ -331,5 +261,105 @@ public class TextureColorfulActivity extends AppCompatActivity {
             GLES20.glCompileShader(shader);
             return shader;
         }
+
+        public void onDrawFrame(GL10 gl) {
+            //将内存中的顶点坐标数组，转换为字节缓冲区，因为opengl只能接受整块的字节缓冲区的数据
+            ByteBuffer bb = ByteBuffer.allocateDirect(vertexCoords.length * 4);
+            bb.order(ByteOrder.nativeOrder());
+            vertexBuffer = bb.asFloatBuffer();
+            vertexBuffer.put(vertexCoords);
+            vertexBuffer.position(0);
+
+            //将内存中的纹理坐标数组，转换为字节缓冲区，因为opengl只能接受整块的字节缓冲区的数据
+            ByteBuffer cc = ByteBuffer.allocateDirect(textureCoord.length * 4);
+            cc.order(ByteOrder.nativeOrder());
+            textureCoordBuffer = cc.asFloatBuffer();
+            textureCoordBuffer.put(textureCoord);
+            textureCoordBuffer.position(0);
+
+            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+
+
+            GLES20.glUseProgram(mProgram);
+
+            GLES20.glUniformMatrix4fv(glVMatrix, 1, false, mMVPMatrix, 0);
+
+            GLES20.glEnableVertexAttribArray(glVPosition);
+            GLES20.glVertexAttribPointer(glVPosition, 2, GLES20.GL_FLOAT, false, vertexStride
+                    , vertexBuffer);
+
+            GLES20.glEnableVertexAttribArray(glVCoordinate);
+            GLES20.glVertexAttribPointer(glVCoordinate, 2, GLES20.GL_FLOAT, false,
+                    vertexStride, textureCoordBuffer);
+
+            //将显卡中的第0号纹理单元 赋值给 纹理句柄
+            GLES20.glUniform1i(glVTexture, 0);
+            textureId = createTexture();
+
+            GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, vertexCount);
+        }
+
+        public void onSurfaceChanged(GL10 gl, int width, int height) {
+            int w = textureBmp.getWidth();
+            int h = textureBmp.getHeight();
+            float sWH = w / (float) h;
+            float sWidthHeight = width / (float) height;
+            if (width > height) {
+                if (sWH > sWidthHeight) {
+                    Matrix.orthoM(mProjectMatrix, 0, -sWidthHeight * sWH, sWidthHeight * sWH,
+                            -1, 1, 3, 7);
+                } else {
+                    Matrix.orthoM(mProjectMatrix, 0, -sWidthHeight / sWH, sWidthHeight / sWH,
+                            -1, 1, 3, 7);
+                }
+            } else {
+                if (sWH > sWidthHeight) {
+                    Matrix.orthoM(mProjectMatrix, 0, -1, 1, -1 / sWidthHeight * sWH,
+                            1 / sWidthHeight * sWH, 3, 7);
+                } else {
+                    Matrix.orthoM(mProjectMatrix, 0, -1, 1, -sWH / sWidthHeight,
+                            sWH / sWidthHeight, 3, 7);
+                }
+            }
+            //设置相机位置
+            Matrix.setLookAtM(mViewMatrix, 0, 0, 0, 7.0f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+            //计算变换矩阵
+            Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0);
+        }
+    }
+
+
+    /**
+     * ////////////////////////////////////////////////////
+     */
+    private static class ColorRender implements GLSurfaceView.Renderer {
+
+        public RenderObject object1;
+        public RenderObject object2;
+
+        @Override
+        public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+            object1.createProgram();
+            object2.createProgram();
+        }
+
+        @Override
+        public void onSurfaceChanged(GL10 gl, int width, int height) {
+            GLES20.glViewport(0, 0, width, height);
+
+            object1.onSurfaceChanged(gl, width, height);
+            object2.onSurfaceChanged(gl, width, height);
+        }
+
+        @Override
+        public void onDrawFrame(GL10 gl) {
+            if (object1.isEffective){
+                object1.onDrawFrame(gl);
+            }
+            if (object2.isEffective){
+                object2.onDrawFrame(gl);
+            }
+        }
+
     }
 }
