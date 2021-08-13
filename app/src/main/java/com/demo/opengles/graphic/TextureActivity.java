@@ -247,7 +247,7 @@ public class TextureActivity extends AppCompatActivity {
             private int createTexture() {
                 int[] texture = new int[1];
                 if (textureBmp != null && !textureBmp.isRecycled()) {
-                    //生成纹理
+                    //生成纹理，将生成的纹理的句柄保存到int数组中
                     GLES20.glGenTextures(1, texture, 0);
                     //将生成的纹理与gpu关联，操作纹理，传入纹理id作为参数，每次bing之后，后续操作的纹理都是该纹理
                     GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture[0]);
