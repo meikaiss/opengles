@@ -29,6 +29,7 @@
         <activity android:name=".graphic.CylinderActivity" />
         <activity android:name=".graphic.BallActivity" />
         <activity android:name=".graphic.TextureActivity" />
+        <activity android:name=".graphic.TextureColorfulActivity" />
 
 
     </application>

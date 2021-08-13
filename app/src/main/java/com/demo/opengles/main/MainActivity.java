@@ -17,6 +17,7 @@ import com.demo.opengles.graphic.CubeActivity;
 import com.demo.opengles.graphic.CylinderActivity;
 import com.demo.opengles.graphic.SquareActivity;
 import com.demo.opengles.graphic.TextureActivity;
+import com.demo.opengles.graphic.TextureColorfulActivity;
 import com.demo.opengles.graphic.TriangleActivity;
 import com.demo.opengles.graphic.TriangleColorActivity;
 import com.demo.opengles.graphic.TriangleMatrixActivity;
@@ -42,7 +43,8 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("圆锥", ConeActivity.class));
             add(new MainItemBean("圆柱", CylinderActivity.class));
             add(new MainItemBean("球体", BallActivity.class));
-            add(new MainItemBean("纹理", TextureActivity.class));
+            add(new MainItemBean("纹理-贴图", TextureActivity.class));
+            add(new MainItemBean("纹理-色彩变换", TextureColorfulActivity.class));
         }
     };
 
