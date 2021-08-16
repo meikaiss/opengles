@@ -14,10 +14,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.demo.opengles.R;
+import com.demo.opengles.util.CollectUtil;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -53,15 +56,76 @@ public class TextureColorfulActivity extends AppCompatActivity {
                     "    gl_FragColor=vec4(c,c,c,nColor.a);\n" +
                     "}";
 
-    //将彩色图片置为灰色
+    //将彩色图片置为冷色调
     private final String fragmentShaderCode_3 =
             "precision mediump float;\n" +
                     "uniform sampler2D vTexture;\n" +
                     "varying vec2 aCoordinate;\n" +
+                    "void modifyColor(vec4 color){\n" +
+                    "    color.r=max(min(color.r,1.0),0.0);\n" +
+                    "    color.g=max(min(color.g,1.0),0.0);\n" +
+                    "    color.b=max(min(color.b,1.0),0.0);\n" +
+                    "    color.a=max(min(color.a,1.0),0.0);\n" +
+                    "}\n" +
                     "void main(){\n" +
                     "    vec4 nColor = texture2D(vTexture,aCoordinate);\n" +
-                    "    float c=nColor.r*0.006f + nColor.g*0.004f + nColor.b*0.002f;\n" +
-                    "    gl_FragColor=vec4(c,c,c,nColor.a);\n" +
+                    "    vec3 vColdColor=vec3(0.0, 0.0, 0.1);" +
+                    "    vec4 deltaColor=nColor+vec4(vColdColor, 1.0);\n" +
+                    "    gl_FragColor=deltaColor;\n" +
+                    "}";
+
+    //将彩色图片置为暖色调
+    private final String fragmentShaderCode_4 =
+            "precision mediump float;\n" +
+                    "uniform sampler2D vTexture;\n" +
+                    "varying vec2 aCoordinate;\n" +
+                    "void modifyColor(vec4 color){\n" +
+                    "    color.r=max(min(color.r,1.0),0.0);\n" +
+                    "    color.g=max(min(color.g,1.0),0.0);\n" +
+                    "    color.b=max(min(color.b,1.0),0.0);\n" +
+                    "    color.a=max(min(color.a,1.0),0.0);\n" +
+                    "}\n" +
+                    "void main(){\n" +
+                    "    vec4 nColor = texture2D(vTexture,aCoordinate);\n" +
+                    "    vec3 vWarmColor=vec3(0.1, 0.1, 0.0);" +
+                    "    vec4 deltaColor=nColor+vec4(vWarmColor, 1.0);\n" +
+                    "    gl_FragColor=deltaColor;\n" +
+                    "}";
+
+    //将彩色图片置为模糊处理
+    private final String fragmentShaderCode_5 =
+            "precision mediump float;\n" +
+                    "uniform sampler2D vTexture;\n" +
+                    "varying vec2 aCoordinate;\n" +
+                    "void main(){\n" +
+                    "    vec4 nColor = texture2D(vTexture,aCoordinate);" +
+                    "    vec3 vChangeColor = vec3(0.006,0.004,0.002);\n" +
+                    "            nColor+=texture2D(vTexture,vec2(aCoordinate.x-vChangeColor.r," +
+                    "aCoordinate.y-vChangeColor.r));\n" +
+                    "            nColor+=texture2D(vTexture,vec2(aCoordinate.x-vChangeColor.r," +
+                    "aCoordinate.y+vChangeColor.r));\n" +
+                    "            nColor+=texture2D(vTexture,vec2(aCoordinate.x+vChangeColor.r," +
+                    "aCoordinate.y-vChangeColor.r));\n" +
+                    "            nColor+=texture2D(vTexture,vec2(aCoordinate.x+vChangeColor.r," +
+                    "aCoordinate.y+vChangeColor.r));\n" +
+                    "            nColor+=texture2D(vTexture,vec2(aCoordinate.x-vChangeColor.g," +
+                    "aCoordinate.y-vChangeColor.g));\n" +
+                    "            nColor+=texture2D(vTexture,vec2(aCoordinate.x-vChangeColor.g," +
+                    "aCoordinate.y+vChangeColor.g));\n" +
+                    "            nColor+=texture2D(vTexture,vec2(aCoordinate.x+vChangeColor.g," +
+                    "aCoordinate.y-vChangeColor.g));\n" +
+                    "            nColor+=texture2D(vTexture,vec2(aCoordinate.x+vChangeColor.g," +
+                    "aCoordinate.y+vChangeColor.g));\n" +
+                    "            nColor+=texture2D(vTexture,vec2(aCoordinate.x-vChangeColor.b," +
+                    "aCoordinate.y-vChangeColor.b));\n" +
+                    "            nColor+=texture2D(vTexture,vec2(aCoordinate.x-vChangeColor.b," +
+                    "aCoordinate.y+vChangeColor.b));\n" +
+                    "            nColor+=texture2D(vTexture,vec2(aCoordinate.x+vChangeColor.b," +
+                    "aCoordinate.y-vChangeColor.b));\n" +
+                    "            nColor+=texture2D(vTexture,vec2(aCoordinate.x+vChangeColor.b," +
+                    "aCoordinate.y+vChangeColor.b));\n" +
+                    "            nColor/=13.0;\n" +
+                    "            gl_FragColor=nColor;\n" +
                     "}";
 
     //顶点坐标
@@ -106,23 +170,37 @@ public class TextureColorfulActivity extends AppCompatActivity {
         findViewById(R.id.btn_6).setOnClickListener(onClickListener);
 
         render = new ColorRender();
-        render.object1 = new RenderObject();
-        render.object1.vertexShaderCode = vertexShaderCode;
-        render.object1.fragmentShaderCode = fragmentShaderCode_1;
-        render.object1.vertexCoords = vertexCoords_1;
-        render.object1.textureCoord = textureCoord_1;
-        render.object1.textureBmp = textureBmp;
-        render.object1.isEffective = true;
-        render.object1.init();
+        {
+            RenderObject object1 = new RenderObject();
+            object1.init(vertexShaderCode, fragmentShaderCode_1, vertexCoords_1, textureCoord_1,
+                    textureBmp, true);
+            render.renderObjectList.add(object1);
+        }
+        {
+            RenderObject object1 = new RenderObject();
+            object1.init(vertexShaderCode, fragmentShaderCode_2, vertexCoords_1, textureCoord_1,
+                    textureBmp, false);
+            render.renderObjectList.add(object1);
+        }
+        {
+            RenderObject object1 = new RenderObject();
+            object1.init(vertexShaderCode, fragmentShaderCode_3, vertexCoords_1, textureCoord_1,
+                    textureBmp, false);
+            render.renderObjectList.add(object1);
+        }
+        {
+            RenderObject object1 = new RenderObject();
+            object1.init(vertexShaderCode, fragmentShaderCode_4, vertexCoords_1, textureCoord_1,
+                    textureBmp, false);
+            render.renderObjectList.add(object1);
+        }
+        {
+            RenderObject object1 = new RenderObject();
+            object1.init(vertexShaderCode, fragmentShaderCode_5, vertexCoords_1, textureCoord_1,
+                    textureBmp, false);
+            render.renderObjectList.add(object1);
+        }
 
-        render.object2 = new RenderObject();
-        render.object2.vertexShaderCode = vertexShaderCode;
-        render.object2.fragmentShaderCode = fragmentShaderCode_2;
-        render.object2.vertexCoords = vertexCoords_1;
-        render.object2.textureCoord = textureCoord_1;
-        render.object2.textureBmp = textureBmp;
-        render.object2.isEffective = false;
-        render.object2.init();
         glSurfaceView.setRenderer(render);
 
         //必须在setRenderer之后才能调用
@@ -133,20 +211,20 @@ public class TextureColorfulActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             if (v.getId() == R.id.btn_1) {
-                render.object1.isEffective = true;
-                render.object2.isEffective = false;
-                glSurfaceView.requestRender();
+                render.disableAll();
+                render.renderObjectList.get(0).isEffective = true;
             } else if (v.getId() == R.id.btn_2) {
-                render.object1.isEffective = false;
-                render.object2.isEffective = true;
-                glSurfaceView.requestRender();
+                render.disableAll();
+                render.renderObjectList.get(1).isEffective = true;
             } else if (v.getId() == R.id.btn_3) {
-
+                render.disableAll();
+                render.renderObjectList.get(2).isEffective = true;
             } else if (v.getId() == R.id.btn_4) {
-
+                render.disableAll();
+                render.renderObjectList.get(3).isEffective = true;
             } else if (v.getId() == R.id.btn_5) {
-
-
+                render.disableAll();
+                render.renderObjectList.get(4).isEffective = true;
             } else if (v.getId() == R.id.btn_6) {
 
             }
@@ -191,7 +269,16 @@ public class TextureColorfulActivity extends AppCompatActivity {
 
         public boolean isEffective;
 
-        public void init() {
+        public void init(String vertexShaderCode, String fragmentShaderCode,
+                         float[] vertexCoords, float[] textureCoord,
+                         Bitmap textureBmp, boolean isEffective) {
+            this.vertexShaderCode = vertexShaderCode;
+            this.fragmentShaderCode = fragmentShaderCode;
+            this.vertexCoords = vertexCoords;
+            this.textureCoord = textureCoord;
+            this.textureBmp = textureBmp;
+            this.isEffective = isEffective;
+
             vertexCount = vertexCoords.length / COORDS_PER_VERTEX;
             vertexStride = COORDS_PER_VERTEX * 4;
         }
@@ -263,6 +350,10 @@ public class TextureColorfulActivity extends AppCompatActivity {
         }
 
         public void onDrawFrame(GL10 gl) {
+            if (!isEffective) {
+                return;
+            }
+
             //将内存中的顶点坐标数组，转换为字节缓冲区，因为opengl只能接受整块的字节缓冲区的数据
             ByteBuffer bb = ByteBuffer.allocateDirect(vertexCoords.length * 4);
             bb.order(ByteOrder.nativeOrder());
@@ -330,35 +421,52 @@ public class TextureColorfulActivity extends AppCompatActivity {
 
 
     /**
-     * ////////////////////////////////////////////////////
+     * ////////////////////////////////////////////////////////////////////////////////////////////////////////
+     * ////////////////////////////////////////////////////////////////////////////////////////////////////////
+     * ////////////////////////////////////////////////////////////////////////////////////////////////////////
      */
     private static class ColorRender implements GLSurfaceView.Renderer {
 
-        public RenderObject object1;
-        public RenderObject object2;
+        public List<RenderObject> renderObjectList = new ArrayList<>();
+
+        public void disableAll() {
+            CollectUtil.execute(renderObjectList, new CollectUtil.Executor<RenderObject>() {
+                @Override
+                public void execute(RenderObject renderObject) {
+                    renderObject.isEffective = false;
+                }
+            });
+        }
 
         @Override
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-            object1.createProgram();
-            object2.createProgram();
+            CollectUtil.execute(renderObjectList, new CollectUtil.Executor<RenderObject>() {
+                @Override
+                public void execute(RenderObject renderObject) {
+                    renderObject.createProgram();
+                }
+            });
         }
 
         @Override
         public void onSurfaceChanged(GL10 gl, int width, int height) {
             GLES20.glViewport(0, 0, width, height);
-
-            object1.onSurfaceChanged(gl, width, height);
-            object2.onSurfaceChanged(gl, width, height);
+            CollectUtil.execute(renderObjectList, new CollectUtil.Executor<RenderObject>() {
+                @Override
+                public void execute(RenderObject renderObject) {
+                    renderObject.onSurfaceChanged(gl, width, height);
+                }
+            });
         }
 
         @Override
         public void onDrawFrame(GL10 gl) {
-            if (object1.isEffective){
-                object1.onDrawFrame(gl);
-            }
-            if (object2.isEffective){
-                object2.onDrawFrame(gl);
-            }
+            CollectUtil.execute(renderObjectList, new CollectUtil.Executor<RenderObject>() {
+                @Override
+                public void execute(RenderObject renderObject) {
+                    renderObject.onDrawFrame(gl);
+                }
+            });
         }
 
     }
