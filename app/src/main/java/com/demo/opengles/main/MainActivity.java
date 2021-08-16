@@ -1,7 +1,6 @@
 package com.demo.opengles.main;
 
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 
 import androidx.annotation.Nullable;
@@ -18,6 +17,7 @@ import com.demo.opengles.graphic.CylinderActivity;
 import com.demo.opengles.graphic.SquareActivity;
 import com.demo.opengles.graphic.TextureActivity;
 import com.demo.opengles.graphic.TextureColorfulActivity;
+import com.demo.opengles.graphic.TextureEnlargeActivity;
 import com.demo.opengles.graphic.TriangleActivity;
 import com.demo.opengles.graphic.TriangleColorActivity;
 import com.demo.opengles.graphic.TriangleMatrixActivity;
@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("球体", BallActivity.class));
             add(new MainItemBean("纹理-贴图", TextureActivity.class));
             add(new MainItemBean("纹理-色彩变换", TextureColorfulActivity.class));
+            add(new MainItemBean("纹理-放大镜", TextureEnlargeActivity.class));
         }
     };
 

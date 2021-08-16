@@ -1,5 +1,6 @@
 package com.demo.opengles.graphic;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
@@ -7,6 +8,8 @@ import android.opengl.GLSurfaceView;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -25,107 +28,41 @@ import java.util.List;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class TextureColorfulActivity extends AppCompatActivity {
+public class TextureEnlargeActivity extends AppCompatActivity {
 
+    //放大镜效果-顶点着色器
     private final String vertexShaderCode =
             "uniform mat4 vMatrix;\n" +
                     "attribute vec4 vPosition;\n" +
                     "attribute vec2 vCoordinate;\n" +
+                    "\n" +
                     "varying vec2 aCoordinate;\n" +
+                    "varying vec4 gPosition;\n" +
+                    "\n" +
                     "void main(){\n" +
                     "    gl_Position=vMatrix*vPosition;\n" +
                     "    aCoordinate=vCoordinate;\n" +
+                    "    gPosition=vMatrix*vPosition;\n" +
                     "}";
 
+    //放大镜效果-片元着色器
+    //同样一块物理区域，原本纹理坐标是4-6的范围，现在是2-3的范围，自然会放大
     private final String fragmentShaderCode_1 =
             "precision mediump float;\n" +
                     "uniform sampler2D vTexture;\n" +
+                    "uniform float uXY;\n" +
+                    "uniform vec3 enlargeParam;\n" +
                     "varying vec2 aCoordinate;\n" +
+                    "varying vec4 gPosition;\n" +
                     "void main(){\n" +
-                    "    gl_FragColor=texture2D(vTexture,aCoordinate);\n" +
-                    "}";
-
-    //将彩色图片置为灰色
-    private final String fragmentShaderCode_2 =
-            "precision mediump float;\n" +
-                    "uniform sampler2D vTexture;\n" +
-                    "varying vec2 aCoordinate;\n" +
-                    "void main(){\n" +
-                    "    vec4 nColor = texture2D(vTexture,aCoordinate);\n" +
-                    "    float c=nColor.r*0.299f + nColor.g*0.587f + nColor.b*0.114f;\n" +
-                    "    gl_FragColor=vec4(c,c,c,nColor.a);\n" +
-                    "}";
-
-    //将彩色图片置为冷色调
-    private final String fragmentShaderCode_3 =
-            "precision mediump float;\n" +
-                    "uniform sampler2D vTexture;\n" +
-                    "varying vec2 aCoordinate;\n" +
-                    "void modifyColor(vec4 color){\n" +
-                    "    color.r=max(min(color.r,1.0),0.0);\n" +
-                    "    color.g=max(min(color.g,1.0),0.0);\n" +
-                    "    color.b=max(min(color.b,1.0),0.0);\n" +
-                    "    color.a=max(min(color.a,1.0),0.0);\n" +
-                    "}\n" +
-                    "void main(){\n" +
-                    "    vec4 nColor = texture2D(vTexture,aCoordinate);\n" +
-                    "    vec3 vColdColor=vec3(0.0, 0.0, 0.1);" +
-                    "    vec4 deltaColor=nColor+vec4(vColdColor, 1.0);\n" +
-                    "    gl_FragColor=deltaColor;\n" +
-                    "}";
-
-    //将彩色图片置为暖色调
-    private final String fragmentShaderCode_4 =
-            "precision mediump float;\n" +
-                    "uniform sampler2D vTexture;\n" +
-                    "varying vec2 aCoordinate;\n" +
-                    "void modifyColor(vec4 color){\n" +
-                    "    color.r=max(min(color.r,1.0),0.0);\n" +
-                    "    color.g=max(min(color.g,1.0),0.0);\n" +
-                    "    color.b=max(min(color.b,1.0),0.0);\n" +
-                    "    color.a=max(min(color.a,1.0),0.0);\n" +
-                    "}\n" +
-                    "void main(){\n" +
-                    "    vec4 nColor = texture2D(vTexture,aCoordinate);\n" +
-                    "    vec3 vWarmColor=vec3(0.1, 0.1, 0.0);" +
-                    "    vec4 deltaColor=nColor+vec4(vWarmColor, 1.0);\n" +
-                    "    gl_FragColor=deltaColor;\n" +
-                    "}";
-
-    //将彩色图片置为模糊处理
-    private final String fragmentShaderCode_5 =
-            "precision mediump float;\n" +
-                    "uniform sampler2D vTexture;\n" +
-                    "varying vec2 aCoordinate;\n" +
-                    "void main(){\n" +
-                    "    vec4 nColor = texture2D(vTexture,aCoordinate);" +
-                    "    vec3 blurryRadius = vec3(0.006,0.004,0.002);\n" +
-                    "            nColor+=texture2D(vTexture,vec2(aCoordinate.x-blurryRadius.r," +
-                    "aCoordinate.y-blurryRadius.r));\n" +
-                    "            nColor+=texture2D(vTexture,vec2(aCoordinate.x-blurryRadius.r," +
-                    "aCoordinate.y+blurryRadius.r));\n" +
-                    "            nColor+=texture2D(vTexture,vec2(aCoordinate.x+blurryRadius.r," +
-                    "aCoordinate.y-blurryRadius.r));\n" +
-                    "            nColor+=texture2D(vTexture,vec2(aCoordinate.x+blurryRadius.r," +
-                    "aCoordinate.y+blurryRadius.r));\n" +
-                    "            nColor+=texture2D(vTexture,vec2(aCoordinate.x-blurryRadius.g," +
-                    "aCoordinate.y-blurryRadius.g));\n" +
-                    "            nColor+=texture2D(vTexture,vec2(aCoordinate.x-blurryRadius.g," +
-                    "aCoordinate.y+blurryRadius.g));\n" +
-                    "            nColor+=texture2D(vTexture,vec2(aCoordinate.x+blurryRadius.g," +
-                    "aCoordinate.y-blurryRadius.g));\n" +
-                    "            nColor+=texture2D(vTexture,vec2(aCoordinate.x+blurryRadius.g," +
-                    "aCoordinate.y+blurryRadius.g));\n" +
-                    "            nColor+=texture2D(vTexture,vec2(aCoordinate.x-blurryRadius.b," +
-                    "aCoordinate.y-blurryRadius.b));\n" +
-                    "            nColor+=texture2D(vTexture,vec2(aCoordinate.x-blurryRadius.b," +
-                    "aCoordinate.y+blurryRadius.b));\n" +
-                    "            nColor+=texture2D(vTexture,vec2(aCoordinate.x+blurryRadius.b," +
-                    "aCoordinate.y-blurryRadius.b));\n" +
-                    "            nColor+=texture2D(vTexture,vec2(aCoordinate.x+blurryRadius.b," +
-                    "aCoordinate.y+blurryRadius.b));\n" +
-                    "            nColor/=13.0;\n" +
-                    "            gl_FragColor=nColor;\n" +
+                    "    vec4 nColor=texture2D(vTexture,aCoordinate);\n" +
+                    "    float dis=distance(vec2(gPosition.x,gPosition.y/uXY)," +
+                    "                       vec2(enlargeParam.r,enlargeParam.g));\n" +
+                    "    if(dis<enlargeParam.b){\n" +
+                    "        nColor=texture2D(vTexture,vec2(aCoordinate.x/2.0 + 0.25," +
+                    "                                       aCoordinate.y/2.0 + 0.25));\n" +
+                    "    }\n" +
+                    "    gl_FragColor=nColor;\n" +
                     "}";
 
     //顶点坐标
@@ -150,10 +87,11 @@ public class TextureColorfulActivity extends AppCompatActivity {
     private GLSurfaceView glSurfaceView;
     private ColorRender render;
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_texture_colorful);
+        setContentView(R.layout.activity_texture_enlarge);
 
         surfaceContainer = findViewById(R.id.surface_container);
         glSurfaceView = new GLSurfaceView(this);
@@ -175,35 +113,28 @@ public class TextureColorfulActivity extends AppCompatActivity {
                     textureBmp, true);
             render.renderObjectList.add(object1);
         }
-        {
-            RenderObject object1 = new RenderObject();
-            object1.init(vertexShaderCode, fragmentShaderCode_2, vertexCoords_1, textureCoord_1,
-                    textureBmp, false);
-            render.renderObjectList.add(object1);
-        }
-        {
-            RenderObject object1 = new RenderObject();
-            object1.init(vertexShaderCode, fragmentShaderCode_3, vertexCoords_1, textureCoord_1,
-                    textureBmp, false);
-            render.renderObjectList.add(object1);
-        }
-        {
-            RenderObject object1 = new RenderObject();
-            object1.init(vertexShaderCode, fragmentShaderCode_4, vertexCoords_1, textureCoord_1,
-                    textureBmp, false);
-            render.renderObjectList.add(object1);
-        }
-        {
-            RenderObject object1 = new RenderObject();
-            object1.init(vertexShaderCode, fragmentShaderCode_5, vertexCoords_1, textureCoord_1,
-                    textureBmp, false);
-            render.renderObjectList.add(object1);
-        }
 
         glSurfaceView.setRenderer(render);
 
         //必须在setRenderer之后才能调用
         glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+
+        glSurfaceView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                float x = event.getX() / glSurfaceView.getWidth() * 2 - 1.0f;
+                float y = event.getY() / glSurfaceView.getHeight() * 2 - 1.0f;
+
+                Log.e("mk", "x=" + x + ",y=" + y);
+
+                render.renderObjectList.get(0).enlargeParam[0] = x;
+                render.renderObjectList.get(0).enlargeParam[1] = -y;
+
+                glSurfaceView.requestRender();
+                return true;
+            }
+        });
     }
 
     private View.OnClickListener onClickListener = new View.OnClickListener() {
@@ -224,6 +155,8 @@ public class TextureColorfulActivity extends AppCompatActivity {
             } else if (v.getId() == R.id.btn_5) {
                 render.disableAll();
                 render.renderObjectList.get(4).isEffective = true;
+            } else if (v.getId() == R.id.btn_6) {
+
             }
             glSurfaceView.requestRender();
         }
@@ -246,6 +179,8 @@ public class TextureColorfulActivity extends AppCompatActivity {
         private int glVTexture;
         private int glVCoordinate;
         private int glVMatrix;
+        private int glUXY;
+        private int glEnlargeParam;
 
         private int textureId;
 
@@ -254,9 +189,12 @@ public class TextureColorfulActivity extends AppCompatActivity {
         private int vertexCount;
         //顶点之间的偏移量，即每一个顶点所占用的字节大小，每个顶点的坐标有3个float数字，所以为3*4
         private int vertexStride; // 每个float四个字节
+        private float uXY; //视图宽高比
 
         private int vertexShaderIns;
         private int fragmentShaderIns;
+
+        private float[] enlargeParam = new float[]{0.0f, 0.0f, 0.3f};
 
         private float[] mViewMatrix = new float[16];
         private float[] mProjectMatrix = new float[16];
@@ -305,6 +243,8 @@ public class TextureColorfulActivity extends AppCompatActivity {
             //获取句柄，用于将内存中的纹理坐标传递给GPU
             glVCoordinate = GLES20.glGetAttribLocation(mProgram, "vCoordinate");
             glVTexture = GLES20.glGetUniformLocation(mProgram, "vTexture");
+            glUXY = GLES20.glGetUniformLocation(mProgram, "uXY");
+            glEnlargeParam = GLES20.glGetUniformLocation(mProgram, "enlargeParam");
         }
 
         private int createTexture() {
@@ -370,6 +310,9 @@ public class TextureColorfulActivity extends AppCompatActivity {
 
             GLES20.glUseProgram(mProgram);
 
+            GLES20.glUniform1f(glUXY, uXY);
+            GLES20.glUniform3fv(glEnlargeParam, 1, enlargeParam, 0);
+
             GLES20.glUniformMatrix4fv(glVMatrix, 1, false, mMVPMatrix, 0);
 
             GLES20.glEnableVertexAttribArray(glVPosition);
@@ -392,6 +335,7 @@ public class TextureColorfulActivity extends AppCompatActivity {
             int h = textureBmp.getHeight();
             float sWH = w / (float) h;
             float sWidthHeight = width / (float) height;
+            uXY = sWidthHeight;
             if (width > height) {
                 if (sWH > sWidthHeight) {
                     Matrix.orthoM(mProjectMatrix, 0, -sWidthHeight * sWH, sWidthHeight * sWH,

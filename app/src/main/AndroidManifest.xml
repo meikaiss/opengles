@@ -30,6 +30,7 @@
         <activity android:name=".graphic.BallActivity" />
         <activity android:name=".graphic.TextureActivity" />
         <activity android:name=".graphic.TextureColorfulActivity" />
+        <activity android:name=".graphic.TextureEnlargeActivity" />
 
 
     </application>
