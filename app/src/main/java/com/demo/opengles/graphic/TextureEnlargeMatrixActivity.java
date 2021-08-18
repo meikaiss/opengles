@@ -1,11 +1,13 @@
 package com.demo.opengles.graphic;
 
 import android.annotation.SuppressLint;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLUtils;
+import android.opengl.Matrix;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -27,45 +29,49 @@ import java.util.List;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class TextureEnlargeActivity extends AppCompatActivity {
+public class TextureEnlargeMatrixActivity extends AppCompatActivity {
 
     //放大镜效果-顶点着色器
     private final String vertexShaderCode =
-            "uniform vec4 enlargeParam;\n" +
+            "uniform mat4 vMatrix;\n" +
+                    "uniform vec4 enlargeParam;\n" +
+                    "uniform vec4 enlargeVertexParam;\n" +
                     "\n" +
                     "attribute vec4 vPosition;\n" +
                     "attribute vec2 vCoordinate;\n" +
                     "\n" +
                     "varying vec2 aCoordinate;\n" +
                     "varying vec4 gPosition;\n" +
+                    "varying vec4 vMEnlargeParam;\n" +
                     "varying vec4 vEnlargeParam;\n" +
                     "\n" +
                     "void main(){\n" +
-                    "    gl_Position=vPosition;\n" +
+                    "    gl_Position=vMatrix*vPosition;\n" +
                     "    aCoordinate=vCoordinate;\n" +
-                    "    gPosition=vPosition;\n" +
+                    "    gPosition=vMatrix*vPosition;\n" +
+                    "    vMEnlargeParam=vMatrix*enlargeVertexParam;\n" +
                     "    vEnlargeParam=enlargeParam;\n" +
                     "}";
 
     //放大镜效果-片元着色器
-    //同样一块物理区域，原本纹理坐标是4-6的范围，现在是2-3的范围，自然会放大
+    //同样一块纹理区域，原本纹理坐标是4-6的范围，现在却把2-3的范围的纹理图像填充到4-6范围里，自然会放大
     private final String fragmentShaderCode_1 =
             "precision mediump float;\n" +
                     "uniform sampler2D vTexture;\n" +
+                    "uniform float uXY;\n" +
                     "\n" +
                     "varying vec2 aCoordinate;\n" +
                     "varying vec4 gPosition;\n" +
+                    "varying vec4 vMEnlargeParam;\n" +
                     "varying vec4 vEnlargeParam;\n" +
                     "\n" +
                     "void main(){\n" +
                     "    vec4 nColor=texture2D(vTexture,aCoordinate);\n" +
-                    "    float dis=distance(vec2(gPosition.x,gPosition.y)," +
-                    "                       vec2(vEnlargeParam.r,vEnlargeParam.g));\n" +
-                    "    if(dis<vEnlargeParam.b){\n" +
-                    "        float textureCenterX=(vEnlargeParam.r+1.0)*0.5;" +
-                    "        float textureCenterY=-(vEnlargeParam.g-1.0)*0.5;" +
-                    "        float deltaX=(textureCenterX-aCoordinate.x)*0.5;" +
-                    "        float deltaY=(textureCenterY-aCoordinate.y)*0.5;" +
+                    "    float dis=distance(vec2(gPosition.x,gPosition.y/uXY)," +
+                    "                       vec2(vMEnlargeParam.r,vMEnlargeParam.g/uXY));\n" +
+                    "    if(dis<0.5){\n" +
+                    "        float deltaX=(vEnlargeParam.r-aCoordinate.x)*0.5;" +
+                    "        float deltaY=(vEnlargeParam.g-aCoordinate.y)*0.5;" +
                     "        nColor=texture2D(vTexture,vec2(aCoordinate.x+deltaX," +
                     "                                       aCoordinate.y+deltaY));\n" +
                     "    }\n" +
@@ -98,13 +104,13 @@ public class TextureEnlargeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_texture_enlarge);
+        setContentView(R.layout.activity_texture_enlarge_matrix);
 
         surfaceContainer = findViewById(R.id.surface_container);
         glSurfaceView = new GLSurfaceView(this);
         surfaceContainer.addView(glSurfaceView);
 
-        textureBmp = BitmapFactory.decodeResource(getResources(), R.mipmap.texture_image_2);
+        textureBmp = BitmapFactory.decodeResource(getResources(), R.mipmap.texture_image);
         glSurfaceView.setEGLContextClientVersion(2);
 
         render = new ColorRender();
@@ -124,25 +130,35 @@ public class TextureEnlargeActivity extends AppCompatActivity {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
 
+                int realBmpWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
+                int realBmpHeight = (int) ((float) textureBmp.getHeight() / textureBmp.getWidth()
+                        * realBmpWidth);
+
                 int eventX = (int) event.getX();
                 int eventY = (int) event.getY();
 
-                eventX = Math.max(eventX, 0);
-                eventX = Math.min(eventX, glSurfaceView.getWidth());
-                eventY = Math.max(eventY, 0);
-                eventY = Math.min(eventY, glSurfaceView.getHeight());
+                int viewWidth = glSurfaceView.getWidth();
+                int viewHeight = glSurfaceView.getHeight();
 
-                float x = (float) eventX / glSurfaceView.getWidth() * 2 - 1.0f; //[-1,1]
-                float y = (float) eventY / glSurfaceView.getHeight() * 2 - 1.0f; //[-1,1]
-                // 屏幕左上角的坐标是[-1,-1]
+                int realBmpTop = (viewHeight - realBmpHeight) / 2;
+                int realBmpBottom = realBmpTop + realBmpHeight;
 
-                //sdk-View坐标系的y正方向向下，opengl世界坐标系的y正方向向上，因此转换时需要置负
-                y = -y; //y->[1,-1]  屏幕左上角的坐标是[-1,1]
+                eventY = Math.max(eventY, realBmpTop);
+                eventY = Math.min(eventY, realBmpBottom);
+
+                float x = (float) eventX / realBmpWidth;
+                float y = (float) (eventY - realBmpTop) / realBmpHeight;
 
                 Log.e("mk", "x=" + x + ",y=" + y);
 
-                render.renderObjectList.get(0).enlargeParam[0] = x;
-                render.renderObjectList.get(0).enlargeParam[1] = y;
+                //手指点击位置的纹理坐标，点击位置即为放大的中心位置
+                render.renderObjectList.get(0).enlargeTextureParam[0] = x;
+                render.renderObjectList.get(0).enlargeTextureParam[1] = y;
+
+                //手指点击位置的顶点坐标
+                render.renderObjectList.get(0).enlargeVertexParam[0] = x * 2 - 1.0f;
+                //sdk-View坐标系的y正方向向下，opengl世界坐标系的y正方向向上，因此转换时需要置负
+                render.renderObjectList.get(0).enlargeVertexParam[1] = -(y * 2 - 1.0f);
 
                 glSurfaceView.requestRender();
                 return true;
@@ -166,7 +182,10 @@ public class TextureEnlargeActivity extends AppCompatActivity {
         private int glVPosition;
         private int glVTexture;
         private int glVCoordinate;
+        private int glVMatrix;
+        private int glUXY;
         private int glEnlargeParam;
+        private int glEnlargeVertexParam;
 
         private int textureId;
 
@@ -175,15 +194,18 @@ public class TextureEnlargeActivity extends AppCompatActivity {
         private int vertexCount;
         //顶点之间的偏移量，即每一个顶点所占用的字节大小，每个顶点的坐标有3个float数字，所以为3*4
         private int vertexStride; // 每个float四个字节
+        private float uXY; //视图宽高比
 
         private int vertexShaderIns;
         private int fragmentShaderIns;
 
-        //放大的参数，第1、2个参数表示放大的中心点在世界坐标系中的坐标；第3个参数表示放大的半径；第4个参数无意义，仅用于与透视矩阵4x4相乘
-        private float[] enlargeParam = new float[]{0.0f, 0.0f, 0.5f, 0.0f};
+        //放大的参数，第1、2个参数表示放大的中心点在世界坐标系中的坐标；第3,4个参数无意义，仅用于与透视矩阵4x4相乘
+        private float[] enlargeVertexParam = new float[]{0.0f, 0.0f, 0.0f, 0.0f};
+        private float[] enlargeTextureParam = new float[]{0.0f, 0.0f, 0.0f, 0.0f};
 
         private float[] mViewMatrix = new float[16];
         private float[] mProjectMatrix = new float[16];
+        private float[] mMVPMatrix = new float[16];
 
         public Bitmap textureBmp;
 
@@ -221,12 +243,16 @@ public class TextureEnlargeActivity extends AppCompatActivity {
             //连接到着色器程序
             GLES20.glLinkProgram(mProgram);
 
+            //透视变换与眼睛观察位置的 综合矩阵
+            glVMatrix = GLES20.glGetUniformLocation(mProgram, "vMatrix");
             //获取句柄，用于将内存中的顶点坐标传递给GPU
             glVPosition = GLES20.glGetAttribLocation(mProgram, "vPosition");
             //获取句柄，用于将内存中的纹理坐标传递给GPU
             glVCoordinate = GLES20.glGetAttribLocation(mProgram, "vCoordinate");
             glVTexture = GLES20.glGetUniformLocation(mProgram, "vTexture");
+            glUXY = GLES20.glGetUniformLocation(mProgram, "uXY");
             glEnlargeParam = GLES20.glGetUniformLocation(mProgram, "enlargeParam");
+            glEnlargeVertexParam = GLES20.glGetUniformLocation(mProgram, "enlargeVertexParam");
         }
 
         private int createTexture() {
@@ -292,7 +318,11 @@ public class TextureEnlargeActivity extends AppCompatActivity {
 
             GLES20.glUseProgram(mProgram);
 
-            GLES20.glUniform4fv(glEnlargeParam, 1, enlargeParam, 0);
+            GLES20.glUniform1f(glUXY, uXY);
+            GLES20.glUniform4fv(glEnlargeParam, 1, enlargeTextureParam, 0);
+            GLES20.glUniform4fv(glEnlargeVertexParam, 1, enlargeVertexParam, 0);
+
+            GLES20.glUniformMatrix4fv(glVMatrix, 1, false, mMVPMatrix, 0);
 
             GLES20.glEnableVertexAttribArray(glVPosition);
             GLES20.glVertexAttribPointer(glVPosition, 2, GLES20.GL_FLOAT, false, vertexStride
@@ -310,6 +340,35 @@ public class TextureEnlargeActivity extends AppCompatActivity {
         }
 
         public void onSurfaceChanged(GL10 gl, int width, int height) {
+            int w = textureBmp.getWidth();
+            int h = textureBmp.getHeight();
+            float sWH_Bmp = w / (float) h;
+            float sWH_View = width / (float) height;
+            uXY = sWH_View;
+            if (width > height) {
+                if (sWH_Bmp > sWH_View) {
+                    Matrix.orthoM(mProjectMatrix, 0, -sWH_View * sWH_Bmp, sWH_View * sWH_Bmp,
+                            -1, 1, 3, 7);
+                } else {
+                    Matrix.orthoM(mProjectMatrix, 0, -sWH_View / sWH_Bmp, sWH_View / sWH_Bmp,
+                            -1, 1, 3, 7);
+                }
+            } else {
+                if (sWH_Bmp > sWH_View) {
+                    Matrix.orthoM(mProjectMatrix, 0, -1, 1, -1 / sWH_View * sWH_Bmp,
+                            1 / sWH_View * sWH_Bmp, 3, 7);
+                } else {
+                    Matrix.orthoM(mProjectMatrix, 0, -1, 1, -sWH_Bmp / sWH_View,
+                            sWH_Bmp / sWH_View, 3, 7);
+                }
+            }
+            //设置相机位置
+            Matrix.setLookAtM(mViewMatrix, 0, 0, 0, 7.0f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+            //计算变换矩阵
+            Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0);
+
+            float[] result = new float[16];
+            Matrix.multiplyMV(result, 0, mMVPMatrix, 0, enlargeTextureParam, 0);
         }
     }
 
