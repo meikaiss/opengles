@@ -87,8 +87,6 @@ public class CubeActivity extends AppCompatActivity {
 
     private int mMatrixHandler;
 
-    //顶点个数
-    private final int vertexCount = cubePositions.length / COORDS_PER_VERTEX;
     //顶点之间的偏移量
     private final int vertexStride = COORDS_PER_VERTEX * 4; //每个顶点的坐标有3个数值，数值都是float类型，每个float
     private final int colorStride = COORDS_PER_COLOR * 4; // 每个float四个字节
@@ -172,8 +170,6 @@ public class CubeActivity extends AppCompatActivity {
 
                 //获取片元着色器的vColor成员的句柄
                 mColorHandle = GLES20.glGetAttribLocation(mProgram, "aColor");
-                //设置绘制三角形的颜色
-                //GLES20.glUniform4fv(mColorHandle, 2, color, 0);
                 GLES20.glEnableVertexAttribArray(mColorHandle);
                 GLES20.glVertexAttribPointer(mColorHandle, COORDS_PER_COLOR,
                         GLES20.GL_FLOAT, false, colorStride, colorBuffer);

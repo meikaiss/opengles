@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="平移" />
+
+        <SeekBar
+            android:id="@+id/seek_bar_1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="旋转" />
+
+        <SeekBar
+            android:id="@+id/seek_bar_2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="缩放" />
+
+        <SeekBar
+            android:id="@+id/seek_bar_3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center">
+
+        <CheckBox
+            android:id="@+id/ckb_x"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="X" />
+
+        <CheckBox
+            android:id="@+id/ckb_y"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Y" />
+
+        <CheckBox
+            android:id="@+id/ckb_z"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Z" />
+
+        <Button
+            android:id="@+id/btn_reset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:text="还原" />
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/surface_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>
