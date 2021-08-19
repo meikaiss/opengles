@@ -33,6 +33,7 @@
         <activity android:name=".graphic.TextureEnlargeMatrixActivity" />
         <activity android:name=".graphic.TextureEnlargeActivity" />
         <activity android:name=".graphic.TransformActivity" />
+        <activity android:name=".surface.SurfaceViewActivity" />
 
 
     </application>
