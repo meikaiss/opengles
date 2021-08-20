@@ -7,8 +7,18 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:text="将MediaPlayer解码出的视频图像显示到GLSurfaceView所创建的SurfaceTexture中" />
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginVertical="10dp"
+        android:text="将MediaPlayer解码出的视频图像显示到GLSurfaceView所创建的纹理流程，通过此纹理创建SurfaceTexture，再通过此SurfaceTexture创建对应的Surface，把视频图输出到Surface上" />
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginBottom="10dp"
+        android:textColor="#333"
+        android:text="并通过纹理坐标过滤、片元着色器采样，将Alpha视频左侧黑白部的RGB转换为Alpha值，合成到片元颜色上" />
 
     <FrameLayout
         android:layout_width="match_parent"

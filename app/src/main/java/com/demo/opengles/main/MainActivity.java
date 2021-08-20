@@ -24,6 +24,7 @@ import com.demo.opengles.graphic.TriangleActivity;
 import com.demo.opengles.graphic.TriangleColorActivity;
 import com.demo.opengles.graphic.TriangleMatrixActivity;
 import com.demo.opengles.graphic.TriangleModalActivity;
+import com.demo.opengles.surface.GLSurfaceViewAlphaVideoActivity;
 import com.demo.opengles.surface.GLSurfaceViewVideoActivity;
 import com.demo.opengles.surface.SurfaceViewActivity;
 import com.demo.opengles.surface.SurfaceViewVideoActivity;
@@ -59,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("Surface绘图表面-TextureView播放视频", TextureViewVideoActivity.class));
             add(new MainItemBean("Surface绘图表面-GLSurfaceView播放视频",
                     GLSurfaceViewVideoActivity.class));
+            add(new MainItemBean("Surface绘图表面-GLSurfaceView播放Alpha视频",
+                    GLSurfaceViewAlphaVideoActivity.class));
         }
     };
 
