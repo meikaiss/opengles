@@ -193,6 +193,10 @@ public class TextureActivity extends AppCompatActivity {
                 glVCoordinate = GLES20.glGetAttribLocation(mProgram, "vCoordinate");
                 glVTexture = GLES20.glGetUniformLocation(mProgram, "vTexture");
 
+                //将显卡中的第0号纹理单元 赋值给 纹理句柄
+                GLES20.glUniform1i(glVTexture, 0);
+
+                textureId = createTexture();
             }
 
             @Override
@@ -254,10 +258,6 @@ public class TextureActivity extends AppCompatActivity {
                 GLES20.glEnableVertexAttribArray(glVCoordinate);
                 GLES20.glVertexAttribPointer(glVCoordinate, 2, GLES20.GL_FLOAT, false,
                         vertexStride, textureCoordBuffer);
-
-                //将显卡中的第0号纹理单元 赋值给 纹理句柄
-                GLES20.glUniform1i(glVTexture, 0);
-                textureId = createTexture();
 
                 GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, vertexCount);
             }

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:text="将MediaPlayer解码出的视频图像显示到GLSurfaceView所创建的SurfaceTexture中" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|top"
+            android:gravity="center"
+            android:text="一段用于证明视频播放有透明通道的文字\n这段文字是放置在GlSurfaceView底层的，但它仍然能被看见"
+            android:textAllCaps="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|bottom"
+            android:gravity="center"
+            android:text="一段用于证明视频播放有透明通道的文字\n这段文字是放置在GlSurfaceView底层的，但它仍然能被看见"
+            android:textAllCaps="true" />
+
+        <android.opengl.GLSurfaceView
+            android:id="@+id/gl_surface_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </FrameLayout>
+
+</LinearLayout>

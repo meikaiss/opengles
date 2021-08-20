@@ -36,6 +36,7 @@
         <activity android:name=".surface.SurfaceViewActivity" />
         <activity android:name=".surface.SurfaceViewVideoActivity" />
         <activity android:name=".surface.TextureViewVideoActivity" />
+        <activity android:name=".surface.GLSurfaceViewVideoActivity" />
 
 
     </application>

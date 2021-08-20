@@ -201,6 +201,7 @@ public class TextureEnlargeMatrixActivity extends AppCompatActivity {
 
         //放大的参数，第1、2个参数表示放大的中心点在世界坐标系中的坐标；第3,4个参数无意义，仅用于与透视矩阵4x4相乘
         private float[] enlargeVertexParam = new float[]{0.0f, 0.0f, 0.0f, 0.0f};
+        //放大中心点的纹理坐标，第1、2个参数表示x，y；第3、4个参数无意义
         private float[] enlargeTextureParam = new float[]{0.0f, 0.0f, 0.0f, 0.0f};
 
         private float[] mViewMatrix = new float[16];
@@ -261,7 +262,7 @@ public class TextureEnlargeMatrixActivity extends AppCompatActivity {
                 //从offset=0号纹理单元开始生成n=1个纹理，并将纹理id保存到int[]=texture数组中
                 GLES20.glGenTextures(1, texture, 0);
                 textureId = texture[0];
-                //将生成的纹理与gpu关联为2d纹理类型，传入纹理id作为参数，每次bing之后，后续操作的纹理都是该纹理
+                //将生成的纹理与gpu关联为2d纹理类型，传入纹理id作为参数，每次bind之后，后续操作的纹理都是该纹理
                 GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
                 //设置缩小过滤为使用纹理中坐标最接近的一个像素的颜色作为需要绘制的像素颜色
                 GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER,
