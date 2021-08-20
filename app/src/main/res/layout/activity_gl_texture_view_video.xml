@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
         android:layout_marginVertical="10dp"
-        android:text="将MediaPlayer解码出的视频图像显示到GLSurfaceView所创建的纹理流程，通过此纹理创建SurfaceTexture，再通过此SurfaceTexture创建对应的Surface，把视频图输出到Surface上"
+        android:text="将MediaPlayer解码出的视频图像显示到GLTextureView所创建的纹理流程，通过此纹理创建SurfaceTexture，再通过此SurfaceTexture创建对应的Surface，把视频图输出到Surface上"
         android:textSize="12sp" />
 
     <TextView
@@ -17,8 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
         android:layout_marginBottom="10dp"
-        android:text="并通过纹理坐标过滤、片元着色器采样，将Alpha视频左侧黑白部的RGB转换为Alpha值，合成到片元颜色上"
-        android:textColor="#333"
+        android:text="GlTextureView能做到背景透明，且具有View的其它属性。而GlSurfaceView无法使用普通View的属性"
         android:textSize="12sp" />
 
     <FrameLayout
@@ -30,19 +29,19 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal|top"
             android:gravity="center"
-            android:text="一段用于证明视频播放有透明通道的文字\n这段文字是放置在GlSurfaceView底层的，但它仍然能被看见"
-            android:textAllCaps="true" />
+            android:text="一段用于证明视频播放有透明通道的文字\n这段文字是放置在GLTextureView底层的，但它仍然能被看见"
+            android:textAllCaps="false" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal|bottom"
             android:gravity="center"
-            android:text="一段用于证明视频播放有透明通道的文字\n这段文字是放置在GlSurfaceView底层的，但它仍然能被看见"
-            android:textAllCaps="true" />
+            android:text="一段用于证明视频播放有透明通道的文字\n这段文字是放置在GLTextureView底层的，但它仍然能被看见"
+            android:textAllCaps="false" />
 
-        <android.opengl.GLSurfaceView
-            android:id="@+id/gl_surface_view"
+        <com.demo.opengles.sdk.GLTextureView
+            android:id="@+id/gl_texture_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
