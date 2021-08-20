@@ -26,6 +26,7 @@ import com.demo.opengles.graphic.TriangleMatrixActivity;
 import com.demo.opengles.graphic.TriangleModalActivity;
 import com.demo.opengles.surface.SurfaceViewActivity;
 import com.demo.opengles.surface.SurfaceViewVideoActivity;
+import com.demo.opengles.surface.TextureViewVideoActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("位置变换-平移-旋转-缩放", TransformActivity.class));
             add(new MainItemBean("Surface绘图表面-SurfaceView", SurfaceViewActivity.class));
             add(new MainItemBean("Surface绘图表面-SurfaceView播放视频", SurfaceViewVideoActivity.class));
+            add(new MainItemBean("Surface绘图表面-TextureView播放视频", TextureViewVideoActivity.class));
         }
     };
 
