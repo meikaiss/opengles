@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.demo.opengles">
 
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <application
         android:name=".main.OpenGlApplication"
         android:allowBackup="true"
@@ -39,6 +41,7 @@
         <activity android:name=".surface.GLSurfaceViewVideoActivity" />
         <activity android:name=".surface.GLSurfaceViewAlphaVideoActivity" />
         <activity android:name=".surface.GLTextureViewAlphaVideoActivity" />
+        <activity android:name=".camera.Camera1Activity" />
 
 
     </application>
