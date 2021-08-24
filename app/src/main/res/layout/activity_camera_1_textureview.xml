@@ -30,7 +30,7 @@
         android:background="#40f0f0f0"
         android:gravity="center"
         android:padding="10dp"
-        android:text="普通SurfaceView无法解决轻微变形问题，若要解决变形问题需要使用opengl投影变换"
+        android:text="普通TextureView无法解决轻微变形问题，若要解决变形问题需要使用opengl投影变换"
         android:visibility="gone"
         tools:visibility="visible" />
 
