@@ -17,7 +17,6 @@ import androidx.core.app.ActivityCompat;
 
 import com.demo.opengles.R;
 import com.demo.opengles.util.CollectUtil;
-import com.demo.opengles.util.ViewUtil;
 
 import java.io.IOException;
 import java.util.List;
@@ -115,14 +114,12 @@ public class Camera1SurfaceViewActivity extends AppCompatActivity {
                         + size.width + " , size.height = " + size.height);
             }
         });
-        Camera.Size size = sizeList.get(0);
+        Camera.Size size = adjustSurfaceViewWidthHeight(sizeList);
         parameters.setPreviewSize(size.width, size.height);
         camera.setParameters(parameters);
 
         camera.setPreviewDisplay(holder);
         camera.startPreview();
-
-        adjustSurfaceViewWidthHeight(sizeList);
     }
 
     //根据屏幕的旋转角度、相机的硬件内置放置角度，来设置显示旋转角度
@@ -162,27 +159,46 @@ public class Camera1SurfaceViewActivity extends AppCompatActivity {
         return result;
     }
 
-    //根据相机硬件支持的预览宽高，计算出等比例、且最清晰的View宽高
-    private void adjustSurfaceViewWidthHeight(List<Camera.Size> sizeList) {
-        Camera.Size size = sizeList.get(0);
+    /**
+     * 相机硬件支持一系列固定的宽高的图像预览数据，而屏幕View可以被开发者设置成任意宽高，
+     * 那么必然存在预览数据宽高比例与界面View的宽高比例不相等，若要保持View不变，则必然存在图像比例变形。
+     * <p>
+     * 预览比例与View比例的选择理论依据：
+     * 1、在保持界面View完全填充的情况，尽量选择宽高比接近View的预览宽高比，允许弱微的变形
+     */
+    private Camera.Size adjustSurfaceViewWidthHeight(List<Camera.Size> sizeList) {
+        float ASPECT_TOLERANCE = 0.1f;
 
-        int cameraWidth = Math.min(size.width, size.height);
-        int cameraHeight = Math.max(size.width, size.height);
-        float cameraSizeScale = (float) cameraWidth / cameraHeight;
-        float surfaceViewSizeScale = (float) surfaceView.getWidth() / surfaceView.getHeight();
+        for (int i = 0; i < sizeList.size(); i++) {
+            Camera.Size size = sizeList.get(i);
 
-        Log.e(TAG, "cameraWidth = " + cameraWidth + " , cameraHeight = " + cameraHeight);
-        Log.e(TAG, "surfaceViewWidth = " + surfaceView.getWidth()
-                + " , surfaceViewHeight = " + surfaceView.getHeight());
+            int cameraWidth = Math.min(size.width, size.height);
+            int cameraHeight = Math.max(size.width, size.height);
+            float cameraSizeScale = (float) cameraWidth / cameraHeight;
+            float surfaceViewSizeScale = (float) surfaceView.getWidth() / surfaceView.getHeight();
 
-        int newSurfaceHeight = (int) (surfaceView.getWidth() / cameraSizeScale);
-        Log.e(TAG, "newSurfaceHeight = " + newSurfaceHeight);
-
-        if (newSurfaceHeight > surfaceView.getHeight()) {
-            int newSurfaceWidth = (int) (surfaceView.getHeight() * cameraSizeScale);
-            ViewUtil.setW(surfaceView, newSurfaceWidth);
-        } else {
-            ViewUtil.setH(surfaceView, newSurfaceHeight);
+            if (Math.abs(cameraSizeScale - surfaceViewSizeScale) < ASPECT_TOLERANCE) {
+                Log.e(TAG, "按顺序查找，找到比例小于阈值的预览size =" + size.width + ", " + size.height);
+                return size;
+            }
         }
+
+        int minHeightDiff = Integer.MAX_VALUE;
+        Camera.Size targetSize = null;
+        for (int i = 0; i < sizeList.size(); i++) {
+            Camera.Size size = sizeList.get(i);
+
+            int cameraWidth = Math.min(size.width, size.height);
+            int cameraHeight = Math.max(size.width, size.height);
+
+            int diff = Math.abs(surfaceView.getHeight() - cameraHeight);
+            if (diff < minHeightDiff) {
+                targetSize = size;
+                minHeightDiff = diff;
+            }
+        }
+
+        Log.e(TAG, "找到高度差值最小的size =" + targetSize.width + ", " + targetSize.height);
+        return targetSize;
     }
 }
