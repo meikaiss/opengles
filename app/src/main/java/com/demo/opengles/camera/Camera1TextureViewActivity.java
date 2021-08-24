@@ -3,12 +3,12 @@ package com.demo.opengles.camera;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
+import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Surface;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
+import android.view.TextureView;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -22,18 +22,18 @@ import com.demo.opengles.util.CollectUtil;
 import java.io.IOException;
 import java.util.List;
 
-public class Camera1SurfaceViewActivity extends AppCompatActivity {
-    private static final String TAG = "Camera1SV_Act";
+public class Camera1TextureViewActivity extends AppCompatActivity {
+    private static final String TAG = "Camera1TV_Act";
 
-    private SurfaceView surfaceView;
+    private TextureView textureView;
     private Camera camera;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_camera_1_surfaceview);
+        setContentView(R.layout.activity_camera_1_textureview);
 
-        surfaceView = findViewById(R.id.surface_view);
+        textureView = findViewById(R.id.texture_view);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -65,33 +65,39 @@ public class Camera1SurfaceViewActivity extends AppCompatActivity {
     }
 
     private void init() {
-        surfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
+        textureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
             @Override
-            public void surfaceCreated(@NonNull SurfaceHolder holder) {
+            public void onSurfaceTextureAvailable(@NonNull SurfaceTexture surface, int width,
+                                                  int height) {
                 try {
-                    startCamera1(holder);
+                    startCamera1(surface);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
 
             @Override
-            public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width,
-                                       int height) {
+            public void onSurfaceTextureSizeChanged(@NonNull SurfaceTexture surface, int width,
+                                                    int height) {
 
             }
 
             @Override
-            public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
+            public boolean onSurfaceTextureDestroyed(@NonNull SurfaceTexture surface) {
+                return false;
+            }
+
+            @Override
+            public void onSurfaceTextureUpdated(@NonNull SurfaceTexture surface) {
 
             }
         });
     }
 
     @SuppressWarnings("deprecation")
-    private void startCamera1(SurfaceHolder holder) throws IOException {
-        Log.e(TAG, "surfaceView.width=" + surfaceView.getWidth()
-                + ", surfaceView.height=" + surfaceView.getHeight());
+    private void startCamera1(SurfaceTexture surface) throws IOException {
+        Log.e(TAG, "surfaceView.width=" + textureView.getWidth()
+                + ", surfaceView.height=" + textureView.getHeight());
 
         int cameraCount = Camera.getNumberOfCameras();
         if (cameraCount <= 0) {
@@ -129,8 +135,8 @@ public class Camera1SurfaceViewActivity extends AppCompatActivity {
         Camera.Size size = adjustSurfaceViewWidthHeight(sizeList);
         parameters.setPreviewSize(size.width, size.height);
         camera.setParameters(parameters);
+        camera.setPreviewTexture(surface);
 
-        camera.setPreviewDisplay(holder);
         camera.startPreview();
     }
 
@@ -187,7 +193,7 @@ public class Camera1SurfaceViewActivity extends AppCompatActivity {
             int cameraWidth = Math.min(size.width, size.height);
             int cameraHeight = Math.max(size.width, size.height);
             float cameraSizeScale = (float) cameraWidth / cameraHeight;
-            float surfaceViewSizeScale = (float) surfaceView.getWidth() / surfaceView.getHeight();
+            float surfaceViewSizeScale = (float) textureView.getWidth() / textureView.getHeight();
 
             if (Math.abs(cameraSizeScale - surfaceViewSizeScale) < ASPECT_TOLERANCE) {
                 Log.e(TAG, "按顺序查找，找到比例小于阈值的预览size =" + size.width + ", " + size.height);
@@ -203,7 +209,7 @@ public class Camera1SurfaceViewActivity extends AppCompatActivity {
             int cameraWidth = Math.min(size.width, size.height);
             int cameraHeight = Math.max(size.width, size.height);
 
-            int diff = Math.abs(surfaceView.getHeight() - cameraHeight);
+            int diff = Math.abs(textureView.getHeight() - cameraHeight);
             if (diff < minHeightDiff) {
                 targetSize = size;
                 minHeightDiff = diff;

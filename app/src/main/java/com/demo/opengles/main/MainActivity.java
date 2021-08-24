@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.demo.opengles.camera.Camera1SurfaceViewActivity;
+import com.demo.opengles.camera.Camera1TextureViewActivity;
 import com.demo.opengles.databinding.MainActivityBinding;
 import com.demo.opengles.graphic.BallActivity;
 import com.demo.opengles.graphic.CircleActivity;
@@ -67,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("Surface绘图表面-GLTextureView播放Alpha视频",
                     GLTextureViewAlphaVideoActivity.class));
             add(new MainItemBean("Camera1-SurfaceView预览", Camera1SurfaceViewActivity.class));
+            add(new MainItemBean("Camera1-TextureView预览", Camera1TextureViewActivity.class));
         }
     };
 
