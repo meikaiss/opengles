@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -41,6 +42,17 @@ public class Camera1SurfaceViewActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.CAMERA}, 1000);
         }
+
+        findViewById(R.id.img_info).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (findViewById(R.id.tv_info).getVisibility() == View.VISIBLE) {
+                    findViewById(R.id.tv_info).setVisibility(View.GONE);
+                } else {
+                    findViewById(R.id.tv_info).setVisibility(View.VISIBLE);
+                }
+            }
+        });
     }
 
     @SuppressWarnings("deprecation")
