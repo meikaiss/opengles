@@ -17,14 +17,16 @@ import androidx.core.app.ActivityCompat;
 
 import com.demo.opengles.R;
 import com.demo.opengles.util.CollectUtil;
+import com.demo.opengles.util.ViewUtil;
 
 import java.io.IOException;
 import java.util.List;
 
-public class Camera1Activity extends AppCompatActivity {
-    private static final String TAG = "Camera1Activity";
+public class Camera1SurfaceViewActivity extends AppCompatActivity {
+    private static final String TAG = "Camera1SV_Act";
 
     private SurfaceView surfaceView;
+    private Camera camera;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -39,6 +41,15 @@ public class Camera1Activity extends AppCompatActivity {
         } else {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.CAMERA}, 1000);
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (camera != null) {
+            camera.release();
         }
     }
 
@@ -68,15 +79,15 @@ public class Camera1Activity extends AppCompatActivity {
 
     @SuppressWarnings("deprecation")
     private void startCamera1(SurfaceHolder holder) throws IOException {
-        Log.e(TAG, "surfaceView.width=" + surfaceView.getWidth() + ", surfaceView.height="
-                + surfaceView.getHeight());
+        Log.e(TAG, "surfaceView.width=" + surfaceView.getWidth()
+                + ", surfaceView.height=" + surfaceView.getHeight());
 
         int cameraCount = Camera.getNumberOfCameras();
         if (cameraCount <= 0) {
             return;
         }
         int cameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
-        Camera camera = Camera.open(cameraId);
+        camera = Camera.open(cameraId);
 
         int degree = computeDegrees(cameraId);
         Log.e(TAG, "相机预览在此界面显示时，需要旋转的角度 = " + degree);
@@ -92,8 +103,7 @@ public class Camera1Activity extends AppCompatActivity {
                 new CollectUtil.Executor<Integer>() {
                     @Override
                     public void execute(Integer integer) {
-                        Log.e(TAG, "SupportedPreviewFormats: integer = "
-                                + integer);
+                        Log.e(TAG, "SupportedPreviewFormats: integer = " + integer);
                     }
                 });
 
@@ -111,6 +121,8 @@ public class Camera1Activity extends AppCompatActivity {
 
         camera.setPreviewDisplay(holder);
         camera.startPreview();
+
+        adjustSurfaceViewWidthHeight(sizeList);
     }
 
     //根据屏幕的旋转角度、相机的硬件内置放置角度，来设置显示旋转角度
@@ -148,5 +160,29 @@ public class Camera1Activity extends AppCompatActivity {
         }
 
         return result;
+    }
+
+    //根据相机硬件支持的预览宽高，计算出等比例、且最清晰的View宽高
+    private void adjustSurfaceViewWidthHeight(List<Camera.Size> sizeList) {
+        Camera.Size size = sizeList.get(0);
+
+        int cameraWidth = Math.min(size.width, size.height);
+        int cameraHeight = Math.max(size.width, size.height);
+        float cameraSizeScale = (float) cameraWidth / cameraHeight;
+        float surfaceViewSizeScale = (float) surfaceView.getWidth() / surfaceView.getHeight();
+
+        Log.e(TAG, "cameraWidth = " + cameraWidth + " , cameraHeight = " + cameraHeight);
+        Log.e(TAG, "surfaceViewWidth = " + surfaceView.getWidth()
+                + " , surfaceViewHeight = " + surfaceView.getHeight());
+
+        int newSurfaceHeight = (int) (surfaceView.getWidth() / cameraSizeScale);
+        Log.e(TAG, "newSurfaceHeight = " + newSurfaceHeight);
+
+        if (newSurfaceHeight > surfaceView.getHeight()) {
+            int newSurfaceWidth = (int) (surfaceView.getHeight() * cameraSizeScale);
+            ViewUtil.setW(surfaceView, newSurfaceWidth);
+        } else {
+            ViewUtil.setH(surfaceView, newSurfaceHeight);
+        }
     }
 }
