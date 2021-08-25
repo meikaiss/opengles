@@ -9,7 +9,9 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.demo.opengles.camera.Camera1GLSurfaceViewActivity;
+import com.demo.opengles.camera.Camera1GLSurfaceViewTakePhotoActivity;
 import com.demo.opengles.camera.Camera1SurfaceViewActivity;
+import com.demo.opengles.camera.Camera1TakePhotoGLSurfaceViewActivity;
 import com.demo.opengles.camera.Camera1TextureViewActivity;
 import com.demo.opengles.databinding.MainActivityBinding;
 import com.demo.opengles.graphic.BallActivity;
@@ -71,6 +73,10 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("Camera1-SurfaceView预览", Camera1SurfaceViewActivity.class));
             add(new MainItemBean("Camera1-TextureView预览", Camera1TextureViewActivity.class));
             add(new MainItemBean("Camera1-GLSurfaceView预览", Camera1GLSurfaceViewActivity.class));
+            add(new MainItemBean("Camera1-GLSurfaceView-OpenGL拍照",
+                    Camera1GLSurfaceViewTakePhotoActivity.class));
+            add(new MainItemBean("Camera1-GLSurfaceView-Camera1拍照",
+                    Camera1TakePhotoGLSurfaceViewActivity.class));
         }
     };
 

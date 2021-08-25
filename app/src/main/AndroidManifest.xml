@@ -44,6 +44,8 @@
         <activity android:name=".camera.Camera1SurfaceViewActivity" />
         <activity android:name=".camera.Camera1TextureViewActivity" />
         <activity android:name=".camera.Camera1GLSurfaceViewActivity" />
+        <activity android:name=".camera.Camera1GLSurfaceViewTakePhotoActivity" />
+        <activity android:name=".camera.Camera1TakePhotoGLSurfaceViewActivity" />
 
 
     </application>
