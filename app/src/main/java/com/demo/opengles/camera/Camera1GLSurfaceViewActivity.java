@@ -49,7 +49,7 @@ public class Camera1GLSurfaceViewActivity extends AppCompatActivity {
                     + "varying vec2 vTexCoord;\n"
                     + "void main() {\n"
                     + "  gl_FragColor = texture2D(sTexture, vTexCoord);"
-                    + "  gl_FragColor.r = 0.1;"
+//                    + "  gl_FragColor.r = 0.0;"
                     + "}\n";
 
     //顶点坐标
@@ -72,6 +72,7 @@ public class Camera1GLSurfaceViewActivity extends AppCompatActivity {
     private GLSurfaceView glSurfaceView;
     private VideoRender render;
     private Camera camera;
+    private Camera.Size previewSize;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -143,12 +144,16 @@ public class Camera1GLSurfaceViewActivity extends AppCompatActivity {
                         + size.width + " , size.height = " + size.height);
             }
         });
-        Camera.Size size = adjustSurfaceViewWidthHeight(sizeList);
-        parameters.setPreviewSize(size.width, size.height);
+        //在使用正交投影变换的情况下，不需要考虑图像宽高比与View宽高比不一致的问题，因为正交投影会保持图像原有的宽高比，允许上下或两侧出现空白
+        //所以直接选择最清晰的预览尺寸
+        previewSize = sizeList.get(0);
+        parameters.setPreviewSize(previewSize.width, previewSize.height);
         camera.setParameters(parameters);
 
         camera.setPreviewTexture(surfaceTexture);
         camera.startPreview();
+
+        render.renderObjectList.get(0).previewSize = previewSize;
     }
 
     //根据屏幕的旋转角度、相机的硬件内置放置角度，来设置显示旋转角度
@@ -186,50 +191,6 @@ public class Camera1GLSurfaceViewActivity extends AppCompatActivity {
         }
 
         return result;
-    }
-
-    /**
-     * 相机硬件支持一系列固定的宽高的图像预览数据，而屏幕View可以被开发者设置成任意宽高，
-     * 那么必然存在预览数据宽高比例与界面View的宽高比例不相等，若要保持View不变，则必然存在图像比例变形。
-     * <p>
-     * 预览比例与View比例的选择理论依据：
-     * 1、在保持界面View完全填充的情况，尽量选择宽高比接近View的预览宽高比，允许弱微的变形
-     */
-    private Camera.Size adjustSurfaceViewWidthHeight(List<Camera.Size> sizeList) {
-        float ASPECT_TOLERANCE = 0.1f;
-
-        for (int i = 0; i < sizeList.size(); i++) {
-            Camera.Size size = sizeList.get(i);
-
-            int cameraWidth = Math.min(size.width, size.height);
-            int cameraHeight = Math.max(size.width, size.height);
-            float cameraSizeScale = (float) cameraWidth / cameraHeight;
-            float surfaceViewSizeScale =
-                    (float) glSurfaceView.getWidth() / glSurfaceView.getHeight();
-
-            if (Math.abs(cameraSizeScale - surfaceViewSizeScale) < ASPECT_TOLERANCE) {
-                Log.e(TAG, "按顺序查找，找到比例小于阈值的预览size =" + size.width + ", " + size.height);
-                return size;
-            }
-        }
-
-        int minHeightDiff = Integer.MAX_VALUE;
-        Camera.Size targetSize = null;
-        for (int i = 0; i < sizeList.size(); i++) {
-            Camera.Size size = sizeList.get(i);
-
-            int cameraWidth = Math.min(size.width, size.height);
-            int cameraHeight = Math.max(size.width, size.height);
-
-            int diff = Math.abs(glSurfaceView.getHeight() - cameraHeight);
-            if (diff < minHeightDiff) {
-                targetSize = size;
-                minHeightDiff = diff;
-            }
-        }
-
-        Log.e(TAG, "找到高度差值最小的size =" + targetSize.width + ", " + targetSize.height);
-        return targetSize;
     }
 
     @Override
@@ -281,6 +242,7 @@ public class Camera1GLSurfaceViewActivity extends AppCompatActivity {
         private int textureId;
         private SurfaceTexture surfaceTexture;
         private Surface surface;
+        private Camera.Size previewSize;
 
         private boolean newFrameAvailable;
 
@@ -348,12 +310,32 @@ public class Camera1GLSurfaceViewActivity extends AppCompatActivity {
         }
 
         public void onSurfaceChanged(GL10 gl, int width, int height) {
-            //计算宽高比
-            float ratio = (float) width / height;
-            //设置透视投影
-            Matrix.frustumM(mProjectMatrix, 0, -ratio, ratio, -1, 1, 1, 5);
-            //设置相机位置
-            Matrix.setLookAtM(mViewMatrix, 0, 0.0f, 0.0f, 2.0f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+            //设置正交投影参数
+
+            int previewWidth = Math.min(previewSize.width, previewSize.height);
+            int previewHeight = Math.max(previewSize.width, previewSize.height);
+
+            if (width > height) {
+                float x = width / ((float) height / previewHeight * previewWidth);
+                Matrix.orthoM(mProjectMatrix, 0, -x, x, -1, 1, -1, 1);
+            } else {
+                /**
+                 * 正交投影用于解决绘制目标宽高与View宽高不一致时引起的变形
+                 * 固定某一边仍然使用归一化坐标，即[-1,1]
+                 * 另一边扩大或缩小归一，例如修改坐标范围到delta=[-0.5,0.5]、[-1.5,1.5]
+                 * 但纹理坐标的范围仍然是[-1,1]，此时映射到delta坐标内即不会变形，但会裁剪或空余
+                 */
+                float y = height / ((float) width / previewWidth * previewHeight);
+                Matrix.orthoM(mProjectMatrix, 0, -1, 1, -y, y, -1, 1);
+            }
+
+            /**
+             * 后置摄像头的硬件固定与手机竖屏方向逆时针旋转90度，
+             * 通过调整摄像机的上方向为-x方向，来解决此问题
+             * 摄像机有三个参数：摄像机位置坐标、摄像机视线的朝向点、摄像机与视线垂直面的上方向点
+             */
+            Matrix.setLookAtM(mViewMatrix, 0, 0.0f, 0.0f, 1.0f,
+                    0f, 0f, 0f, -1f, 0f, 0.0f);
             //计算变换矩阵
             Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0);
         }
@@ -379,13 +361,11 @@ public class Camera1GLSurfaceViewActivity extends AppCompatActivity {
                 matrixResult[i] = mMVPMatrix[i];
             }
 
+
             float[] mMatrixRotate = new float[16];
             Matrix.setIdentityM(mMatrixRotate, 0);
-            Matrix.rotateM(mMatrixRotate, 0, -90,
-                    0, 0, 1);
-            if (mMatrixRotate != null) {
-                Matrix.multiplyMM(matrixResult, 0, matrixResult, 0, mMatrixRotate, 0);
-            }
+//            Matrix.rotateM(mMatrixRotate, 0, -90, 0, 0, 1); //已通过摄像机上方向来解决旋转问题，这里不再需要总体矩阵旋转
+            Matrix.multiplyMM(matrixResult, 0, matrixResult, 0, mMatrixRotate, 0);
 
             //指定vMatrix的值
             GLES20.glUniformMatrix4fv(mMatrixHandler, 1, false, matrixResult, 0);
