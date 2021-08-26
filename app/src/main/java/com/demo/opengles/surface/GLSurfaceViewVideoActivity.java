@@ -45,7 +45,8 @@ public class GLSurfaceViewVideoActivity extends AppCompatActivity {
                     + "uniform samplerExternalOES sTexture;\n"
                     + "varying vec2 vTexCoord;\n"
                     + "void main() {\n"
-                    + "  gl_FragColor = texture2D(sTexture, vTexCoord);"
+                    + "  gl_FragColor = texture2D(sTexture, vTexCoord);\n"
+                    + "  gl_FragColor.r = 1.0f;"
                     + "}\n";
 
     //顶点坐标

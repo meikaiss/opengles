@@ -81,7 +81,7 @@ public class GLSurfaceViewAlphaVideoActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_glsurface_view_video);
+        setContentView(R.layout.activity_glsurface_view_alpha_video);
 
         glSurfaceView = findViewById(R.id.gl_surface_view);
         glSurfaceView.setEGLContextClientVersion(2);

@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
         android:layout_marginBottom="10dp"
-        android:text="并通过纹理坐标过滤、片元着色器采样，将红色通道设置为1.0，合成到片元颜色上"
+        android:text="并通过纹理坐标过滤、片元着色器采样，将Alpha视频左侧黑白部的RGB转换为Alpha值，合成到片元颜色上"
         android:textColor="#333"
         android:textSize="12sp" />
 

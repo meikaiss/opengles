@@ -147,6 +147,8 @@ public class Camera1TakePhotoGLSurfaceViewActivity extends AppCompatActivity {
                         imgTakePicture.setImageBitmap(bitmap);
                         Log.e(TAG, "onPictureTaken_jpeg, width=" + bitmap.getWidth()
                                 + ", height=" + bitmap.getHeight());
+
+                        camera.startPreview();
                     }
                 });
             }
