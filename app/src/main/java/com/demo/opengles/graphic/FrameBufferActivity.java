@@ -77,18 +77,18 @@ public class FrameBufferActivity extends AppCompatActivity {
                     "    gl_FragColor=texture2D(uTexture,vCoord);\n" +
                     "}";
 
-    int framebufferId;
-    int FBOTextureId;
-    int LoadedTextureId;
-    int program;
-    FloatBuffer vertexFBOTextureCoordBuffer;
+    private int framebufferId;
+    private int FBOTextureId;
+    private int LoadedTextureId;
+    private int program;
+    private FloatBuffer vertexFBOTextureCoordBuffer;
 
-    //顶点坐标+FBO纹理坐标
+    //顶点坐标+FBO纹理坐标+正常纹理坐标，各占两个float，即在{x1y1x2y2x3y3}中顶点坐标=x1y1，FBO纹理坐标=x2y2，正常纹理坐标=x3y3
     private final float[] vertexFBOTextureCoords = {
-            -1.0f, 1.0f, 0f, 1f,
-            -1.0f, -1.0f, 0f, 0f,
-            1.0f, 1.0f, 1f, 1f,
-            1.0f, -1.0f, 1f, 0f
+            -1.0f, 1.0f, 0f, 1f, 0f, 0f,
+            -1.0f, -1.0f, 0f, 0f, 0f, 1.0f,
+            1.0f, 1.0f, 1f, 1f, 1.0f, 0f,
+            1.0f, -1.0f, 1f, 0f, 1.0f, 1.0f
     };
 
     private void draw() {
@@ -176,11 +176,12 @@ public class FrameBufferActivity extends AppCompatActivity {
 
         /**
          * 顶点坐标和FBO纹理坐标都旋转到一个FloatBuffer缓冲了，前两位表示顶点坐标，后两个表示FBO纹理坐标
-         * 因此顶点坐标的偏移为0，FBO纹理坐标的偏移为2
+         * 因此顶点坐标的偏移为0，FBO纹理坐标的偏移为2，正常纹理坐标偏移为2+2
          * size表示每个坐标所占用的float个数，这里我们都只使用了2维数据，因此都是2
-         *步长为(2+2)*4，其中2+2表示前两个是顶点坐标，后两个是FBO纹理坐标，*4表示一个float占用4个字节
+         *步长为(2+2+2)*4，其中2+2+2表示前两个是顶点坐标，后两个是FBO纹理坐标，*4表示一个float占用4个字节
          */
-        int stride = (2 + 2) * 4;
+        int floatStride = 2 + 2 + 2; //一组坐标的float个数
+        int stride = floatStride * 4; //一组坐标的字节个数
         vertexFBOTextureCoordBuffer.position(0);
         GLES20.glVertexAttribPointer(vertexHandle, 2, GLES20.GL_FLOAT, false, stride,
                 vertexFBOTextureCoordBuffer);
@@ -196,7 +197,8 @@ public class FrameBufferActivity extends AppCompatActivity {
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, LoadedTextureId);
         //将0号引脚上的纹理传递给着色器中的纹理句柄
         GLES20.glUniform1i(textureHandle, 0);
-        int vertexCount = vertexFBOTextureCoordBuffer.capacity() / (2 + 2);
+        //绘制图形时所使用的顶点的个数
+        int vertexCount = vertexFBOTextureCoordBuffer.capacity() / floatStride;
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, vertexCount);
 
         //向FBO绘制完数据后，将FBO从渲染引擎上解绑，解绑后的绘制即会显示到屏幕上
@@ -235,6 +237,9 @@ public class FrameBufferActivity extends AppCompatActivity {
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, FBOTextureId);
         //将1号引脚上的纹理传递给着色器中的纹理句柄
         GLES20.glUniform1i(textureHandle, 1);
+        vertexFBOTextureCoordBuffer.position(4);
+        GLES20.glVertexAttribPointer(textureCoordHandle, 2, GLES20.GL_FLOAT, false, stride,
+                vertexFBOTextureCoordBuffer);
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, vertexCount);
 
         GLES20.glDeleteTextures(2, textureArr, 0);
