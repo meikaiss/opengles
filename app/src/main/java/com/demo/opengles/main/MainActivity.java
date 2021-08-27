@@ -19,6 +19,7 @@ import com.demo.opengles.graphic.CircleActivity;
 import com.demo.opengles.graphic.ConeActivity;
 import com.demo.opengles.graphic.CubeActivity;
 import com.demo.opengles.graphic.CylinderActivity;
+import com.demo.opengles.graphic.FrameBufferActivity;
 import com.demo.opengles.graphic.SquareActivity;
 import com.demo.opengles.graphic.TextureActivity;
 import com.demo.opengles.graphic.TextureColorfulActivity;
@@ -60,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("纹理-色彩变换", TextureColorfulActivity.class));
             add(new MainItemBean("纹理-放大镜-无投影变换", TextureEnlargeActivity.class));
             add(new MainItemBean("纹理-放大镜-正交投影变换", TextureEnlargeMatrixActivity.class));
+            add(new MainItemBean("帧缓冲-离屏渲染", FrameBufferActivity.class));
             add(new MainItemBean("位置变换-平移-旋转-缩放", TransformActivity.class));
             add(new MainItemBean("Surface绘图表面-SurfaceView", SurfaceViewActivity.class));
             add(new MainItemBean("Surface绘图表面-SurfaceView播放视频", SurfaceViewVideoActivity.class));

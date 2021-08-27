@@ -110,7 +110,7 @@ public class TextureEnlargeMatrixActivity extends AppCompatActivity {
         glSurfaceView = new GLSurfaceView(this);
         surfaceContainer.addView(glSurfaceView);
 
-        textureBmp = BitmapFactory.decodeResource(getResources(), R.mipmap.texture_image);
+        textureBmp = BitmapFactory.decodeResource(getResources(), R.mipmap.texture_image_markpolo);
         glSurfaceView.setEGLContextClientVersion(2);
 
         render = new ColorRender();

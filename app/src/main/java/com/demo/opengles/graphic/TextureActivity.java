@@ -155,7 +155,7 @@ public class TextureActivity extends AppCompatActivity {
 
         glSurfaceView = findViewById(R.id.gl_surface_view);
 
-        textureBmp = BitmapFactory.decodeResource(getResources(), R.mipmap.texture_image);
+        textureBmp = BitmapFactory.decodeResource(getResources(), R.mipmap.texture_image_markpolo);
         glSurfaceView.setEGLContextClientVersion(2);
 
         findViewById(R.id.btn_1).setOnClickListener(onClickListener);
@@ -192,9 +192,6 @@ public class TextureActivity extends AppCompatActivity {
                 //获取句柄，用于将内存中的纹理坐标传递给GPU
                 glVCoordinate = GLES20.glGetAttribLocation(mProgram, "vCoordinate");
                 glVTexture = GLES20.glGetUniformLocation(mProgram, "vTexture");
-
-                //将显卡中的第0号纹理单元 赋值给 纹理句柄
-                GLES20.glUniform1i(glVTexture, 0);
 
                 textureId = createTexture();
             }
@@ -246,9 +243,12 @@ public class TextureActivity extends AppCompatActivity {
                 textureCoordBuffer.put(textureCoord);
                 textureCoordBuffer.position(0);
 
+                //用前面步骤中glClearColor方法设置的颜色值填充整个背景色
                 GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
                 GLES20.glUseProgram(mProgram);
 
+                //将显卡中的第0号纹理单元 赋值给 纹理句柄
+                GLES20.glUniform1i(glVTexture, 0);
                 GLES20.glUniformMatrix4fv(glVMatrix, 1, false, mMVPMatrix, 0);
 
                 GLES20.glEnableVertexAttribArray(glVPosition);
@@ -265,6 +265,8 @@ public class TextureActivity extends AppCompatActivity {
             private int createTexture() {
                 int[] texture = new int[1];
                 if (textureBmp != null && !textureBmp.isRecycled()) {
+                    //在显卡的纹理硬件组上选择当前活跃的纹理单元为：第0号纹理单元，默认为0
+                    GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
                     //从offset=0号纹理单元开始生成n=1个纹理，并将纹理id保存到int[]=texture数组中
                     GLES20.glGenTextures(1, texture, 0);
                     textureId = texture[0];
