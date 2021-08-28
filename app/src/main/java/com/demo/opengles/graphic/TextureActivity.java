@@ -2,6 +2,7 @@ package com.demo.opengles.graphic;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.PixelFormat;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLUtils;
@@ -154,6 +155,12 @@ public class TextureActivity extends AppCompatActivity {
         setContentView(R.layout.activity_texture);
 
         glSurfaceView = findViewById(R.id.gl_surface_view);
+
+        //支持背景透明-start
+        glSurfaceView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
+        glSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
+        glSurfaceView.setZOrderOnTop(true);
+        //支持背景透明-end
 
         textureBmp = BitmapFactory.decodeResource(getResources(), R.mipmap.texture_image_markpolo);
         glSurfaceView.setEGLContextClientVersion(2);

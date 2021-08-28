@@ -143,8 +143,8 @@ public class FrameBufferActivity extends AppCompatActivity {
         GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T,
                 GLES20.GL_MIRRORED_REPEAT);
         //设置FBO纹理的图像数据格式
-        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGB, glSurfaceView.getWidth(),
-                glSurfaceView.getHeight(), 0, GLES20.GL_RGB, GLES20.GL_UNSIGNED_SHORT_5_6_5, null);
+        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, glSurfaceView.getWidth(),
+                glSurfaceView.getHeight(), 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
 
 
         //将渲染引擎当前绘制的对象，切换到帧缓冲。默认的绘制对象即为屏幕硬件
