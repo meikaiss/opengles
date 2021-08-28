@@ -227,6 +227,8 @@ public class TextureEnlargeActivity extends AppCompatActivity {
             glVCoordinate = GLES20.glGetAttribLocation(mProgram, "vCoordinate");
             glVTexture = GLES20.glGetUniformLocation(mProgram, "vTexture");
             glEnlargeParam = GLES20.glGetUniformLocation(mProgram, "enlargeParam");
+
+            textureId = createTexture();
         }
 
         private int createTexture() {
@@ -304,7 +306,6 @@ public class TextureEnlargeActivity extends AppCompatActivity {
 
             //将显卡中的第0号纹理单元 赋值给 纹理句柄
             GLES20.glUniform1i(glVTexture, 0);
-            textureId = createTexture();
 
             GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, vertexCount);
         }

@@ -118,6 +118,15 @@ public class TextureEnlargeMatrixActivity extends AppCompatActivity {
             RenderObject object1 = new RenderObject();
             object1.init(vertexShaderCode, fragmentShaderCode_1, vertexCoords_1, textureCoord_1,
                     textureBmp, true);
+
+            //手指点击位置的纹理坐标，点击位置即为放大的中心位置
+            object1.enlargeTextureParam[0] = 0.5f;
+            object1.enlargeTextureParam[1] = 0.5f;
+
+            //手指点击位置的顶点坐标
+            object1.enlargeVertexParam[0] = 0;
+            //sdk-View坐标系的y正方向向下，opengl世界坐标系的y正方向向上，因此转换时需要置负
+            object1.enlargeVertexParam[1] = 0;
             render.renderObjectList.add(object1);
         }
 
@@ -254,11 +263,106 @@ public class TextureEnlargeMatrixActivity extends AppCompatActivity {
             glUXY = GLES20.glGetUniformLocation(mProgram, "uXY");
             glEnlargeParam = GLES20.glGetUniformLocation(mProgram, "enlargeParam");
             glEnlargeVertexParam = GLES20.glGetUniformLocation(mProgram, "enlargeVertexParam");
+
+            textureId = createTexture(GLES20.GL_TEXTURE0);
         }
 
-        private int createTexture() {
+        public void onDrawFrame(GL10 gl) {
+            if (!isEffective) {
+                return;
+            }
+
+            Log.e("nk", "1");
+
+            //将内存中的顶点坐标数组，转换为字节缓冲区，因为opengl只能接受整块的字节缓冲区的数据
+            ByteBuffer bb = ByteBuffer.allocateDirect(vertexCoords.length * 4);
+            bb.order(ByteOrder.nativeOrder());
+            vertexBuffer = bb.asFloatBuffer();
+            vertexBuffer.put(vertexCoords);
+            vertexBuffer.position(0);
+
+            Log.e("nk", "2");
+
+            //将内存中的纹理坐标数组，转换为字节缓冲区，因为opengl只能接受整块的字节缓冲区的数据
+            ByteBuffer cc = ByteBuffer.allocateDirect(textureCoord.length * 4);
+            cc.order(ByteOrder.nativeOrder());
+            textureCoordBuffer = cc.asFloatBuffer();
+            textureCoordBuffer.put(textureCoord);
+            textureCoordBuffer.position(0);
+
+            Log.e("nk", "3");
+
+            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+
+
+            GLES20.glUseProgram(mProgram);
+
+            Log.e("nk", "4");
+
+            GLES20.glUniform1f(glUXY, uXY);
+            GLES20.glUniform4fv(glEnlargeParam, 1, enlargeTextureParam, 0);
+            GLES20.glUniform4fv(glEnlargeVertexParam, 1, enlargeVertexParam, 0);
+
+            Log.e("nk", "5");
+
+            GLES20.glUniformMatrix4fv(glVMatrix, 1, false, mMVPMatrix, 0);
+
+            GLES20.glEnableVertexAttribArray(glVPosition);
+            GLES20.glVertexAttribPointer(glVPosition, 2, GLES20.GL_FLOAT, false, vertexStride
+                    , vertexBuffer);
+
+            Log.e("nk", "6");
+
+            GLES20.glEnableVertexAttribArray(glVCoordinate);
+            GLES20.glVertexAttribPointer(glVCoordinate, 2, GLES20.GL_FLOAT, false,
+                    vertexStride, textureCoordBuffer);
+
+            Log.e("nk", "7");
+            //将显卡中的第0号纹理单元 赋值给 纹理句柄
+            GLES20.glUniform1i(glVTexture, 0);
+
+            GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, vertexCount);
+
+            Log.e("nk", "8");
+        }
+
+        public void onSurfaceChanged(GL10 gl, int width, int height) {
+            int w = textureBmp.getWidth();
+            int h = textureBmp.getHeight();
+            float sWH_Bmp = w / (float) h;
+            float sWH_View = width / (float) height;
+            uXY = sWH_View;
+            if (width > height) {
+                if (sWH_Bmp > sWH_View) {
+                    Matrix.orthoM(mProjectMatrix, 0, -sWH_View * sWH_Bmp, sWH_View * sWH_Bmp,
+                            -1, 1, 3, 7);
+                } else {
+                    Matrix.orthoM(mProjectMatrix, 0, -sWH_View / sWH_Bmp, sWH_View / sWH_Bmp,
+                            -1, 1, 3, 7);
+                }
+            } else {
+                if (sWH_Bmp > sWH_View) {
+                    Matrix.orthoM(mProjectMatrix, 0, -1, 1, -1 / sWH_View * sWH_Bmp,
+                            1 / sWH_View * sWH_Bmp, 3, 7);
+                } else {
+                    Matrix.orthoM(mProjectMatrix, 0, -1, 1, -sWH_Bmp / sWH_View,
+                            sWH_Bmp / sWH_View, 3, 7);
+                }
+            }
+            //设置相机位置
+            Matrix.setLookAtM(mViewMatrix, 0, 0, 0, 7.0f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+            //计算变换矩阵
+            Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0);
+
+            float[] result = new float[16];
+            Matrix.multiplyMV(result, 0, mMVPMatrix, 0, enlargeTextureParam, 0);
+        }
+
+        // textureIndex  ->  GLES20.GL_TEXTURE0、GLES20.GL_TEXTURE1...
+        private int createTexture(int textureIndex) {
             int[] texture = new int[1];
             if (textureBmp != null && !textureBmp.isRecycled()) {
+                GLES20.glActiveTexture(textureIndex);
                 //从offset=0号纹理单元开始生成n=1个纹理，并将纹理id保存到int[]=texture数组中
                 GLES20.glGenTextures(1, texture, 0);
                 textureId = texture[0];
@@ -293,83 +397,6 @@ public class TextureEnlargeMatrixActivity extends AppCompatActivity {
             GLES20.glShaderSource(shader, shaderCode);
             GLES20.glCompileShader(shader);
             return shader;
-        }
-
-        public void onDrawFrame(GL10 gl) {
-            if (!isEffective) {
-                return;
-            }
-
-            //将内存中的顶点坐标数组，转换为字节缓冲区，因为opengl只能接受整块的字节缓冲区的数据
-            ByteBuffer bb = ByteBuffer.allocateDirect(vertexCoords.length * 4);
-            bb.order(ByteOrder.nativeOrder());
-            vertexBuffer = bb.asFloatBuffer();
-            vertexBuffer.put(vertexCoords);
-            vertexBuffer.position(0);
-
-            //将内存中的纹理坐标数组，转换为字节缓冲区，因为opengl只能接受整块的字节缓冲区的数据
-            ByteBuffer cc = ByteBuffer.allocateDirect(textureCoord.length * 4);
-            cc.order(ByteOrder.nativeOrder());
-            textureCoordBuffer = cc.asFloatBuffer();
-            textureCoordBuffer.put(textureCoord);
-            textureCoordBuffer.position(0);
-
-            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-
-
-            GLES20.glUseProgram(mProgram);
-
-            GLES20.glUniform1f(glUXY, uXY);
-            GLES20.glUniform4fv(glEnlargeParam, 1, enlargeTextureParam, 0);
-            GLES20.glUniform4fv(glEnlargeVertexParam, 1, enlargeVertexParam, 0);
-
-            GLES20.glUniformMatrix4fv(glVMatrix, 1, false, mMVPMatrix, 0);
-
-            GLES20.glEnableVertexAttribArray(glVPosition);
-            GLES20.glVertexAttribPointer(glVPosition, 2, GLES20.GL_FLOAT, false, vertexStride
-                    , vertexBuffer);
-
-            GLES20.glEnableVertexAttribArray(glVCoordinate);
-            GLES20.glVertexAttribPointer(glVCoordinate, 2, GLES20.GL_FLOAT, false,
-                    vertexStride, textureCoordBuffer);
-
-            //将显卡中的第0号纹理单元 赋值给 纹理句柄
-            GLES20.glUniform1i(glVTexture, 0);
-            textureId = createTexture();
-
-            GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, vertexCount);
-        }
-
-        public void onSurfaceChanged(GL10 gl, int width, int height) {
-            int w = textureBmp.getWidth();
-            int h = textureBmp.getHeight();
-            float sWH_Bmp = w / (float) h;
-            float sWH_View = width / (float) height;
-            uXY = sWH_View;
-            if (width > height) {
-                if (sWH_Bmp > sWH_View) {
-                    Matrix.orthoM(mProjectMatrix, 0, -sWH_View * sWH_Bmp, sWH_View * sWH_Bmp,
-                            -1, 1, 3, 7);
-                } else {
-                    Matrix.orthoM(mProjectMatrix, 0, -sWH_View / sWH_Bmp, sWH_View / sWH_Bmp,
-                            -1, 1, 3, 7);
-                }
-            } else {
-                if (sWH_Bmp > sWH_View) {
-                    Matrix.orthoM(mProjectMatrix, 0, -1, 1, -1 / sWH_View * sWH_Bmp,
-                            1 / sWH_View * sWH_Bmp, 3, 7);
-                } else {
-                    Matrix.orthoM(mProjectMatrix, 0, -1, 1, -sWH_Bmp / sWH_View,
-                            sWH_Bmp / sWH_View, 3, 7);
-                }
-            }
-            //设置相机位置
-            Matrix.setLookAtM(mViewMatrix, 0, 0, 0, 7.0f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
-            //计算变换矩阵
-            Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0);
-
-            float[] result = new float[16];
-            Matrix.multiplyMV(result, 0, mMVPMatrix, 0, enlargeTextureParam, 0);
         }
     }
 
