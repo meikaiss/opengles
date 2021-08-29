@@ -14,6 +14,7 @@ import com.demo.opengles.camera.Camera1SurfaceViewActivity;
 import com.demo.opengles.camera.Camera1TakePhotoGLSurfaceViewActivity;
 import com.demo.opengles.camera.Camera1TextureViewActivity;
 import com.demo.opengles.databinding.MainActivityBinding;
+import com.demo.opengles.gaussian.GaussianActivity;
 import com.demo.opengles.graphic.BallActivity;
 import com.demo.opengles.graphic.CircleActivity;
 import com.demo.opengles.graphic.ConeActivity;
@@ -62,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("纹理-放大镜-无投影变换", TextureEnlargeActivity.class));
             add(new MainItemBean("纹理-放大镜-正交投影变换", TextureEnlargeMatrixActivity.class));
             add(new MainItemBean("帧缓冲-离屏渲染", FrameBufferActivity.class));
+            add(new MainItemBean("高斯模糊", GaussianActivity.class));
             add(new MainItemBean("位置变换-平移-旋转-缩放", TransformActivity.class));
             add(new MainItemBean("Surface绘图表面-SurfaceView", SurfaceViewActivity.class));
             add(new MainItemBean("Surface绘图表面-SurfaceView播放视频", SurfaceViewVideoActivity.class));
