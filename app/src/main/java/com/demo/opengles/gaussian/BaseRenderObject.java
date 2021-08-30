@@ -43,9 +43,9 @@ public abstract class BaseRenderObject implements RenderAble {
     public boolean isBindFbo;
 
     //着色器的句柄
-    private int aPosLocation;
-    private int aCoordinateLocation;
-    private int uSamplerLocation;
+    public int aPosLocation;
+    public int aCoordinateLocation;
+    public int uSamplerLocation;
 
     public boolean isCreate = false;
     public boolean isChange = false;
@@ -58,7 +58,6 @@ public abstract class BaseRenderObject implements RenderAble {
     public void initShaderFileName(String vertexFilename, String fragFilename) {
         this.vertexFilename = vertexFilename;
         this.fragFilename = fragFilename;
-
     }
 
     @Override
@@ -66,7 +65,7 @@ public abstract class BaseRenderObject implements RenderAble {
         Log.e(TAG, "onCreate, thread.name=" + Thread.currentThread().getName()
                 + " , " + this.getClass().getSimpleName());
 
-        GLES20.glClearColor(0, 0, 0, 1);
+        GLES20.glClearColor(0, 0, 0, 1.0f);
 
         vertexShaderCode = OpenGLESUtils.getShaderCode(context, vertexFilename);
         fragShaderCode = OpenGLESUtils.getShaderCode(context, fragFilename);
@@ -83,6 +82,10 @@ public abstract class BaseRenderObject implements RenderAble {
         fragShader = OpenGLESUtils.loadShader(GLES20.GL_FRAGMENT_SHADER, fragShaderCode);
 
         program = OpenGLESUtils.linkProgram(vertexShader, fragShader);
+
+        aPosLocation = GLES20.glGetAttribLocation(program, "aPos");
+        aCoordinateLocation = GLES20.glGetAttribLocation(program, "aCoordinate");
+        uSamplerLocation = GLES20.glGetUniformLocation(program, "uSampler");
 
         isCreate = true;
     }
@@ -102,16 +105,16 @@ public abstract class BaseRenderObject implements RenderAble {
         isChange = true;
     }
 
+    protected void f(){
+
+    }
+
     @Override
     public void onDraw(int textureId) {
         this.textureId = textureId;
 
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
         GLES20.glUseProgram(program);
-
-        aPosLocation = GLES20.glGetAttribLocation(program, "aPos");
-        aCoordinateLocation = GLES20.glGetAttribLocation(program, "aCoordinate");
-        uSamplerLocation = GLES20.glGetUniformLocation(program, "uSampler");
 
         if (isBindFbo) {
             GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fboId);
@@ -121,9 +124,12 @@ public abstract class BaseRenderObject implements RenderAble {
         }
 
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboId);
+
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
         GLES20.glUniform1i(uSamplerLocation, 0);
+
+        f();
 
         GLES20.glEnableVertexAttribArray(aPosLocation);
         GLES20.glEnableVertexAttribArray(aCoordinateLocation);

@@ -37,9 +37,12 @@ public class TextureActivity extends AppCompatActivity {
     private final String fragmentShaderCode =
             "precision mediump float;\n" +
                     "uniform sampler2D vTexture;\n" +
+                    "uniform sampler2D vTexture2;\n" +
                     "varying vec2 aCoordinate;\n" +
                     "void main(){\n" +
-                    "    gl_FragColor=texture2D(vTexture,aCoordinate);\n" +
+                    "    vec4 textColor1=texture2D(vTexture,aCoordinate);" +
+                    "    vec4 textColor2=texture2D(vTexture2,aCoordinate);" +
+                    "    gl_FragColor=textColor2;\n" +
                     "}";
 
     private int mProgram;
@@ -105,10 +108,12 @@ public class TextureActivity extends AppCompatActivity {
 
     private int glVPosition;
     private int glVTexture;
+    private int glVTexture2;
     private int glVCoordinate;
     private int glVMatrix;
 
     private int textureId;
+    private int textureId2;
 
     private FloatBuffer vertexBuffer;
     private FloatBuffer textureCoordBuffer;
@@ -199,8 +204,10 @@ public class TextureActivity extends AppCompatActivity {
                 //获取句柄，用于将内存中的纹理坐标传递给GPU
                 glVCoordinate = GLES20.glGetAttribLocation(mProgram, "vCoordinate");
                 glVTexture = GLES20.glGetUniformLocation(mProgram, "vTexture");
+                glVTexture2 = GLES20.glGetUniformLocation(mProgram, "vTexture2");
 
                 textureId = createTexture();
+                textureId2 = createTexture2();
             }
 
             @Override
@@ -256,6 +263,7 @@ public class TextureActivity extends AppCompatActivity {
 
                 //将显卡中的第0号纹理单元 赋值给 纹理句柄
                 GLES20.glUniform1i(glVTexture, 0);
+                GLES20.glUniform1i(glVTexture2, 1);
                 GLES20.glUniformMatrix4fv(glVMatrix, 1, false, mMVPMatrix, 0);
 
                 GLES20.glEnableVertexAttribArray(glVPosition);
@@ -294,6 +302,41 @@ public class TextureActivity extends AppCompatActivity {
 
                     //给纹理传入图像数据，至此，此纹理相关设置已经结束。后续想使用或者操作这个纹理，只要再glBindTexture这个纹理的id即可
                     GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, textureBmp, 0);
+
+                    //返回生成的纹理的句柄
+                    return texture[0];
+                }
+                return 0;
+            }
+
+            private int createTexture2() {
+                Bitmap bmpArthur = BitmapFactory.decodeResource(getResources(),
+                        R.mipmap.texture_iamge_arthur);
+
+                int[] texture = new int[1];
+                if (textureBmp != null && !textureBmp.isRecycled()) {
+                    //在显卡的纹理硬件组上选择当前活跃的纹理单元为：第0号纹理单元，默认为0
+                    GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
+                    //从offset=0号纹理单元开始生成n=1个纹理，并将纹理id保存到int[]=texture数组中
+                    GLES20.glGenTextures(1, texture, 0);
+                    textureId = texture[0];
+                    //将生成的纹理与gpu关联为2d纹理类型，传入纹理id作为参数，每次bing之后，后续操作的纹理都是该纹理
+                    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
+                    //设置缩小过滤为使用纹理中坐标最接近的一个像素的颜色作为需要绘制的像素颜色
+                    GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER,
+                            GLES20.GL_NEAREST);
+                    //设置放大过滤为使用纹理中坐标最接近的若干个颜色，通过加权平均算法得到需要绘制的像素颜色
+                    GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER,
+                            GLES20.GL_LINEAR);
+                    //设置环绕方向S，截取纹理坐标到[1/2n,1-1/2n]。将导致永远不会与border融合
+                    GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S,
+                            GLES20.GL_CLAMP_TO_EDGE);
+                    //设置环绕方向T，截取纹理坐标到[1/2n,1-1/2n]。将导致永远不会与border融合
+                    GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T,
+                            GLES20.GL_CLAMP_TO_EDGE);
+
+                    //给纹理传入图像数据，至此，此纹理相关设置已经结束。后续想使用或者操作这个纹理，只要再glBindTexture这个纹理的id即可
+                    GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bmpArthur, 0);
 
                     //返回生成的纹理的句柄
                     return texture[0];

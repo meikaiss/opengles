@@ -38,12 +38,17 @@ public class HVBlurRenderObject extends BaseRenderObject {
     }
 
     @Override
-    public void onDraw(int textureId) {
-        super.onDraw(textureId);
+    public void onCreate() {
+        super.onCreate();
 
         uBlurRadiusLocation = GLES20.glGetUniformLocation(program, "uBlurRadius");
         uBlurOffsetLocation = GLES20.glGetUniformLocation(program, "uBlurOffset");
         uSumWeightLocation = GLES20.glGetUniformLocation(program, "uSumWeight");
+    }
+
+    @Override
+    public void onDraw(int textureId) {
+        super.onDraw(textureId);
 
         // 计算总权重
         calculateSumWeight();

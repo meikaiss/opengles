@@ -9,7 +9,6 @@ public class BitmapUtil {
 
     public static Bitmap cropBitmapCustom(Bitmap srcBitmap, int firstPixelX, int firstPixelY, int needWidth, int needHeight) {
 
-
         if (firstPixelX + needWidth > srcBitmap.getWidth()) {
             needWidth = srcBitmap.getWidth() - firstPixelX;
         }
