@@ -7,7 +7,7 @@ import android.util.Log;
 /**
  * Created by meikai on 2021/08/29.
  */
-public class HBlurRenderObject extends BaseRenderObject {
+public class HVBlurRenderObject extends BaseRenderObject {
 
     private int uBlurRadiusLocation;
     private int uBlurOffsetLocation;
@@ -19,11 +19,10 @@ public class HBlurRenderObject extends BaseRenderObject {
     private float blurOffsetH;
     private float sumWeight;
 
-    public HBlurRenderObject(Context context) {
+    public HVBlurRenderObject(Context context) {
         super(context);
         initShaderFileName("render/filter/gaussian_blur/vertex.frag",
                 "render/filter/gaussian_blur/frag.frag");
-
 
         // 设置缩放因子
         setScaleRatio(1);
@@ -31,29 +30,6 @@ public class HBlurRenderObject extends BaseRenderObject {
         setBlurRadius(30);
         // 设置模糊步长
         setBlurOffset(1, 0);
-    }
-
-    /**
-     * 计算总权重
-     */
-    private void calculateSumWeight() {
-        if (blurRadius < 1) {
-            Log.d("HBlur", "calculateSumWeight: blurRadius:" + blurRadius + " w:" + blurOffsetW + " h:" + blurOffsetH);
-            setSumWeight(0);
-            return;
-        }
-
-        float sumWeight = 0;
-        float sigma = blurRadius / 3f;
-        for (int i = 0; i < blurRadius; i++) {
-            float weight = (float) ((1 / Math.sqrt(2 * Math.PI * sigma * sigma)) * Math.exp(-(i * i) / (2 * sigma * sigma)));
-            sumWeight += weight;
-            if (i != 0) {
-                sumWeight += weight;
-            }
-        }
-
-        setSumWeight(sumWeight);
     }
 
     @Override
@@ -71,6 +47,9 @@ public class HBlurRenderObject extends BaseRenderObject {
 
         // 计算总权重
         calculateSumWeight();
+
+        Log.e("mk", blurRadius + " , " + blurOffsetW / width + " , "
+                + blurOffsetH / height + " , " + sumWeight);
 
         GLES20.glUniform1i(uBlurRadiusLocation, blurRadius);
         GLES20.glUniform2f(uBlurOffsetLocation, blurOffsetW / width, blurOffsetH / height);
@@ -94,5 +73,35 @@ public class HBlurRenderObject extends BaseRenderObject {
     public void setSumWeight(float sumWeight) {
         Log.d("HBlur", "setSumWeight: " + sumWeight);
         this.sumWeight = sumWeight;
+    }
+
+    /**
+     * 计算总权重
+     */
+    private void calculateSumWeight() {
+        if (blurRadius < 1) {
+            Log.d("HBlur",
+                    "calculateSumWeight: blurRadius:" + blurRadius + " w:" + blurOffsetW + " h:" + blurOffsetH);
+            setSumWeight(0);
+            return;
+        }
+
+        float sumWeight = 0;
+        float sigma = blurRadius / 3f;
+        for (int i = 0; i < blurRadius; i++) {
+            float weight =
+                    (float) ((1 / Math.sqrt(2 * Math.PI * sigma * sigma)) * Math.exp(-(i * i) / (2 * sigma * sigma)));
+            sumWeight += weight;
+            if (i != 0) {
+                sumWeight += weight;
+            }
+        }
+
+        setSumWeight(sumWeight);
+    }
+
+    @Override
+    public void onRelease() {
+        super.onRelease();
     }
 }

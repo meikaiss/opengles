@@ -153,7 +153,7 @@ public class FrameBufferActivity extends AppCompatActivity {
         GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0,
                 GLES20.GL_TEXTURE_2D, FBOTextureId, 0);
 
-        if (GLES20.glCheckFramebufferStatus(GLES20.GL_FRAMEBUFFER) == GLES20.GL_FRAMEBUFFER_COMPLETE) {
+        if (GLES20.glCheckFramebufferStatus(GLES20.GL_FRAMEBUFFER) != GLES20.GL_FRAMEBUFFER_COMPLETE) {
             Log.e(TAG, "glFramebufferTexture2D error");
         }
         //解除FBO纹理绑定
