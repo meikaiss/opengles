@@ -6,6 +6,8 @@ import android.util.Log;
 
 import java.nio.FloatBuffer;
 
+import javax.microedition.khronos.opengles.GL10;
+
 /**
  * Created by meikai on 2021/08/29.
  */

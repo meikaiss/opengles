@@ -2,7 +2,6 @@ package com.demo.opengles.gaussian;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.drawable.VectorDrawable;
 import android.opengl.GLES20;
@@ -20,14 +19,14 @@ public class DefaultRenderObject extends BaseRenderObject {
 
     public DefaultRenderObject(Context context) {
         super(context);
-        initShaderFileName("render/base/base/vertex.frag", "render/base/base/frag.frag");
+        initShaderFileName("render/base/two/vertex.frag", "render/base/two/frag.frag");
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-//        uSamplerLocation2 = GLES20.glGetUniformLocation(program, "uSamplerABC");
+        uSamplerLocation2 = GLES20.glGetUniformLocation(program, "uSampler2");
 
     }
 
@@ -42,16 +41,13 @@ public class DefaultRenderObject extends BaseRenderObject {
         vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         vectorDrawable.draw(canvas);
 
-
-        Bitmap bmpArthur = BitmapFactory.decodeResource(context.getResources(),
-                R.mipmap.texture_iamge_arthur);
-//        textureId2 = createTexture(bmpArthur);
+        textureId2 = createTexture(clipBmp);
     }
 
     @Override
     protected void f() {
         super.f();
-//        GLES20.glUniform1i(uSamplerLocation2, 1);
+        GLES20.glUniform1i(uSamplerLocation2, 1);
     }
 
     @Override
