@@ -31,6 +31,7 @@
         <activity android:name=".graphic.CylinderActivity" />
         <activity android:name=".graphic.BallActivity" />
         <activity android:name=".graphic.TextureActivity" />
+        <activity android:name=".graphic.TextureTwoActivity" />
         <activity android:name=".graphic.TextureColorfulActivity" />
         <activity android:name=".graphic.TextureEnlargeMatrixActivity" />
         <activity android:name=".graphic.TextureEnlargeActivity" />

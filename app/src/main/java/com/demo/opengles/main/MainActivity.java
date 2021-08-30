@@ -26,6 +26,7 @@ import com.demo.opengles.graphic.TextureActivity;
 import com.demo.opengles.graphic.TextureColorfulActivity;
 import com.demo.opengles.graphic.TextureEnlargeActivity;
 import com.demo.opengles.graphic.TextureEnlargeMatrixActivity;
+import com.demo.opengles.graphic.TextureTwoActivity;
 import com.demo.opengles.graphic.TransformActivity;
 import com.demo.opengles.graphic.TriangleActivity;
 import com.demo.opengles.graphic.TriangleColorActivity;
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("圆柱", CylinderActivity.class));
             add(new MainItemBean("球体", BallActivity.class));
             add(new MainItemBean("纹理-贴图", TextureActivity.class));
+            add(new MainItemBean("纹理-双纹理贴图", TextureTwoActivity.class));
             add(new MainItemBean("纹理-色彩变换", TextureColorfulActivity.class));
             add(new MainItemBean("纹理-放大镜-无投影变换", TextureEnlargeActivity.class));
             add(new MainItemBean("纹理-放大镜-正交投影变换", TextureEnlargeMatrixActivity.class));
