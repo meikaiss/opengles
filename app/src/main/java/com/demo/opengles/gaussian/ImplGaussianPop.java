@@ -31,7 +31,7 @@ public class ImplGaussianPop extends AbsGaussianPop {
 
     @Override
     protected VectorDrawable getVectorDrawable() {
-        return (VectorDrawable) context.getResources().getDrawable(R.drawable.ic_svg_test);
+        return (VectorDrawable) context.getResources().getDrawable(R.drawable.ic_svg_test_mask);
     }
 
     protected int getWidth() {

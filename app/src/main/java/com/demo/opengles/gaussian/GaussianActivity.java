@@ -111,7 +111,7 @@ public class GaussianActivity extends AppCompatActivity {
         renderObjectV.isBindFbo = true;
 
         defaultRenderObject = new DrawableRenderObject(this,
-                getResources().getDrawable(R.drawable.ic_svg_test_2));
+                getResources().getDrawable(R.drawable.ic_svg_test_real));
         defaultRenderObject.isBindFbo = false;
 
         glSurfaceView.setRenderer(renderer);
@@ -185,7 +185,7 @@ public class GaussianActivity extends AppCompatActivity {
                     Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(clipBmp);
             VectorDrawable vectorDrawable =
-                    (VectorDrawable) getResources().getDrawable(R.drawable.ic_svg_test);
+                    (VectorDrawable) getResources().getDrawable(R.drawable.ic_svg_test_mask);
             vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
             vectorDrawable.draw(canvas);
 

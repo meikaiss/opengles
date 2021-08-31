@@ -146,7 +146,7 @@ public abstract class AbsGaussianPop {
         renderObjectV.isBindFbo = true;
 
         defaultRenderObject = new DrawableRenderObject(context,
-                context.getResources().getDrawable(R.drawable.ic_svg_test_2));
+                context.getResources().getDrawable(R.drawable.ic_svg_test_real));
         defaultRenderObject.isBindFbo = false;
 
         glSurfaceView.setRenderer(renderer);
@@ -188,8 +188,6 @@ public abstract class AbsGaussianPop {
         private int createTexture() {
             int[] texture = new int[1];
 
-            Bitmap bitmapCopy = bgBitmap.copy(Bitmap.Config.ARGB_8888, true);
-
             Bitmap clipBmp = Bitmap.createBitmap(bgBitmap.getWidth(), bgBitmap.getHeight(),
                     Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(clipBmp);
@@ -197,6 +195,7 @@ public abstract class AbsGaussianPop {
             vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
             vectorDrawable.draw(canvas);
 
+            Bitmap bitmapCopy = bgBitmap.copy(Bitmap.Config.ARGB_8888, true);
             Canvas canvas2 = new Canvas(bitmapCopy);
             Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
             paint.setAntiAlias(true);
@@ -227,7 +226,7 @@ public abstract class AbsGaussianPop {
                     GLES20.GL_CLAMP_TO_EDGE);
 
             //给纹理传入图像数据，至此，此纹理相关设置已经结束。后续想使用或者操作这个纹理，只要再glBindTexture这个纹理的id即可
-            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmapCopy, 0);
+            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bgBitmap, 0);
 
             //返回生成的纹理的句柄
             return texture[0];

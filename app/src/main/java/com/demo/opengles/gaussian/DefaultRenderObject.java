@@ -15,6 +15,7 @@ public class DefaultRenderObject extends BaseRenderObject {
 
     public DefaultRenderObject(Context context) {
         super(context);
+        initShaderFileName("render/base/base/vertex.frag", "render/base/base/frag.frag");
     }
 
 }
