@@ -7,6 +7,10 @@ import android.util.Log;
 import java.nio.FloatBuffer;
 
 /**
+ * 将外界传入的纹理渲染到屏幕或离屏缓存上，不做任何额外的变换
+ * <p>
+ * 将任何需要被子类修改的数据提取抽象方法
+ * 作为抽象类规范全部的opengl绘制流程，不允许直接产生对象
  * Created by meikai on 2021/08/29.
  */
 public abstract class BaseRenderObject implements IRenderAble {
@@ -105,7 +109,10 @@ public abstract class BaseRenderObject implements IRenderAble {
         isChange = true;
     }
 
-    protected void f(){
+    /**
+     * 给子类扩展的opengl环境变量赋值
+     */
+    protected void bindExtraGLEnv() {
 
     }
 
@@ -129,7 +136,7 @@ public abstract class BaseRenderObject implements IRenderAble {
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
         GLES20.glUniform1i(uSamplerLocation, 0);
 
-        f();
+        bindExtraGLEnv();
 
         GLES20.glEnableVertexAttribArray(aPosLocation);
         GLES20.glEnableVertexAttribArray(aCoordinateLocation);

@@ -40,7 +40,7 @@ public abstract class AbsGaussianPop {
 
     private HVBlurRenderObject renderObjectH;
     private HVBlurRenderObject renderObjectV;
-    private DefaultRenderObject defaultRenderObject;
+    private DrawableRenderObject defaultRenderObject;
 
     private Bitmap bgBitmap;
 
@@ -145,7 +145,8 @@ public abstract class AbsGaussianPop {
         renderObjectV.setBlurOffset(0, 5);
         renderObjectV.isBindFbo = true;
 
-        defaultRenderObject = new DefaultRenderObject(context);
+        defaultRenderObject = new DrawableRenderObject(context,
+                context.getResources().getDrawable(R.drawable.ic_svg_test_2));
         defaultRenderObject.isBindFbo = false;
 
         glSurfaceView.setRenderer(renderer);

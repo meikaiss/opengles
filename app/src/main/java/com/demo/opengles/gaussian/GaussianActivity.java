@@ -39,7 +39,7 @@ public class GaussianActivity extends AppCompatActivity {
     private GLSurfaceView glSurfaceView;
     private HVBlurRenderObject renderObjectH;
     private HVBlurRenderObject renderObjectV;
-    private DefaultRenderObject defaultRenderObject;
+    private DrawableRenderObject defaultRenderObject;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -110,7 +110,8 @@ public class GaussianActivity extends AppCompatActivity {
         renderObjectV.setBlurOffset(0, 5);
         renderObjectV.isBindFbo = true;
 
-        defaultRenderObject = new DefaultRenderObject(this);
+        defaultRenderObject = new DrawableRenderObject(this,
+                getResources().getDrawable(R.drawable.ic_svg_test_2));
         defaultRenderObject.isBindFbo = false;
 
         glSurfaceView.setRenderer(renderer);
