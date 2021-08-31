@@ -1,141 +1,156 @@
 package com.demo.opengles.gaussian;
 
+import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.VectorDrawable;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLUtils;
-import android.os.Bundle;
+import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.FrameLayout;
-
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+import android.widget.PopupWindow;
 
 import com.demo.opengles.R;
-import com.demo.opengles.util.ToastUtil;
+import com.demo.opengles.util.ViewUtil;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 /**
- * Created by meikai on 2021/08/29.
+ * 高斯模糊弹框的基类
+ * 只负责处理不规则图形的高斯模糊，不负责具体的业务界面逻辑
  */
-public class GaussianActivity extends AppCompatActivity {
+public abstract class AbsGaussianPop {
 
-    private Button btnShow;
-    private FrameLayout layoutGlSurfaceView;
-    private FrameLayout layoutFragment;
-    private EmptyFragment emptyFragment;
+    protected Context context;
+    protected PopupWindow mPopWindow;
 
+    private View popupView;
     private GLSurfaceView glSurfaceView;
+
     private HVBlurRenderObject renderObjectH;
     private HVBlurRenderObject renderObjectV;
     private DefaultRenderObject defaultRenderObject;
 
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_gaussian);
+    private Bitmap bgBitmap;
 
-        btnShow = findViewById(R.id.btn_show);
-        layoutGlSurfaceView = findViewById(R.id.layout_gl_surface_view);
-        layoutFragment = findViewById(R.id.layout_fragment);
+    /**
+     * 弹框显示区域的宽度
+     */
+    protected abstract int getWidth();
 
-        btnShow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (layoutGlSurfaceView.getChildCount() > 0) {
-                    ToastUtil.show("请先隐藏");
-                    return;
-                }
-                addSurfaceView();
-            }
-        });
+    /**
+     * 弹框显示区域的高度
+     */
+    protected abstract int getHeight();
 
-        findViewById(R.id.btn_reset).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (glSurfaceView == null) {
-                    return;
-                }
+    /**
+     * 业务内容布局的资源id
+     */
+    protected abstract int getContentLayoutId();
 
-                layoutGlSurfaceView.removeView(glSurfaceView);
-                glSurfaceView = null;
+    /**
+     * 描述高斯模糊范围的矢量Drawable
+     */
+    protected abstract VectorDrawable getVectorDrawable();
 
-                getSupportFragmentManager().beginTransaction().remove(emptyFragment).commitNow();
-                emptyFragment = null;
-            }
-        });
-
-        findViewById(R.id.btn_background).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ViewGroup viewGroup = findViewById(R.id.root);
-                viewGroup.setBackgroundResource(R.mipmap.texture_image_markpolo);
-            }
-        });
-
-        findViewById(R.id.btn_pop).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new ImplGaussianPop(GaussianActivity.this).show(v);
-            }
-        });
+    protected <T extends View> T findViewById(int id) {
+        return popupView.findViewById(id);
     }
 
-    private void addSurfaceView() {
-        glSurfaceView = new GLSurfaceView(this);
-        layoutGlSurfaceView.addView(glSurfaceView);
+    public AbsGaussianPop(Activity activity) {
+        this.context = activity;
+        this.bgBitmap = screenShot(activity);
+
+        popupView = LayoutInflater.from(context).inflate(R.layout.pop_window_gaussian, null);
+
+        LayoutInflater.from(context).inflate(getContentLayoutId(), (ViewGroup) popupView, true);
+
+        mPopWindow = new PopupWindow(popupView, getWidth(), getHeight());
+
+        glSurfaceView = popupView.findViewById(R.id.gl_surface_view);
+
+        mPopWindow.setBackgroundDrawable(new BitmapDrawable());
+        mPopWindow.setOutsideTouchable(true);
+        mPopWindow.setFocusable(true);
+    }
+
+    public AbsGaussianPop show(View anchor) {
+        int offsetX = -(getWidth() - anchor.getWidth()) / 2;
+
+        int[] location = new int[2];
+        anchor.getLocationOnScreen(location);
+        location[1] -= ViewUtil.getStatusBarHeight(context);
+
+        bgBitmap = Bitmap.createBitmap(bgBitmap,
+                location[0] + offsetX,
+                location[1] + anchor.getHeight(),
+                getWidth(),
+                getHeight());
+
+        initSurfaceView();
+
+        mPopWindow.showAsDropDown(anchor, offsetX, 0);
+        return this;
+    }
+
+    private Bitmap screenShot(Activity activity) {
+        View view = activity.getWindow().getDecorView();
+        view.buildDrawingCache();
+
+        //状态栏高度
+        Rect rect = new Rect();
+        view.getWindowVisibleDisplayFrame(rect);
+        int stateBarHeight = rect.top;
+        Display display = activity.getWindowManager().getDefaultDisplay();
+
+        //获取屏幕宽高
+        int widths = display.getWidth();
+        int height = display.getHeight();
+
+        //设置允许当前窗口保存缓存信息
+        view.setDrawingCacheEnabled(true);
+
+        //去掉状态栏高度
+        Bitmap bitmap = Bitmap.createBitmap(view.getDrawingCache(), 0, stateBarHeight, widths,
+                height - stateBarHeight);
+
+        view.destroyDrawingCache();
+        return bitmap;
+    }
+
+    private void initSurfaceView() {
         glSurfaceView.setEGLContextClientVersion(2);
         //支持背景透明-start
         glSurfaceView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
         glSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
-        glSurfaceView.setZOrderOnTop(true);
+//        glSurfaceView.setZOrderOnTop(true);
         //支持背景透明-end
 
-        renderObjectH = new HVBlurRenderObject(this);
+        renderObjectH = new HVBlurRenderObject(context);
         renderObjectH.setBlurOffset(5, 0);
         renderObjectH.isBindFbo = true;
 
-        renderObjectV = new HVBlurRenderObject(this);
+        renderObjectV = new HVBlurRenderObject(context);
         renderObjectV.setBlurOffset(0, 5);
         renderObjectV.isBindFbo = true;
 
-        defaultRenderObject = new DefaultRenderObject(this);
+        defaultRenderObject = new DefaultRenderObject(context);
         defaultRenderObject.isBindFbo = false;
 
         glSurfaceView.setRenderer(renderer);
 
         glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-    }
-
-    private OnDrawFinishListener onDrawFinishListener = new OnDrawFinishListener() {
-        @Override
-        public void onDrawFinish() {
-            getWindow().getDecorView().post(new Runnable() {
-                @Override
-                public void run() {
-                    if (emptyFragment == null) {
-                        emptyFragment = new EmptyFragment();
-                        getSupportFragmentManager().beginTransaction().add(
-                                R.id.layout_fragment, emptyFragment, "emptyFragment").commitNow();
-                    }
-                }
-            });
-        }
-    };
-
-    private interface OnDrawFinishListener {
-        void onDrawFinish();
     }
 
     private GLSurfaceView.Renderer renderer = new GLSurfaceView.Renderer() {
@@ -167,24 +182,17 @@ public class GaussianActivity extends AppCompatActivity {
             renderObjectH.onDraw(textureId);
             renderObjectV.onDraw(renderObjectH.fboTextureId);
             defaultRenderObject.onDraw(renderObjectV.fboTextureId);
-
-            if (onDrawFinishListener != null) {
-                onDrawFinishListener.onDrawFinish();
-            }
         }
 
         private int createTexture() {
             int[] texture = new int[1];
-            Bitmap textureBmp = BitmapFactory.decodeResource(getResources(),
-                    R.mipmap.texture_image_markpolo);
 
-            Bitmap bitmapCopy = textureBmp.copy(Bitmap.Config.ARGB_8888, true);
+            Bitmap bitmapCopy = bgBitmap.copy(Bitmap.Config.ARGB_8888, true);
 
-            Bitmap clipBmp = Bitmap.createBitmap(textureBmp.getWidth(), textureBmp.getHeight(),
+            Bitmap clipBmp = Bitmap.createBitmap(bgBitmap.getWidth(), bgBitmap.getHeight(),
                     Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(clipBmp);
-            VectorDrawable vectorDrawable =
-                    (VectorDrawable) getResources().getDrawable(R.drawable.ic_svg_test);
+            VectorDrawable vectorDrawable = getVectorDrawable();
             vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
             vectorDrawable.draw(canvas);
 
@@ -224,5 +232,4 @@ public class GaussianActivity extends AppCompatActivity {
             return texture[0];
         }
     };
-
 }

@@ -220,7 +220,7 @@ public class FrameBufferActivity extends AppCompatActivity {
         GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T,
                 GLES20.GL_MIRRORED_REPEAT);
         Bitmap bitmap_arthur = BitmapFactory.decodeResource(getResources(),
-                R.mipmap.texture_iamge_arthur);
+                R.mipmap.texture_image_arthur);
         //给渲染引擎当前启用的纹理填充图像数据
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap_arthur, 0);
         //解除纹理绑定，告诉渲染引擎，后续不再需要操作纹理

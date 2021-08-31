@@ -316,7 +316,7 @@ public class TextureTwoActivity extends AppCompatActivity {
 
             private int createTexture2() {
                 Bitmap bmpArthur = BitmapFactory.decodeResource(getResources(),
-                        R.mipmap.texture_iamge_arthur);
+                        R.mipmap.texture_image_arthur);
 
                 int[] texture = new int[1];
                 if (textureBmp != null && !textureBmp.isRecycled()) {

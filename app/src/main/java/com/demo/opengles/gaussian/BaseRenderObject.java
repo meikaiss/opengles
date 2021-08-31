@@ -6,12 +6,10 @@ import android.util.Log;
 
 import java.nio.FloatBuffer;
 
-import javax.microedition.khronos.opengles.GL10;
-
 /**
  * Created by meikai on 2021/08/29.
  */
-public abstract class BaseRenderObject implements RenderAble {
+public abstract class BaseRenderObject implements IRenderAble {
 
     private static final String TAG = "BaseRenderObject";
 
