@@ -61,7 +61,7 @@ public class SurfaceViewVideoActivity extends AppCompatActivity {
         // 而这个Surface是由SurfaceView创建的，而SurfaceView在创建时已将此Surface挂载到系统屏幕抽象上，从而能显示到屏幕中
         mediaPlayer.setDisplay(surfaceHolder);
         //设置播放的视频源
-        AssetFileDescriptor afd = getAssets().openFd("alpha_video.mp4");
+        AssetFileDescriptor afd = getAssets().openFd("alpha_video/alpha_video.mp4");
         mediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
         afd.close();
 

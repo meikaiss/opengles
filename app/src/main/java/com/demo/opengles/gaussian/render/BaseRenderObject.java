@@ -42,16 +42,15 @@ public abstract class BaseRenderObject implements IRenderAble {
     public int fboTextureId;
     public int fboId;
     public int vboId;
+    //着色器的句柄
+    public int aPosLocation;
+    public int aCoordinateLocation;
+    public int uSamplerLocation;
 
     public int width;
     public int height;
 
     public boolean isBindFbo;
-
-    //着色器的句柄
-    public int aPosLocation;
-    public int aCoordinateLocation;
-    public int uSamplerLocation;
 
     public boolean isCreate = false;
     public boolean isChange = false;

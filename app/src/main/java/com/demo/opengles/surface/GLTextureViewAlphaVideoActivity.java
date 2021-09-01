@@ -123,7 +123,7 @@ public class GLTextureViewAlphaVideoActivity extends AppCompatActivity {
         mediaPlayer.setSurface(surface);
         surface.release();
         //设置播放的视频源
-        AssetFileDescriptor afd = getAssets().openFd("alpha_video.mp4");
+        AssetFileDescriptor afd = getAssets().openFd("alpha_video/alpha_video.mp4");
         mediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
         afd.close();
 
