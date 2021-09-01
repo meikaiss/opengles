@@ -1,5 +1,6 @@
 package com.demo.opengles.main;
 
+import android.Manifest;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 
@@ -76,13 +77,16 @@ public class MainActivity extends AppCompatActivity {
                     GLSurfaceViewAlphaVideoActivity.class));
             add(new MainItemBean("Surface绘图表面-GLTextureView播放Alpha视频",
                     GLTextureViewAlphaVideoActivity.class));
-            add(new MainItemBean("Camera1-SurfaceView预览", Camera1SurfaceViewActivity.class));
-            add(new MainItemBean("Camera1-TextureView预览", Camera1TextureViewActivity.class));
-            add(new MainItemBean("Camera1-GLSurfaceView预览", Camera1GLSurfaceViewActivity.class));
+            add(new MainItemBean("Camera1-SurfaceView预览", Camera1SurfaceViewActivity.class,
+                    Manifest.permission.CAMERA));
+            add(new MainItemBean("Camera1-TextureView预览", Camera1TextureViewActivity.class,
+                    Manifest.permission.CAMERA));
+            add(new MainItemBean("Camera1-GLSurfaceView预览", Camera1GLSurfaceViewActivity.class,
+                    Manifest.permission.CAMERA));
             add(new MainItemBean("Camera1-GLSurfaceView-OpenGL拍照",
-                    Camera1GLSurfaceViewTakePhotoActivity.class));
+                    Camera1GLSurfaceViewTakePhotoActivity.class, Manifest.permission.CAMERA));
             add(new MainItemBean("Camera1-GLSurfaceView-Camera1拍照",
-                    Camera1TakePhotoGLSurfaceViewActivity.class));
+                    Camera1TakePhotoGLSurfaceViewActivity.class, Manifest.permission.CAMERA));
         }
     };
 

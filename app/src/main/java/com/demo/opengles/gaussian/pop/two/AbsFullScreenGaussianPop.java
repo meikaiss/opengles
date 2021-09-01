@@ -88,12 +88,11 @@ public abstract class AbsFullScreenGaussianPop {
         LayoutInflater.from(context).inflate(getContentLayoutId(), (ViewGroup) popupView, true);
 
         mPopWindow = new PopupWindow(popupView, getWidth(), getHeight());
-
-        glSurfaceView = popupView.findViewById(R.id.gl_surface_view);
-
         mPopWindow.setBackgroundDrawable(new BitmapDrawable());
         mPopWindow.setOutsideTouchable(true);
         mPopWindow.setFocusable(true);
+
+        glSurfaceView = popupView.findViewById(R.id.gl_surface_view);
     }
 
     public AbsFullScreenGaussianPop show(View anchor) {
