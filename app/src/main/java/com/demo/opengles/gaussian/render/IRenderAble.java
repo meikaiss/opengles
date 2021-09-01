@@ -1,4 +1,4 @@
-package com.demo.opengles.gaussian;
+package com.demo.opengles.gaussian.render;
 
 /**
  * Created by meikai on 2021/08/29.

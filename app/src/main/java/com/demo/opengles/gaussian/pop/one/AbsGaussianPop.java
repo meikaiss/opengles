@@ -1,13 +1,9 @@
-package com.demo.opengles.gaussian;
+package com.demo.opengles.gaussian.pop.one;
 
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.PixelFormat;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.VectorDrawable;
@@ -21,6 +17,8 @@ import android.view.ViewGroup;
 import android.widget.PopupWindow;
 
 import com.demo.opengles.R;
+import com.demo.opengles.gaussian.render.HVBlurRenderObject;
+import com.demo.opengles.gaussian.render.OneTexFilterRenderObject;
 import com.demo.opengles.util.ViewUtil;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -40,7 +38,7 @@ public abstract class AbsGaussianPop {
 
     private HVBlurRenderObject renderObjectH;
     private HVBlurRenderObject renderObjectV;
-    private DrawableRenderObject defaultRenderObject;
+    private OneTexFilterRenderObject defaultRenderObject;
 
     private Bitmap bgBitmap;
 
@@ -121,9 +119,9 @@ public abstract class AbsGaussianPop {
         //设置允许当前窗口保存缓存信息
         view.setDrawingCacheEnabled(true);
 
-        //去掉状态栏高度
+        //去掉状态栏高度、底部导航栏的高度
         Bitmap bitmap = Bitmap.createBitmap(view.getDrawingCache(), 0, stateBarHeight, widths,
-                height - stateBarHeight);
+                height);
 
         view.destroyDrawingCache();
         return bitmap;
@@ -145,8 +143,7 @@ public abstract class AbsGaussianPop {
         renderObjectV.setBlurOffset(0, 5);
         renderObjectV.isBindFbo = true;
 
-        defaultRenderObject = new DrawableRenderObject(context,
-                context.getResources().getDrawable(R.drawable.ic_svg_test_real));
+        defaultRenderObject = new OneTexFilterRenderObject(context, getVectorDrawable());
         defaultRenderObject.isBindFbo = false;
 
         glSurfaceView.setRenderer(renderer);
@@ -187,21 +184,6 @@ public abstract class AbsGaussianPop {
 
         private int createTexture() {
             int[] texture = new int[1];
-
-            Bitmap clipBmp = Bitmap.createBitmap(bgBitmap.getWidth(), bgBitmap.getHeight(),
-                    Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(clipBmp);
-            VectorDrawable vectorDrawable = getVectorDrawable();
-            vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-            vectorDrawable.draw(canvas);
-
-            Bitmap bitmapCopy = bgBitmap.copy(Bitmap.Config.ARGB_8888, true);
-            Canvas canvas2 = new Canvas(bitmapCopy);
-            Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            paint.setAntiAlias(true);
-            paint.setDither(true);
-            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
-            canvas2.drawBitmap(clipBmp, 0, 0, paint);
 
             ////////////////////////////////////////////////////////////////////////////////
             ////////////////////////////////////////////////////////////////////////////////

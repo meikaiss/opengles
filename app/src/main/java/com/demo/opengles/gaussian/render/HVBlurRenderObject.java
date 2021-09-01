@@ -1,8 +1,10 @@
-package com.demo.opengles.gaussian;
+package com.demo.opengles.gaussian.render;
 
 import android.content.Context;
 import android.opengl.GLES20;
 import android.util.Log;
+
+import com.demo.opengles.gaussian.render.BaseRenderObject;
 
 /**
  * 将外界传入的纹理进行横向、纵向高斯模糊后，再渲染到屏幕或离屏缓存上

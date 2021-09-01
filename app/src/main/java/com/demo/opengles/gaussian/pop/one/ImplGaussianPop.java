@@ -1,4 +1,4 @@
-package com.demo.opengles.gaussian;
+package com.demo.opengles.gaussian.pop.one;
 
 import android.app.Activity;
 import android.graphics.drawable.VectorDrawable;
@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.demo.opengles.R;
+import com.demo.opengles.gaussian.pop.one.AbsGaussianPop;
 
 public class ImplGaussianPop extends AbsGaussianPop {
 
@@ -26,12 +27,12 @@ public class ImplGaussianPop extends AbsGaussianPop {
     }
 
     protected int getContentLayoutId() {
-        return R.layout.pop_window_gaussian_place_time;
+        return R.layout.pop_gaussian_one_filter;
     }
 
     @Override
     protected VectorDrawable getVectorDrawable() {
-        return (VectorDrawable) context.getResources().getDrawable(R.drawable.ic_svg_test_mask);
+        return (VectorDrawable) context.getResources().getDrawable(R.drawable.ic_svg_test_real);
     }
 
     protected int getWidth() {

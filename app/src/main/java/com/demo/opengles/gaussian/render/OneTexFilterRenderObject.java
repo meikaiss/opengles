@@ -1,4 +1,4 @@
-package com.demo.opengles.gaussian;
+package com.demo.opengles.gaussian.render;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -7,20 +7,22 @@ import android.graphics.drawable.Drawable;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 
+import com.demo.opengles.gaussian.render.BaseRenderObject;
+
 /**
- * 将外界传入的纹理渲染到屏幕或离屏缓存上，并额外绘制一个Drawable以纹理的方式叠加入参纹理之上
+ * 将外界传入的纹理渲染到屏幕或离屏缓存上，并以Drawable的形状进行裁剪，Drawable外部的区域为透明色，内部区域为输入纹理与Drawable的叠加色
  * Created by meikai on 2021/08/29.
  */
-public class DrawableRenderObject extends BaseRenderObject {
+public class OneTexFilterRenderObject extends BaseRenderObject {
 
     private int uSampler2Location;
-    private int textureId2;
+    private int textureIdDrawable;
     private Drawable drawable;
 
-    public DrawableRenderObject(Context context, Drawable drawable) {
+    public OneTexFilterRenderObject(Context context, Drawable drawable) {
         super(context);
         this.drawable = drawable;
-        initShaderFileName("render/base/two/vertex.frag", "render/base/two/frag.frag");
+        initShaderFileName("render/base/one/vertex.frag", "render/base/one/frag.frag");
     }
 
     @Override
@@ -40,7 +42,7 @@ public class DrawableRenderObject extends BaseRenderObject {
         drawable.draw(canvas);
 
         //默认的0号纹理引脚已经绑定作为输入源，所以这里内部额外的纹理使用1号引脚
-        textureId2 = createTexture(clipBmp, GLES20.GL_TEXTURE1);
+        textureIdDrawable = createTexture(clipBmp, GLES20.GL_TEXTURE1);
     }
 
     @Override

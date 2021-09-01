@@ -1,11 +1,8 @@
-package com.demo.opengles.gaussian;
+package com.demo.opengles.gaussian.render;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
-import android.opengl.GLES20;
-import android.opengl.GLUtils;
+
+import com.demo.opengles.gaussian.render.BaseRenderObject;
 
 /**
  * 将外界传入的纹理渲染到屏幕或离屏缓存上，不做任何额外的变换

@@ -21,6 +21,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.demo.opengles.R;
+import com.demo.opengles.gaussian.pop.two.ImplFullScreenGaussianPop;
+import com.demo.opengles.gaussian.pop.one.ImplGaussianPop;
+import com.demo.opengles.gaussian.render.HVBlurRenderObject;
+import com.demo.opengles.gaussian.render.OneTexFilterRenderObject;
 import com.demo.opengles.util.ToastUtil;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -39,7 +43,7 @@ public class GaussianActivity extends AppCompatActivity {
     private GLSurfaceView glSurfaceView;
     private HVBlurRenderObject renderObjectH;
     private HVBlurRenderObject renderObjectV;
-    private DrawableRenderObject defaultRenderObject;
+    private OneTexFilterRenderObject defaultRenderObject;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -90,6 +94,13 @@ public class GaussianActivity extends AppCompatActivity {
                 new ImplGaussianPop(GaussianActivity.this).show(v);
             }
         });
+
+        findViewById(R.id.btn_pop2).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new ImplFullScreenGaussianPop(GaussianActivity.this).show(v);
+            }
+        });
     }
 
     private void addSurfaceView() {
@@ -110,7 +121,7 @@ public class GaussianActivity extends AppCompatActivity {
         renderObjectV.setBlurOffset(0, 5);
         renderObjectV.isBindFbo = true;
 
-        defaultRenderObject = new DrawableRenderObject(this,
+        defaultRenderObject = new OneTexFilterRenderObject(this,
                 getResources().getDrawable(R.drawable.ic_svg_test_real));
         defaultRenderObject.isBindFbo = false;
 
