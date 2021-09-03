@@ -13,6 +13,6 @@ void main(){
     if(sourceColorDrawable.a==0.0){
         gl_FragColor = sourceColor;
     }else{
-        gl_FragColor = sourceColor2;
+        gl_FragColor = sourceColor2+sourceColorDrawable;
     }
 }
