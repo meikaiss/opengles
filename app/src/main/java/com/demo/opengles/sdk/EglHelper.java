@@ -1,4 +1,4 @@
-package com.demo.opengles.egl;
+package com.demo.opengles.sdk;
 
 import android.opengl.EGL14;
 import android.view.Surface;

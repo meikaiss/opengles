@@ -1,4 +1,4 @@
-package com.demo.opengles.gaussian;
+package com.demo.opengles.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -27,7 +27,7 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OpenGLESUtils {
+public class OpenGLESUtil {
     private static final String TAG = "OpenGLESUtils";
 
     /**

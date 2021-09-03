@@ -1,11 +1,10 @@
-package com.demo.opengles.camera;
+package com.demo.opengles.egl;
 
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
-import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.demo.opengles.R;
+import com.demo.opengles.sdk.EglSurfaceView;
 import com.demo.opengles.util.CollectUtil;
 
 import java.nio.ByteBuffer;
@@ -23,14 +23,11 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.opengles.GL10;
-
 import static android.opengl.GLES11Ext.GL_TEXTURE_EXTERNAL_OES;
 
-public class Camera1GLSurfaceViewActivity extends AppCompatActivity {
+public class EGLCamera1PreviewActivity extends AppCompatActivity {
 
-    private static final String TAG = "Camera1GLSurfaceViewAct";
+    private static final String TAG = "EGLCamera";
 
     private final String vertexShader =
             "uniform mat4 vMatrix;" +
@@ -49,7 +46,6 @@ public class Camera1GLSurfaceViewActivity extends AppCompatActivity {
                     + "varying vec2 vTexCoord;\n"
                     + "void main() {\n"
                     + "  gl_FragColor = texture2D(sTexture, vTexCoord);"
-//                    + "  gl_FragColor.r = 0.0;"
                     + "}\n";
 
     //顶点坐标
@@ -69,47 +65,40 @@ public class Camera1GLSurfaceViewActivity extends AppCompatActivity {
             1.0f, 1.0f, //右下
     };
 
-    private GLSurfaceView glSurfaceView;
-    private Camera1SurfaceViewRender render;
+    private EglSurfaceView eglSurfaceView;
+    private EGLCamera1PreviewRender renderer;
     private Camera camera;
     private Camera.Size previewSize;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_camera1_glsurface_view);
+        setContentView(R.layout.activity_egl_camera1_preview);
 
-        glSurfaceView = findViewById(R.id.gl_surface_view);
-        glSurfaceView.setEGLContextClientVersion(2);
+        eglSurfaceView = findViewById(R.id.egl_surface_view);
+        renderer = new EGLCamera1PreviewRender();
+        eglSurfaceView.setRenderer(renderer);
+        eglSurfaceView.setRendererMode(EglSurfaceView.RENDERMODE_CONTINUOUSLY);
 
-        render = new Camera1SurfaceViewRender();
-        {
-            RenderObject renderObject = new RenderObject();
-            renderObject.init(vertexShader, fragmentShader_1, vertexCoords_1, textureCoord_1,
-                    true);
-            renderObject.onSurfaceListener = new OnSurfaceListener() {
-                @Override
-                public void onSurfaceCreated(SurfaceTexture surfaceTexture, Surface surface) {
-                    try {
-                        initCamera1(surfaceTexture, surface);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+        RenderObject renderObject = new RenderObject();
+        renderObject.init(vertexShader, fragmentShader_1, vertexCoords_1, textureCoord_1,
+                true);
+        renderObject.onSurfaceListener = new OnSurfaceListener() {
+            @Override
+            public void onSurfaceCreated(SurfaceTexture surfaceTexture, Surface surface, int textureId) {
+                try {
+                    initCamera1(surfaceTexture, surface);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            };
-            render.put(renderObject);
-        }
-
-        glSurfaceView.setRenderer(render);
-
-        //必须在setRenderer之后才能调用
-        //因为MediaPlayer会连续不断的输出最新的解码图像，所以必须持续不断的刷新opengl
-        glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+            }
+        };
+        renderer.put(renderObject);
     }
 
     private void initCamera1(SurfaceTexture surfaceTexture, Surface surface) throws Exception {
-        Log.e(TAG, "surfaceView.width=" + glSurfaceView.getWidth()
-                + ", surfaceView.height=" + glSurfaceView.getHeight());
+        Log.e(TAG, "surfaceView.width=" + eglSurfaceView.getWidth()
+                + ", surfaceView.height=" + eglSurfaceView.getHeight());
 
         int cameraCount = Camera.getNumberOfCameras();
         if (cameraCount <= 0) {
@@ -153,7 +142,7 @@ public class Camera1GLSurfaceViewActivity extends AppCompatActivity {
         camera.setPreviewTexture(surfaceTexture);
         camera.startPreview();
 
-        render.renderObjectList.get(0).previewSize = previewSize;
+        renderer.renderObjectList.get(0).previewSize = previewSize;
     }
 
     //根据屏幕的旋转角度、相机的硬件内置放置角度，来设置显示旋转角度
@@ -193,19 +182,8 @@ public class Camera1GLSurfaceViewActivity extends AppCompatActivity {
         return result;
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        camera.release();
-    }
-
-    /**
-     * ////////////////////////////////////////////////////////////////////////////////////////////////////////
-     * ////////////////////////////////////////////////////////////////////////////////////////////////////////
-     * ////////////////////////////////////////////////////////////////////////////////////////////////////////
-     */
     private interface OnSurfaceListener {
-        void onSurfaceCreated(SurfaceTexture surfaceTexture, Surface surface);
+        void onSurfaceCreated(SurfaceTexture surfaceTexture, Surface surface, int textureId);
     }
 
     private static class RenderObject {
@@ -305,11 +283,11 @@ public class Camera1GLSurfaceViewActivity extends AppCompatActivity {
             surface = new Surface(surfaceTexture);
 
             if (onSurfaceListener != null) {
-                onSurfaceListener.onSurfaceCreated(surfaceTexture, surface);
+                onSurfaceListener.onSurfaceCreated(surfaceTexture, surface, textureId);
             }
         }
 
-        public void onSurfaceChanged(GL10 gl, int width, int height) {
+        public void onSurfaceChanged(int width, int height) {
             //设置正交投影参数
 
             int previewWidth = Math.min(previewSize.width, previewSize.height);
@@ -340,7 +318,7 @@ public class Camera1GLSurfaceViewActivity extends AppCompatActivity {
             Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0);
         }
 
-        public void onDrawFrame(GL10 gl) {
+        public void onDrawFrame() {
             if (!isEffective) {
                 return;
             }
@@ -413,13 +391,7 @@ public class Camera1GLSurfaceViewActivity extends AppCompatActivity {
 
     }
 
-    /**
-     * ////////////////////////////////////////////////////////////////////////////////////////////////////////
-     * ////////////////////////////////////////////////////////////////////////////////////////////////////////
-     * ////////////////////////////////////////////////////////////////////////////////////////////////////////
-     */
-    private static class Camera1SurfaceViewRender implements GLSurfaceView.Renderer {
-
+    private class EGLCamera1PreviewRender implements EglSurfaceView.Renderer {
         public List<RenderObject> renderObjectList = new ArrayList<>();
 
         public void put(RenderObject object) {
@@ -427,7 +399,7 @@ public class Camera1GLSurfaceViewActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+        public void onSurfaceCreated() {
             CollectUtil.execute(renderObjectList, new CollectUtil.Executor<RenderObject>() {
                 @Override
                 public void execute(RenderObject renderObject) {
@@ -437,24 +409,25 @@ public class Camera1GLSurfaceViewActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onSurfaceChanged(GL10 gl, int width, int height) {
+        public void onSurfaceChanged(int width, int height) {
             GLES20.glViewport(0, 0, width, height);
             CollectUtil.execute(renderObjectList, new CollectUtil.Executor<RenderObject>() {
                 @Override
                 public void execute(RenderObject renderObject) {
-                    renderObject.onSurfaceChanged(gl, width, height);
+                    renderObject.onSurfaceChanged(width, height);
                 }
             });
         }
 
         @Override
-        public void onDrawFrame(GL10 gl) {
+        public void onDrawFrame() {
             CollectUtil.execute(renderObjectList, new CollectUtil.Executor<RenderObject>() {
                 @Override
                 public void execute(RenderObject renderObject) {
-                    renderObject.onDrawFrame(gl);
+                    renderObject.onDrawFrame();
                 }
             });
         }
     }
+
 }

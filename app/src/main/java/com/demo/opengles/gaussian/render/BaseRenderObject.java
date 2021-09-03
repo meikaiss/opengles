@@ -4,7 +4,7 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.util.Log;
 
-import com.demo.opengles.gaussian.OpenGLESUtils;
+import com.demo.opengles.util.OpenGLESUtil;
 
 import java.nio.FloatBuffer;
 
@@ -72,21 +72,21 @@ public abstract class BaseRenderObject implements IRenderAble {
 
         GLES20.glClearColor(0, 0, 0, 1.0f);
 
-        vertexShaderCode = OpenGLESUtils.getShaderCode(context, vertexFilename);
-        fragShaderCode = OpenGLESUtils.getShaderCode(context, fragFilename);
+        vertexShaderCode = OpenGLESUtil.getShaderCode(context, vertexFilename);
+        fragShaderCode = OpenGLESUtil.getShaderCode(context, fragFilename);
 
-        vertexBuffer = OpenGLESUtils.getSquareVertexBuffer();
+        vertexBuffer = OpenGLESUtil.getSquareVertexBuffer();
         if (isBindFbo) {
-            coordinateBuffer = OpenGLESUtils.getSquareCoordinateReverseBuffer();
+            coordinateBuffer = OpenGLESUtil.getSquareCoordinateReverseBuffer();
         } else {
-            coordinateBuffer = OpenGLESUtils.getSquareCoordinateBuffer();
+            coordinateBuffer = OpenGLESUtil.getSquareCoordinateBuffer();
         }
-        vboId = OpenGLESUtils.getVbo(vertexBuffer, coordinateBuffer);
+        vboId = OpenGLESUtil.getVbo(vertexBuffer, coordinateBuffer);
 
-        vertexShader = OpenGLESUtils.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
-        fragShader = OpenGLESUtils.loadShader(GLES20.GL_FRAGMENT_SHADER, fragShaderCode);
+        vertexShader = OpenGLESUtil.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
+        fragShader = OpenGLESUtil.loadShader(GLES20.GL_FRAGMENT_SHADER, fragShaderCode);
 
-        program = OpenGLESUtils.linkProgram(vertexShader, fragShader);
+        program = OpenGLESUtil.linkProgram(vertexShader, fragShader);
 
         aPosLocation = GLES20.glGetAttribLocation(program, "aPos");
         aCoordinateLocation = GLES20.glGetAttribLocation(program, "aCoordinate");
@@ -102,7 +102,7 @@ public abstract class BaseRenderObject implements IRenderAble {
         GLES20.glViewport(0, 0, width, height);
 
         if (isBindFbo) {
-            int[] fboData = OpenGLESUtils.getFbo(width, height);
+            int[] fboData = OpenGLESUtil.getFbo(width, height);
             fboId = fboData[0];
             fboTextureId = fboData[1];
         }

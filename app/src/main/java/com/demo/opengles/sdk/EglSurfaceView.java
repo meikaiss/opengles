@@ -1,4 +1,4 @@
-package com.demo.opengles.egl;
+package com.demo.opengles.sdk;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -216,7 +216,7 @@ public class EglSurfaceView extends SurfaceView {
         }
     }
 
-    interface Renderer {
+    public interface Renderer {
         void onSurfaceCreated();
 
         void onSurfaceChanged(int width, int height);

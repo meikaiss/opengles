@@ -16,6 +16,7 @@ import com.demo.opengles.camera.Camera1TakePhotoGLSurfaceViewActivity;
 import com.demo.opengles.camera.Camera1TextureViewActivity;
 import com.demo.opengles.databinding.MainActivityBinding;
 import com.demo.opengles.egl.EGLActivity;
+import com.demo.opengles.egl.EGLCamera1PreviewActivity;
 import com.demo.opengles.gaussian.GaussianActivity;
 import com.demo.opengles.graphic.BallActivity;
 import com.demo.opengles.graphic.CircleActivity;
@@ -81,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("Camera1-GLSurfaceView-OpenGL拍照", Camera1GLSurfaceViewTakePhotoActivity.class, Manifest.permission.CAMERA));
             add(new MainItemBean("Camera1-GLSurfaceView-Camera1拍照", Camera1TakePhotoGLSurfaceViewActivity.class, Manifest.permission.CAMERA));
             add(new MainItemBean("EGL-基本环境", EGLActivity.class));
+            add(new MainItemBean("EGL-Camera1-预览", EGLCamera1PreviewActivity.class));
         }
     };
 
