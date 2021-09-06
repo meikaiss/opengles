@@ -3,8 +3,6 @@ package com.demo.opengles.egl;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
-import android.opengl.GLES11Ext;
-import android.opengl.GLES20;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Surface;
@@ -17,6 +15,7 @@ import com.demo.opengles.gaussian.render.CameraRenderObject;
 import com.demo.opengles.gaussian.render.DefaultRenderObject;
 import com.demo.opengles.sdk.EglSurfaceView;
 import com.demo.opengles.util.CollectUtil;
+import com.demo.opengles.util.OpenGLESUtil;
 
 import java.util.List;
 
@@ -49,12 +48,18 @@ public class EGLCamera1FBOPreviewActivity extends AppCompatActivity {
         eglSurfaceView.setRenderer(new EglSurfaceView.Renderer() {
             @Override
             public void onSurfaceCreated() {
-                cameraTextureId = createCameraTexture();
+                cameraTextureId = OpenGLESUtil.getOesTexture();
 
                 cameraRenderObject.onCreate();
                 defaultRenderObject.onCreate();
 
                 surfaceTexture = new SurfaceTexture(cameraTextureId);
+                surfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
+                    @Override
+                    public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+                        Log.e(TAG, "onFrameAvailable, " + Thread.currentThread().getName());
+                    }
+                });
 
                 try {
                     initCamera1(surfaceTexture);
@@ -71,28 +76,12 @@ public class EGLCamera1FBOPreviewActivity extends AppCompatActivity {
 
             @Override
             public void onDrawFrame() {
-                Log.e(TAG, "onDrawFrame");
+                Log.e(TAG, "onDrawFrame, " + Thread.currentThread().getName());
                 surfaceTexture.updateTexImage();
                 cameraRenderObject.onDraw(cameraTextureId);
                 defaultRenderObject.onDraw(cameraRenderObject.fboTextureId);
             }
 
-            private int createCameraTexture() {
-                int[] texture = new int[1];
-                //从offset=0号纹理单元开始生成n=1个纹理，并将纹理id保存到int[]=texture数组中
-                GLES20.glGenTextures(1, texture, 0);
-                //将生成的纹理与gpu关联为外部纹理类型，传入纹理id作为参数，每次bind之后，后续操作的纹理都是该纹理
-                GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, texture[0]);
-                //环绕（超出纹理坐标范围）  （s==x t==y GL_REPEAT 重复）
-                GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT);
-                GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT);
-                //过滤（纹理像素映射到坐标点）  （缩小、放大：GL_LINEAR线性）
-                GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
-                GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
-
-                //返回生成的纹理的句柄
-                return texture[0];
-            }
         });
         eglSurfaceView.setRendererMode(EglSurfaceView.RENDERMODE_CONTINUOUSLY);
     }

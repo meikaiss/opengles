@@ -2,6 +2,7 @@ package com.demo.opengles.sdk;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -44,6 +45,7 @@ public class EglSurfaceView extends SurfaceView {
     private SurfaceHolder.Callback surfaceHolderCallback = new SurfaceHolder.Callback() {
         @Override
         public void surfaceCreated(@NonNull SurfaceHolder holder) {
+            Log.e("EglSurfaceView", "surfaceCreated, " + Thread.currentThread().getName());
             if (mSurface == null) {
                 mSurface = holder.getSurface();
             }
@@ -54,6 +56,7 @@ public class EglSurfaceView extends SurfaceView {
 
         @Override
         public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height) {
+            Log.e("EglSurfaceView", "surfaceChanged, " + Thread.currentThread().getName());
             mEGLThread.width = width;
             mEGLThread.height = height;
             mEGLThread.isChange = true;
@@ -61,6 +64,7 @@ public class EglSurfaceView extends SurfaceView {
 
         @Override
         public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
+            Log.e("EglSurfaceView", "surfaceDestroyed, " + Thread.currentThread().getName());
             mEGLThread.onDestroy();
             mEGLThread = null;
             mEglContext = null;
