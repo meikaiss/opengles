@@ -17,6 +17,7 @@ import com.demo.opengles.camera.Camera1TextureViewActivity;
 import com.demo.opengles.databinding.MainActivityBinding;
 import com.demo.opengles.egl.EGLActivity;
 import com.demo.opengles.egl.EGLCamera1FBOPreviewActivity;
+import com.demo.opengles.egl.EGLCamera1FBOPreviewWaterMarkActivity;
 import com.demo.opengles.egl.EGLCamera1PreviewActivity;
 import com.demo.opengles.gaussian.GaussianActivity;
 import com.demo.opengles.graphic.BallActivity;
@@ -85,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("EGL-基本环境", EGLActivity.class));
             add(new MainItemBean("EGL-Camera1-预览", EGLCamera1PreviewActivity.class, Manifest.permission.CAMERA));
             add(new MainItemBean("EGL-Camera1-FBO-预览", EGLCamera1FBOPreviewActivity.class, Manifest.permission.CAMERA));
+            add(new MainItemBean("EGL-Camera1-FBO-预览加水印", EGLCamera1FBOPreviewWaterMarkActivity.class, Manifest.permission.CAMERA));
         }
     };
 
