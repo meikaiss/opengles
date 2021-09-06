@@ -1,6 +1,7 @@
 package com.demo.opengles.gaussian.render;
 
 import android.content.Context;
+import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.util.Log;
 
@@ -51,6 +52,7 @@ public abstract class BaseRenderObject implements IRenderAble {
     public int height;
 
     public boolean isBindFbo;
+    public boolean isOES;
 
     public boolean isCreate = false;
     public boolean isChange = false;
@@ -90,7 +92,9 @@ public abstract class BaseRenderObject implements IRenderAble {
 
         aPosLocation = GLES20.glGetAttribLocation(program, "aPos");
         aCoordinateLocation = GLES20.glGetAttribLocation(program, "aCoordinate");
-        uSamplerLocation = GLES20.glGetUniformLocation(program, "uSampler");
+        if (!isOES) {
+            uSamplerLocation = GLES20.glGetUniformLocation(program, "uSampler");
+        }
 
         isCreate = true;
     }
@@ -134,8 +138,12 @@ public abstract class BaseRenderObject implements IRenderAble {
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboId);
 
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
-        GLES20.glUniform1i(uSamplerLocation, 0);
+        if (isOES) {
+            GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textureId);
+        } else {
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
+            GLES20.glUniform1i(uSamplerLocation, 0);
+        }
 
         bindExtraGLEnv();
 

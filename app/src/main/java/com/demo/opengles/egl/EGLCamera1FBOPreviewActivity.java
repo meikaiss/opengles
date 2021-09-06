@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.demo.opengles.R;
+import com.demo.opengles.gaussian.render.CameraRenderObject;
 import com.demo.opengles.gaussian.render.DefaultRenderObject;
 import com.demo.opengles.sdk.EglSurfaceView;
 import com.demo.opengles.util.CollectUtil;
@@ -26,20 +27,23 @@ public class EGLCamera1FBOPreviewActivity extends AppCompatActivity {
     private Camera camera;
     private EglSurfaceView eglSurfaceView;
 
-    private DefaultRenderObject FBORenderObject;
-    private DefaultRenderObject ScreenRenderObject;
     private int cameraTextureId;
     private SurfaceTexture surfaceTexture;
+
+    private CameraRenderObject cameraRenderObject;
+    private DefaultRenderObject defaultRenderObject;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_egl_camera1_preview);
 
-        FBORenderObject = new DefaultRenderObject(this);
-        FBORenderObject.isBindFbo = true;
-        ScreenRenderObject = new DefaultRenderObject(this);
-        ScreenRenderObject.isBindFbo = false;
+        cameraRenderObject = new CameraRenderObject(this);
+        cameraRenderObject.isBindFbo = true;
+        cameraRenderObject.isOES = true;
+        defaultRenderObject = new DefaultRenderObject(this);
+        defaultRenderObject.isBindFbo = false;
+        defaultRenderObject.isOES = false;
 
         eglSurfaceView = findViewById(R.id.egl_surface_view);
         eglSurfaceView.setRenderer(new EglSurfaceView.Renderer() {
@@ -47,8 +51,8 @@ public class EGLCamera1FBOPreviewActivity extends AppCompatActivity {
             public void onSurfaceCreated() {
                 cameraTextureId = createCameraTexture();
 
-                FBORenderObject.onCreate();
-                ScreenRenderObject.onCreate();
+                cameraRenderObject.onCreate();
+                defaultRenderObject.onCreate();
 
                 surfaceTexture = new SurfaceTexture(cameraTextureId);
 
@@ -61,16 +65,16 @@ public class EGLCamera1FBOPreviewActivity extends AppCompatActivity {
 
             @Override
             public void onSurfaceChanged(int width, int height) {
-                FBORenderObject.onChange(width, height);
-                ScreenRenderObject.onChange(width, height);
+                cameraRenderObject.onChange(width, height);
+                defaultRenderObject.onChange(width, height);
             }
 
             @Override
             public void onDrawFrame() {
                 Log.e(TAG, "onDrawFrame");
                 surfaceTexture.updateTexImage();
-                FBORenderObject.onDraw(cameraTextureId);
-                ScreenRenderObject.onDraw(FBORenderObject.fboTextureId);
+                cameraRenderObject.onDraw(cameraTextureId);
+                defaultRenderObject.onDraw(cameraRenderObject.fboTextureId);
             }
 
             private int createCameraTexture() {
