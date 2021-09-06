@@ -83,8 +83,8 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("Camera1-GLSurfaceView-OpenGL读像素拍照", Camera1GLSurfaceViewTakePhotoActivity.class, Manifest.permission.CAMERA));
             add(new MainItemBean("Camera1-GLSurfaceView-相机硬件拍照", Camera1TakePhotoGLSurfaceViewActivity.class, Manifest.permission.CAMERA));
             add(new MainItemBean("EGL-基本环境", EGLActivity.class));
-            add(new MainItemBean("EGL-Camera1-预览", EGLCamera1PreviewActivity.class));
-            add(new MainItemBean("EGL-Camera1-FBO-预览", EGLCamera1FBOPreviewActivity.class));
+            add(new MainItemBean("EGL-Camera1-预览", EGLCamera1PreviewActivity.class, Manifest.permission.CAMERA));
+            add(new MainItemBean("EGL-Camera1-FBO-预览", EGLCamera1FBOPreviewActivity.class, Manifest.permission.CAMERA));
         }
     };
 

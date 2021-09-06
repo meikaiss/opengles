@@ -52,6 +52,7 @@ public abstract class BaseRenderObject implements IRenderAble {
     public int height;
 
     public boolean isBindFbo;
+    //标记输入的纹理是否为外部纹理，例如相机输入
     public boolean isOES;
 
     public boolean isCreate = false;

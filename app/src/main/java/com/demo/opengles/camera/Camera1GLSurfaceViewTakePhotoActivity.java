@@ -150,9 +150,10 @@ public class Camera1GLSurfaceViewTakePhotoActivity extends AppCompatActivity {
         int cameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
         camera = Camera.open(cameraId);
 
-        int degree = computeDegrees(cameraId);
-        Log.e(TAG, "相机预览在此界面显示时，需要旋转的角度 = " + degree);
-        camera.setDisplayOrientation(degree);
+        //当使用opengGL来绘制时，无法再使用setDisplayOrientation来调整角度，因此注释掉
+//        int degree = computeDegrees(cameraId);
+//        Log.e(TAG, "相机预览在此界面显示时，需要旋转的角度 = " + degree);
+//        camera.setDisplayOrientation(degree);
 
         //设置相机参数
         Camera.Parameters parameters = camera.getParameters();
@@ -388,7 +389,7 @@ public class Camera1GLSurfaceViewTakePhotoActivity extends AppCompatActivity {
              * 摄像机有三个参数：摄像机位置坐标、摄像机视线的朝向点、摄像机与视线垂直面的上方向点
              */
             Matrix.setLookAtM(mViewMatrix, 0, 0.0f, 0.0f, 1.0f,
-                    0f, 0f, 0f, -1f, 0f, 0.0f);
+                    0f, 0f, 0f, -1f, 0f, 0f);
             //计算变换矩阵
             Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0);
         }

@@ -98,8 +98,7 @@ public class EGLCamera1FBOPreviewActivity extends AppCompatActivity {
     }
 
     private void initCamera1(SurfaceTexture surfaceTexture) throws Exception {
-        Log.e(TAG, "surfaceView.width=" + eglSurfaceView.getWidth()
-                + ", surfaceView.height=" + eglSurfaceView.getHeight());
+        Log.e(TAG, "surfaceView.width=" + eglSurfaceView.getWidth() + ", surfaceView.height=" + eglSurfaceView.getHeight());
 
         int cameraCount = Camera.getNumberOfCameras();
         if (cameraCount <= 0) {
@@ -108,9 +107,10 @@ public class EGLCamera1FBOPreviewActivity extends AppCompatActivity {
         int cameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
         camera = Camera.open(cameraId);
 
-        int degree = computeDegrees(cameraId);
-        Log.e(TAG, "相机预览在此界面显示时，需要旋转的角度 = " + degree);
-        camera.setDisplayOrientation(degree);
+        //当使用opengGL来绘制时，无法再使用setDisplayOrientation来调整角度，因此注释掉
+//        int degree = computeDegrees(cameraId);
+//        Log.e(TAG, "相机预览在此界面显示时，需要旋转的角度 = " + degree);
+//        camera.setDisplayOrientation(degree);
 
         //设置相机参数
         Camera.Parameters parameters = camera.getParameters();
@@ -139,6 +139,9 @@ public class EGLCamera1FBOPreviewActivity extends AppCompatActivity {
         Camera.Size previewSize = sizeList.get(0);
         parameters.setPreviewSize(previewSize.width, previewSize.height);
         camera.setParameters(parameters);
+
+        cameraRenderObject.inputWidth = previewSize.width;
+        cameraRenderObject.inputHeight = previewSize.height;
 
         camera.setPreviewTexture(surfaceTexture);
         camera.startPreview();
