@@ -33,6 +33,10 @@ public class WaterMarkRenderObject extends DefaultRenderObject {
     @Override
     public void onCreate() {
         super.onCreate();
+        //启用透明色功能
+        GLES20.glEnable(GLES20.GL_BLEND);
+        //当纹理叠加时，采用叠加色的alpha值作为生效值
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
         Bitmap bitmap = OpenGLESUtil.createTextImage("水印", 28, "#fff000", "#00000000", 0);
         waterTextureId = OpenGLESUtil.createWaterTextureId(bitmap);
@@ -87,7 +91,6 @@ public class WaterMarkRenderObject extends DefaultRenderObject {
 
         GLES20.glDisableVertexAttribArray(aPosLocation);
         GLES20.glDisableVertexAttribArray(aCoordinateLocation);
-
 
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
