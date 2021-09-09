@@ -45,7 +45,7 @@ public class WaterMarkRenderObject extends DefaultRenderObject {
         float showHeight = 0.1f;
         float showWidth = scale * showHeight;//假定高度为顶点坐标系的0.1尺寸，那么宽度即为scale*0.1
         float startX = -0.9f;
-        float startY = 0.9f; //
+        float startY = 0.9f;
         float[] data = {
                 startX, startY,
                 startX, startY - showHeight,

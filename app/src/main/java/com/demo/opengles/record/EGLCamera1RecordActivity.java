@@ -1,11 +1,11 @@
-package com.demo.opengles.egl;
+package com.demo.opengles.record;
 
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Surface;
+import android.view.View;
+import android.widget.Button;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,11 +18,12 @@ import com.demo.opengles.sdk.EglSurfaceView;
 import com.demo.opengles.util.CollectUtil;
 import com.demo.opengles.util.OpenGLESUtil;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
-public class EGLCamera1FBOPreviewWaterMarkActivity extends AppCompatActivity {
-
-    private static final String TAG = "EGLCamera1FBO";
+public class EGLCamera1RecordActivity extends AppCompatActivity {
 
     private Camera camera;
     private EglSurfaceView eglSurfaceView;
@@ -34,10 +35,17 @@ public class EGLCamera1FBOPreviewWaterMarkActivity extends AppCompatActivity {
     private WaterMarkRenderObject waterMarkRenderObject;
     private DefaultRenderObject defaultRenderObject;
 
+    private VideoRecordEncoder videoEncodeRecode;
+    private Button btnRecordStart;
+    private Button btnRecordStop;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_egl_camera1_preview);
+        setContentView(R.layout.activity_egl_camera1_record);
+
+        btnRecordStart = findViewById(R.id.btn_start_record);
+        btnRecordStop = findViewById(R.id.btn_stop_record);
 
         cameraRenderObject = new CameraRenderObject(this);
         cameraRenderObject.isBindFbo = true;
@@ -63,7 +71,6 @@ public class EGLCamera1FBOPreviewWaterMarkActivity extends AppCompatActivity {
                 surfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
                     @Override
                     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-                        Log.e(TAG, "onFrameAvailable, " + Thread.currentThread().getName());
                     }
                 });
 
@@ -83,7 +90,6 @@ public class EGLCamera1FBOPreviewWaterMarkActivity extends AppCompatActivity {
 
             @Override
             public void onDrawFrame() {
-                Log.e(TAG, "onDrawFrame, " + Thread.currentThread().getName());
                 surfaceTexture.updateTexImage();
                 cameraRenderObject.onDraw(cameraTextureId);
                 waterMarkRenderObject.onDraw(cameraRenderObject.fboTextureId);
@@ -92,10 +98,61 @@ public class EGLCamera1FBOPreviewWaterMarkActivity extends AppCompatActivity {
 
         });
         eglSurfaceView.setRendererMode(EglSurfaceView.RENDERMODE_CONTINUOUSLY);
+
+        btnRecordStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startRecord();
+            }
+        });
+        btnRecordStop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stopRecord();
+            }
+        });
+    }
+
+    private void startRecord() {
+        videoEncodeRecode = new VideoRecordEncoder(this);
+        videoEncodeRecode.setRender(new EglSurfaceView.Renderer() {
+
+            DefaultRenderObject defaultRenderObject;
+
+            @Override
+            public void onSurfaceCreated() {
+                defaultRenderObject = new DefaultRenderObject(EGLCamera1RecordActivity.this);
+                defaultRenderObject.onCreate();
+            }
+
+            @Override
+            public void onSurfaceChanged(int width, int height) {
+                defaultRenderObject.onChange(width, height);
+
+            }
+
+            @Override
+            public void onDrawFrame() {
+                defaultRenderObject.onDraw(cameraRenderObject.fboTextureId);
+
+            }
+        });
+        videoEncodeRecode.setRenderMode(VideoRecordEncoder.RENDERMODE_CONTINUOUSLY);
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+        String dateTime = dateFormat.format(new Date());
+        videoEncodeRecode.initEncoder(eglSurfaceView.getEglContext(),
+                getExternalCacheDir().getAbsolutePath() + File.separator + dateTime + ".mp4",
+                 1080, 2340,44100, 2, 16);
+        videoEncodeRecode.startRecode();
+    }
+
+    private void stopRecord() {
+        videoEncodeRecode.stopRecode();
+        videoEncodeRecode = null;
     }
 
     private void initCamera1(SurfaceTexture surfaceTexture) throws Exception {
-        Log.e(TAG, "surfaceView.width=" + eglSurfaceView.getWidth() + ", surfaceView.height=" + eglSurfaceView.getHeight());
 
         int cameraCount = Camera.getNumberOfCameras();
         if (cameraCount <= 0) {
@@ -114,7 +171,6 @@ public class EGLCamera1FBOPreviewWaterMarkActivity extends AppCompatActivity {
                 new CollectUtil.Executor<Integer>() {
                     @Override
                     public void execute(Integer integer) {
-                        Log.e(TAG, "SupportedPreviewFormats: integer = " + integer);
                     }
                 });
 
@@ -122,8 +178,6 @@ public class EGLCamera1FBOPreviewWaterMarkActivity extends AppCompatActivity {
         CollectUtil.execute(sizeList, new CollectUtil.Executor<Camera.Size>() {
             @Override
             public void execute(Camera.Size size) {
-                Log.e(TAG, "SupportedPreviewSizes: size.width = "
-                        + size.width + " , size.height = " + size.height);
             }
         });
         //在使用正交投影变换的情况下，不需要考虑图像宽高比与View宽高比不一致的问题，因为正交投影会保持图像原有的宽高比，允许上下或两侧出现空白
