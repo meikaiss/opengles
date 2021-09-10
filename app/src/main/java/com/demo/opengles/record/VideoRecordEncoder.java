@@ -117,8 +117,9 @@ public class VideoRecordEncoder {
             // aac
             initAudioEncoder(MediaFormat.MIMETYPE_AUDIO_AAC, sampleRate, channel);
 
+            status = OnStatusChangeListener.STATUS.INIT;
             if (onStatusChangeListener != null) {
-                onStatusChangeListener.onStatusChange(OnStatusChangeListener.STATUS.INIT);
+                onStatusChangeListener.onStatusChange(status);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -234,8 +235,9 @@ public class VideoRecordEncoder {
                         mediaMuxer.release();
                         mediaMuxer = null;
 
+                        status = OnStatusChangeListener.STATUS.END;
                         if (encoderWeakReference.get().onStatusChangeListener != null) {
-                            encoderWeakReference.get().onStatusChangeListener.onStatusChange(OnStatusChangeListener.STATUS.END);
+                            encoderWeakReference.get().onStatusChangeListener.onStatusChange(status);
                         }
                     }
 
@@ -249,8 +251,9 @@ public class VideoRecordEncoder {
                         mediaMuxer.start();
                         encoderWeakReference.get().encodeStart = true;
 
+                        status = OnStatusChangeListener.STATUS.START;
                         if (encoderWeakReference.get().onStatusChangeListener != null) {
-                            encoderWeakReference.get().onStatusChangeListener.onStatusChange(OnStatusChangeListener.STATUS.START);
+                            encoderWeakReference.get().onStatusChangeListener.onStatusChange(status);
                         }
                     }
                 } else {
@@ -328,8 +331,9 @@ public class VideoRecordEncoder {
                         mediaMuxer.release();
                         mediaMuxer = null;
 
+                        status = OnStatusChangeListener.STATUS.END;
                         if (encoderWeakReference.get().onStatusChangeListener != null) {
-                            encoderWeakReference.get().onStatusChangeListener.onStatusChange(OnStatusChangeListener.STATUS.END);
+                            encoderWeakReference.get().onStatusChangeListener.onStatusChange(status);
                         }
 
                     }
@@ -342,8 +346,10 @@ public class VideoRecordEncoder {
                     if (encoderWeakReference.get().mVideoEncodecThread.videoTrackIndex != -1) {
                         mediaMuxer.start();
                         encoderWeakReference.get().encodeStart = true;
+
+                        status = OnStatusChangeListener.STATUS.START;
                         if (encoderWeakReference.get().onStatusChangeListener != null) {
-                            encoderWeakReference.get().onStatusChangeListener.onStatusChange(OnStatusChangeListener.STATUS.START);
+                            encoderWeakReference.get().onStatusChangeListener.onStatusChange(status);
                         }
                     }
                 } else {
@@ -506,6 +512,8 @@ public class VideoRecordEncoder {
     public void setOnStatusChangeListener(OnStatusChangeListener onStatusChangeListener) {
         this.onStatusChangeListener = onStatusChangeListener;
     }
+
+    public static OnStatusChangeListener.STATUS status = OnStatusChangeListener.STATUS.INIT;
 
     public interface OnStatusChangeListener {
         void onStatusChange(STATUS status);

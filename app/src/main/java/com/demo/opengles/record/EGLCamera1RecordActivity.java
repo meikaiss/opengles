@@ -1,5 +1,6 @@
 package com.demo.opengles.record;
 
+import android.content.Intent;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
@@ -14,6 +15,7 @@ import com.demo.opengles.R;
 import com.demo.opengles.gaussian.render.CameraRenderObject;
 import com.demo.opengles.gaussian.render.DefaultRenderObject;
 import com.demo.opengles.gaussian.render.WaterMarkRenderObject;
+import com.demo.opengles.helper.VideoPlayerActivity;
 import com.demo.opengles.sdk.EglSurfaceView;
 import com.demo.opengles.util.CollectUtil;
 import com.demo.opengles.util.OpenGLESUtil;
@@ -39,6 +41,9 @@ public class EGLCamera1RecordActivity extends AppCompatActivity {
     private VideoRecordEncoder videoEncodeRecode;
     private Button btnRecordStart;
     private Button btnRecordStop;
+    private Button btnRecordPlay;
+
+    private String savePath;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -47,6 +52,7 @@ public class EGLCamera1RecordActivity extends AppCompatActivity {
 
         btnRecordStart = findViewById(R.id.btn_start_record);
         btnRecordStop = findViewById(R.id.btn_stop_record);
+        btnRecordPlay = findViewById(R.id.btn_play_record);
 
         cameraRenderObject = new CameraRenderObject(this);
         cameraRenderObject.isBindFbo = true;
@@ -112,6 +118,23 @@ public class EGLCamera1RecordActivity extends AppCompatActivity {
                 stopRecord();
             }
         });
+        btnRecordPlay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (savePath == null){
+                    ToastUtil.show("请先录制一个视频");
+                    return;
+                }
+                if (VideoRecordEncoder.status == VideoRecordEncoder.OnStatusChangeListener.STATUS.START){
+                    ToastUtil.show("请先结束录制");
+                    return;
+                }
+
+                Intent intent = new Intent(v.getContext(), VideoPlayerActivity.class);
+                intent.putExtra("path", savePath);
+                startActivity(intent);
+            }
+        });
     }
 
     private void startRecord() {
@@ -140,7 +163,7 @@ public class EGLCamera1RecordActivity extends AppCompatActivity {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
         String dateTime = dateFormat.format(new Date());
-        String savePath = getExternalCacheDir().getAbsolutePath() + File.separator + dateTime + ".mp4";
+        savePath = getExternalCacheDir().getAbsolutePath() + File.separator + dateTime + ".mp4";
         ToastUtil.show("保存路径:" + savePath);
 
         videoEncodeRecode.initEncoder(eglSurfaceView.getEglContext(), savePath,
