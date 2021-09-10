@@ -2,9 +2,11 @@ package com.demo.opengles.gaussian.render;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 
+import com.demo.opengles.R;
 import com.demo.opengles.util.OpenGLESUtil;
 
 /**
@@ -23,27 +25,21 @@ public class WaterMarkRenderObject extends DefaultRenderObject {
     public int aCoordinateLocation2;
     public int uSamplerLocation2;
 
-    public void setWaterMarkText(String waterMarkText) {
-        this.waterMarkText = waterMarkText;
-    }
-
     public WaterMarkRenderObject(Context context) {
         super(context);
-        renderGLInfo = new RenderGLInfo();
-        renderGLInfo.initShaderFileName("render/base/watermark/vertex.frag", "render/base/watermark/frag.frag");
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-
+        renderGLInfo = new RenderGLInfo();
+        renderGLInfo.initShaderFileName("render/base/watermark/vertex.frag", "render/base/watermark/frag.frag");
         renderGLInfo.createProgram(context, isBindFbo);
 
-        uMatrixLocation2 = GLES20.glGetAttribLocation(renderGLInfo.program, "uMatrix");
+        uMatrixLocation2 = GLES20.glGetUniformLocation(renderGLInfo.program, "uMatrix");
         aPosLocation2 = GLES20.glGetAttribLocation(renderGLInfo.program, "aPos");
         aCoordinateLocation2 = GLES20.glGetAttribLocation(renderGLInfo.program, "aCoordinate");
         uSamplerLocation2 = GLES20.glGetUniformLocation(renderGLInfo.program, "uSampler");
-
 
         //启用透明色功能
         GLES20.glEnable(GLES20.GL_BLEND);
@@ -54,57 +50,32 @@ public class WaterMarkRenderObject extends DefaultRenderObject {
     @Override
     public void onChange(int width, int height) {
         super.onChange(width, height);
-        if (isBindFbo) {
-            renderGLInfo.createFBO(width, height);
-        }
-
-        waterMarkBmp = OpenGLESUtil.createTextImage(waterMarkText, 28, "#fff000", "#00000000", 0);
+        waterMarkBmp = OpenGLESUtil.createTextImage(waterMarkText, 28, "#ffff00", "#00000000", 0);
+        waterMarkBmp = BitmapFactory.decodeResource(context.getResources(), R.mipmap.texture_image_markpolo);
         renderGLInfo.textureId = OpenGLESUtil.createWaterTextureId(waterMarkBmp);
 
-        float scale = (float) waterMarkBmp.getWidth() / waterMarkBmp.getHeight();
-        float showHeight = 0.1f;
-        float showWidth = scale * showHeight;//假定高度为顶点坐标系的0.1尺寸，那么宽度即为scale*0.1
-        float startX = -0.9f;
-        float startY = -0.9f;
-        float viewScale = (float) width / height;
-        float[] data = {
-                startX, startY,
-                startX, startY - showHeight * viewScale,
-                startX + showWidth, startY,
-                startX + showWidth, startY - showHeight * viewScale
-        };
-
-        renderGLInfo.vertexBuffer = OpenGLESUtil.createFloatBuffer(data);
-        if (isBindFbo) {
-            renderGLInfo.coordinateBuffer = OpenGLESUtil.getSquareCoordinateReverseBuffer();
-        } else {
-            renderGLInfo.coordinateBuffer = OpenGLESUtil.getSquareCoordinateBuffer();
-        }
-
-        renderGLInfo.vboId = OpenGLESUtil.getVbo(renderGLInfo.vertexBuffer, renderGLInfo.coordinateBuffer);
-
         /////////////////////////////////////////////
-        //创建投影矩阵
+        //创建正交投影矩阵
         /////////////////////////////////////////////
         int w = waterMarkBmp.getWidth();
         int h = waterMarkBmp.getHeight();
-        float sWH = w / (float) h;
-        float sWidthHeight = width / (float) height;
+        float scaleWHBmp = w / (float) h;
+        float scaleWHView = width / (float) height;
         if (width > height) {
-            if (sWH > sWidthHeight) {
-                Matrix.orthoM(renderGLInfo.mProjectMatrix, 0, -sWidthHeight * sWH, sWidthHeight * sWH,
+            if (scaleWHBmp > scaleWHView) {
+                Matrix.orthoM(renderGLInfo.mProjectMatrix, 0, -scaleWHView * scaleWHBmp, scaleWHView * scaleWHBmp,
                         -1, 1, -1, 1);
             } else {
-                Matrix.orthoM(renderGLInfo.mProjectMatrix, 0, -sWidthHeight / sWH, sWidthHeight / sWH,
+                Matrix.orthoM(renderGLInfo.mProjectMatrix, 0, -scaleWHView / scaleWHBmp, scaleWHView / scaleWHBmp,
                         -1, 1, -1, 1);
             }
         } else {
-            if (sWH > sWidthHeight) {
-                Matrix.orthoM(renderGLInfo.mProjectMatrix, 0, -1, 1, -1 / sWidthHeight * sWH,
-                        1 / sWidthHeight * sWH, -1, 1);
+            if (scaleWHBmp > scaleWHView) {
+                Matrix.orthoM(renderGLInfo.mProjectMatrix, 0, -1, 1, -1 / scaleWHView * scaleWHBmp,
+                        1 / scaleWHView * scaleWHBmp, -1, 1);
             } else {
-                Matrix.orthoM(renderGLInfo.mProjectMatrix, 0, -1, 1, -sWH / sWidthHeight,
-                        sWH / sWidthHeight, -1, 1);
+                Matrix.orthoM(renderGLInfo.mProjectMatrix, 0, -1, 1, -scaleWHBmp / scaleWHView,
+                        scaleWHBmp / scaleWHView, -1, 1);
             }
         }
 
@@ -114,10 +85,44 @@ public class WaterMarkRenderObject extends DefaultRenderObject {
          * 摄像机有三个参数：摄像机位置坐标、摄像机视线的朝向点、摄像机与视线垂直面的上方向点
          */
         Matrix.setLookAtM(renderGLInfo.mViewMatrix, 0, 0.0f, 0.0f, 1.0f,
-                0f, 0f, 0f, 1f, 0f, 0f);
+                0f, 0f, 0f, 0f, 1f, 0f);
         //计算变换矩阵
         Matrix.multiplyMM(renderGLInfo.mMVPMatrix, 0,
                 renderGLInfo.mProjectMatrix, 0, renderGLInfo.mViewMatrix, 0);
+
+
+        /////////////////////////////////////////////
+        //创建顶点坐标和纹理坐标VBO
+        /////////////////////////////////////////////
+
+        /**
+         * 原理：
+         * 在同一个FBO上每glBindFramebuffer一次，世界坐标系的Y轴就需要上下倒置一次，opengl es特性如此
+         *
+         * 实践：
+         * 在将相机的输出纹理绘制到水印FBO时，就已经触发一次绘制，所以世界坐标系的Y轴已经倒置
+         */
+//        float newDeltaY = 1 / scaleWHBmp * 2;
+//        float[] data = new float[]{
+//                -1.0f, -1.0f / scaleWHView * scaleWHBmp + newDeltaY,
+//                -1.0f, -1.0f / scaleWHView * scaleWHBmp,
+//                0.0f, -1.0f / scaleWHView * scaleWHBmp + newDeltaY,
+//                0.0f, -1.0f / scaleWHView * scaleWHBmp
+//        };
+        float[] data = {
+                -1.0f, 0.0f,
+                -1.0f, -1.0f,
+                0.0f, 0.0f,
+                0.0f, -1.0f
+        };
+        renderGLInfo.vertexBuffer = OpenGLESUtil.createFloatBuffer(data);
+        if (isBindFbo) {
+            renderGLInfo.coordinateBuffer = OpenGLESUtil.getSquareCoordinateReverseBuffer();
+        } else {
+            renderGLInfo.coordinateBuffer = OpenGLESUtil.getSquareCoordinateBuffer();
+        }
+
+        renderGLInfo.vboId = OpenGLESUtil.getVbo(renderGLInfo.vertexBuffer, renderGLInfo.coordinateBuffer);
     }
 
     @Override
@@ -125,7 +130,7 @@ public class WaterMarkRenderObject extends DefaultRenderObject {
         super.onDraw(textureId);
 
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-        GLES20.glUseProgram(program);
+        GLES20.glUseProgram(renderGLInfo.program);
 
         if (isBindFbo) {
             GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fboId);
@@ -139,12 +144,6 @@ public class WaterMarkRenderObject extends DefaultRenderObject {
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, renderGLInfo.textureId);
         GLES20.glUniform1i(uSamplerLocation2, 0);
-
-        float[] mMatrixTranslate = new float[16];
-        Matrix.setIdentityM(mMatrixTranslate, 0);
-        Matrix.translateM(mMatrixTranslate, 0, 0.3f, 0, 0);
-        Matrix.multiplyMM(renderGLInfo.mMVPMatrix, 0,
-                renderGLInfo.mMVPMatrix, 0, mMatrixTranslate, 0);
 
         GLES20.glUniformMatrix4fv(uMatrixLocation2, 1, false, renderGLInfo.mMVPMatrix, 0);
 
