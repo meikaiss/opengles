@@ -17,6 +17,7 @@ import com.demo.opengles.gaussian.render.WaterMarkRenderObject;
 import com.demo.opengles.sdk.EglSurfaceView;
 import com.demo.opengles.util.CollectUtil;
 import com.demo.opengles.util.OpenGLESUtil;
+import com.demo.opengles.util.ToastUtil;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -128,28 +129,29 @@ public class EGLCamera1RecordActivity extends AppCompatActivity {
             @Override
             public void onSurfaceChanged(int width, int height) {
                 defaultRenderObject.onChange(width, height);
-
             }
 
             @Override
             public void onDrawFrame() {
-                defaultRenderObject.onDraw(cameraRenderObject.fboTextureId);
-
+                defaultRenderObject.onDraw(waterMarkRenderObject.fboTextureId);
             }
         });
         videoEncodeRecode.setRenderMode(VideoRecordEncoder.RENDERMODE_CONTINUOUSLY);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
         String dateTime = dateFormat.format(new Date());
-        videoEncodeRecode.initEncoder(eglSurfaceView.getEglContext(),
-                getExternalCacheDir().getAbsolutePath() + File.separator + dateTime + ".mp4",
-                 1080, 2340,44100, 2, 16);
+        String savePath = getExternalCacheDir().getAbsolutePath() + File.separator + dateTime + ".mp4";
+        ToastUtil.show("保存路径:" + savePath);
+
+        videoEncodeRecode.initEncoder(eglSurfaceView.getEglContext(), savePath,
+                eglSurfaceView.getWidth(), eglSurfaceView.getHeight(), 44100, 2, 16);
         videoEncodeRecode.startRecode();
     }
 
     private void stopRecord() {
         videoEncodeRecode.stopRecode();
         videoEncodeRecode = null;
+        ToastUtil.show("停止录制");
     }
 
     private void initCamera1(SurfaceTexture surfaceTexture) throws Exception {

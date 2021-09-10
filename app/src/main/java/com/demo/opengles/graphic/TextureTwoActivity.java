@@ -34,6 +34,9 @@ public class TextureTwoActivity extends AppCompatActivity {
                     "    aCoordinate=vCoordinate;\n" +
                     "}";
 
+    /**
+     * glsl中的mod函数类似于java的%取余，但不同的是mod的参数必须是小数，例如0.7对0.2取mod余数=0.1
+     */
     private final String fragmentShaderCode =
             "precision mediump float;\n" +
                     "uniform sampler2D vTexture;\n" +
@@ -42,7 +45,7 @@ public class TextureTwoActivity extends AppCompatActivity {
                     "void main(){\n" +
                     "    vec4 textColor1=texture2D(vTexture,aCoordinate);" +
                     "    vec4 textColor2=texture2D(vTexture2,aCoordinate);" +
-                    "    if(aCoordinate.x<=0.5){" +
+                    "    if(mod(aCoordinate.x,0.2)<=0.1){" +
                     "        gl_FragColor=textColor1;" +
                     "    }else{" +
                     "        gl_FragColor=textColor2;\n" +

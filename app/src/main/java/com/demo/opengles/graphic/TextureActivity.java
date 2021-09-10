@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.demo.opengles.R;
+import com.demo.opengles.util.OpenGLESUtil;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -182,6 +183,10 @@ public class TextureActivity extends AppCompatActivity {
             public void onSurfaceCreated(GL10 gl, EGLConfig config) {
                 //rgb=0.4表示背景为灰色
                 GLES20.glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
+                //启用透明色功能
+                GLES20.glEnable(GLES20.GL_BLEND);
+                //当纹理叠加时，采用叠加色的alpha值作为生效值
+                GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
                 //启用2d纹理功能，包含2d采样
                 GLES20.glEnable(GLES20.GL_TEXTURE_2D);
 
@@ -236,7 +241,8 @@ public class TextureActivity extends AppCompatActivity {
                     }
                 }
                 //设置相机位置
-                Matrix.setLookAtM(mViewMatrix, 0, 0, 0, 7.0f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+                Matrix.setLookAtM(mViewMatrix, 0, 0, 0, 7.0f,
+                        0f, 0f, 0f, 0f, 1.0f, 0.0f);
                 //计算变换矩阵
                 Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0);
             }
@@ -261,6 +267,8 @@ public class TextureActivity extends AppCompatActivity {
                 GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
                 GLES20.glUseProgram(mProgram);
 
+                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
+
                 //将显卡中的第0号纹理单元 赋值给 纹理句柄
                 GLES20.glUniform1i(glVTexture, 0);
                 GLES20.glUniform1i(glVTexture2, 1);
@@ -284,9 +292,8 @@ public class TextureActivity extends AppCompatActivity {
                     GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
                     //从offset=0号纹理单元开始生成n=1个纹理，并将纹理id保存到int[]=texture数组中
                     GLES20.glGenTextures(1, texture, 0);
-                    textureId = texture[0];
                     //将生成的纹理与gpu关联为2d纹理类型，传入纹理id作为参数，每次bing之后，后续操作的纹理都是该纹理
-                    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
+                    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture[0]);
                     //设置缩小过滤为使用纹理中坐标最接近的一个像素的颜色作为需要绘制的像素颜色
                     GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER,
                             GLES20.GL_NEAREST);
@@ -302,6 +309,8 @@ public class TextureActivity extends AppCompatActivity {
 
                     //给纹理传入图像数据，至此，此纹理相关设置已经结束。后续想使用或者操作这个纹理，只要再glBindTexture这个纹理的id即可
                     GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, textureBmp, 0);
+
+                    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
 
                     //返回生成的纹理的句柄
                     return texture[0];
@@ -319,9 +328,8 @@ public class TextureActivity extends AppCompatActivity {
                     GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
                     //从offset=0号纹理单元开始生成n=1个纹理，并将纹理id保存到int[]=texture数组中
                     GLES20.glGenTextures(1, texture, 0);
-                    textureId = texture[0];
                     //将生成的纹理与gpu关联为2d纹理类型，传入纹理id作为参数，每次bing之后，后续操作的纹理都是该纹理
-                    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
+                    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture[0]);
                     //设置缩小过滤为使用纹理中坐标最接近的一个像素的颜色作为需要绘制的像素颜色
                     GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER,
                             GLES20.GL_NEAREST);
@@ -337,6 +345,8 @@ public class TextureActivity extends AppCompatActivity {
 
                     //给纹理传入图像数据，至此，此纹理相关设置已经结束。后续想使用或者操作这个纹理，只要再glBindTexture这个纹理的id即可
                     GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bmpArthur, 0);
+
+                    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
 
                     //返回生成的纹理的句柄
                     return texture[0];
