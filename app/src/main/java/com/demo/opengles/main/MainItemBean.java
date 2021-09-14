@@ -2,10 +2,13 @@ package com.demo.opengles.main;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainItemBean {
     public String name;
     public Class<? extends AppCompatActivity> clz;
-    public String permission;
+    public List<String> permissionList = new ArrayList<>();
 
     public MainItemBean(String name, Class<? extends AppCompatActivity> clz) {
         this.name = name;
@@ -16,6 +19,14 @@ public class MainItemBean {
                         String permission) {
         this.name = name;
         this.clz = clz;
-        this.permission = permission;
+        this.permissionList.add(permission);
+    }
+
+    public MainItemBean(String name, Class<? extends AppCompatActivity> clz,
+                        String permission1, String permission2) {
+        this.name = name;
+        this.clz = clz;
+        this.permissionList.add(permission1);
+        this.permissionList.add(permission2);
     }
 }

@@ -39,6 +39,8 @@ public class EGLCamera1RecordActivity extends AppCompatActivity {
     private DefaultRenderObject defaultRenderObject;
 
     private VideoRecordEncoder videoEncodeRecode;
+    private AudioRecorder audioRecorder;
+
     private Button btnRecordStart;
     private Button btnRecordStop;
     private Button btnRecordPlay;
@@ -169,9 +171,19 @@ public class EGLCamera1RecordActivity extends AppCompatActivity {
         videoEncodeRecode.initEncoder(eglSurfaceView.getEglContext(), savePath,
                 eglSurfaceView.getWidth(), eglSurfaceView.getHeight(), 44100, 2, 16);
         videoEncodeRecode.startRecode();
+
+        audioRecorder = new AudioRecorder();
+        audioRecorder.setOnAudioDataArrivedListener(new AudioRecorder.OnAudioDataArrivedListener() {
+            @Override
+            public void onAudioDataArrived(byte[] audioData) {
+                videoEncodeRecode.putPcmData(audioData, audioData.length);
+            }
+        });
+        audioRecorder.startRecord();
     }
 
     private void stopRecord() {
+        audioRecorder.stopRecord();
         videoEncodeRecode.stopRecode();
         videoEncodeRecode = null;
         ToastUtil.show("停止录制");

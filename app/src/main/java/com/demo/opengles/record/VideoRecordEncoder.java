@@ -162,7 +162,7 @@ public class VideoRecordEncoder {
             MediaFormat audioFormat = MediaFormat.createAudioFormat(mineType, sampleRate, channel);
             audioFormat.setInteger(MediaFormat.KEY_BIT_RATE, 96000);
             audioFormat.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC);
-            audioFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 4096);
+            audioFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 409600);
             mAudioEncodec.configure(audioFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
 
             mAudioBuffInfo = new MediaCodec.BufferInfo();

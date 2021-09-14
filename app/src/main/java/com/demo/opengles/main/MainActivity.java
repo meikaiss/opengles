@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("EGL-Camera1-预览", EGLCamera1PreviewActivity.class, Manifest.permission.CAMERA));
             add(new MainItemBean("EGL-Camera1-FBO-预览", EGLCamera1FBOPreviewActivity.class, Manifest.permission.CAMERA));
             add(new MainItemBean("EGL-Camera1-FBO-预览加水印", EGLCamera1FBOPreviewWaterMarkActivity.class, Manifest.permission.CAMERA));
-            add(new MainItemBean("EGL-Camera1-FBO-视频录制", EGLCamera1RecordActivity.class, Manifest.permission.CAMERA));
+            add(new MainItemBean("EGL-Camera1-FBO-视频录制", EGLCamera1RecordActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
         }
     };
 
