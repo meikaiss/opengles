@@ -10,7 +10,7 @@ public class AudioRecorder {
     private static final String TAG = "AudioRecorder";
 
     public interface OnAudioDataArrivedListener {
-        void onAudioDataArrived(byte[] audioData);
+        void onAudioDataArrived(byte[] audioData, int length);
     }
 
     //声源
@@ -74,21 +74,21 @@ public class AudioRecorder {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                while (canReadDataFromBuffer){
+                while (canReadDataFromBuffer) {
                     //初始化缓冲区数据接收数组
                     byte[] data = new byte[minBufferSize];
 
                     //读取内部缓冲区中读取数据
                     int result = audioRecord.read(data, 0, minBufferSize);
 
-                    if (result == AudioRecord.ERROR_BAD_VALUE){
+                    if (result == AudioRecord.ERROR_BAD_VALUE) {
                         Log.e(TAG, "run: audioRecord.read result is ERROR_BAD_VALUE");
-                    }else if (result == AudioRecord.ERROR_INVALID_OPERATION){
+                    } else if (result == AudioRecord.ERROR_INVALID_OPERATION) {
                         Log.e(TAG, "run: audioRecord.read result is ERROR_INVALID_OPERATION");
-                    }else {
-                        if (onAudioDataArrivedListener != null){
+                    } else {
+                        if (onAudioDataArrivedListener != null) {
                             //调用读取数据回调方法
-                            onAudioDataArrivedListener.onAudioDataArrived(data);
+                            onAudioDataArrivedListener.onAudioDataArrived(data, result);
                         }
                         Log.d(TAG, "run: audioRecord read " + result + "bytes");
                     }
@@ -102,13 +102,13 @@ public class AudioRecorder {
         return true;
     }
 
-    public void stopRecord(){
+    public void stopRecord() {
         //如果录音尚未启动，直接返回
         if (!isStarted) return;
         //设置内部缓冲区数据不可读取
         canReadDataFromBuffer = false;
         //停止录音
-        if (audioRecord.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING){
+        if (audioRecord.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING) {
             audioRecord.stop();
         }
         //释放资源

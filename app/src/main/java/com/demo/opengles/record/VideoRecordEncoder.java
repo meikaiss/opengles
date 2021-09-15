@@ -155,7 +155,6 @@ public class VideoRecordEncoder {
         }
     }
 
-
     private void initAudioEncoder(String mineType, int sampleRate, int channel) {
         try {
             mAudioEncodec = MediaCodec.createEncoderByType(mineType);
@@ -186,7 +185,6 @@ public class VideoRecordEncoder {
             }
         }
     }
-
 
     private long audioPts;
 

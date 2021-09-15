@@ -25,7 +25,7 @@ void main(){
     vec4 sourceColor = texture2D(uSampler, vCoordinate);
 
     if (sourceColor.r == 0.0 && sourceColor.g == 0.0 && sourceColor.b == 0.0
-            && sourceColor.a == 0.0) {
+    && sourceColor.a == 0.0) {
         gl_FragColor = sourceColor;
         return;
     }

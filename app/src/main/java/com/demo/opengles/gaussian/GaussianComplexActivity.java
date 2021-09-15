@@ -33,7 +33,7 @@ import javax.microedition.khronos.opengles.GL10;
 /**
  * Created by meikai on 2021/08/29.
  */
-public class GaussianActivity extends AppCompatActivity {
+public class GaussianComplexActivity extends AppCompatActivity {
 
     private Button btnShow;
     private FrameLayout layoutGlSurfaceView;
@@ -48,7 +48,7 @@ public class GaussianActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_gaussian);
+        setContentView(R.layout.activity_gaussian_complex);
 
         btnShow = findViewById(R.id.btn_show);
         layoutGlSurfaceView = findViewById(R.id.layout_gl_surface_view);
@@ -91,14 +91,14 @@ public class GaussianActivity extends AppCompatActivity {
         findViewById(R.id.btn_pop).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new ImplGaussianPop(GaussianActivity.this).show(v);
+                new ImplGaussianPop(GaussianComplexActivity.this).show(v);
             }
         });
 
         findViewById(R.id.btn_pop2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new ImplFullScreenGaussianPop(GaussianActivity.this).show(v);
+                new ImplFullScreenGaussianPop(GaussianComplexActivity.this).show(v);
             }
         });
     }

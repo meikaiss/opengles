@@ -4,23 +4,34 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.util.Log;
 
-import com.demo.opengles.gaussian.render.BaseRenderObject;
-
 /**
  * 将外界传入的纹理进行横向、纵向高斯模糊后，再渲染到屏幕或离屏缓存上
  * Created by meikai on 2021/08/29.
  */
 public class HVBlurRenderObject extends BaseRenderObject {
 
+    private static final String TAG = "HVBlur";
+
     private int uBlurRadiusLocation;
     private int uBlurOffsetLocation;
     private int uSumWeightLocation;
 
     private int scaleRatio;
+    //向四周进行采样的圈数，不会受步长影响圈数的大小
     private int blurRadius;
+    //水平方向模糊步长（步长=0时表示对当前像素进行{圈数}次采样，步长=1时表示对左右上下{圈数}个像素进行正太分布采样，步长=2类推...）
     private float blurOffsetW;
+    //垂直方向模糊步长
     private float blurOffsetH;
     private float sumWeight;
+
+    public float getBlurOffsetW() {
+        return blurOffsetW;
+    }
+
+    public float getBlurOffsetH() {
+        return blurOffsetH;
+    }
 
     public HVBlurRenderObject(Context context) {
         super(context);
@@ -50,13 +61,12 @@ public class HVBlurRenderObject extends BaseRenderObject {
     }
 
     @Override
-    public void onDraw(int textureId) {
-        super.onDraw(textureId);
-
+    protected void bindExtraGLEnv() {
+        super.bindExtraGLEnv();
         // 计算总权重
         calculateSumWeight();
 
-        Log.e("mk", blurRadius + " , " + blurOffsetW / width + " , "
+        Log.e(TAG, blurRadius + " , " + blurOffsetW / width + " , "
                 + blurOffsetH / height + " , " + sumWeight);
 
         GLES20.glUniform1i(uBlurRadiusLocation, blurRadius);
@@ -64,6 +74,10 @@ public class HVBlurRenderObject extends BaseRenderObject {
         GLES20.glUniform1f(uSumWeightLocation, sumWeight);
     }
 
+    @Override
+    public void onDraw(int textureId) {
+        super.onDraw(textureId);
+    }
 
     public void setScaleRatio(int scaleRatio) {
         this.scaleRatio = scaleRatio;
@@ -73,13 +87,13 @@ public class HVBlurRenderObject extends BaseRenderObject {
         this.blurRadius = blurRadius;
     }
 
-    public void setBlurOffset(float width, float height) {
-        this.blurOffsetW = width;
-        this.blurOffsetH = height;
+    public void setBlurOffset(float blurOffsetW, float blurOffsetH) {
+        this.blurOffsetW = blurOffsetW;
+        this.blurOffsetH = blurOffsetH;
     }
 
     public void setSumWeight(float sumWeight) {
-        Log.d("HBlur", "setSumWeight: " + sumWeight);
+        Log.d(TAG, "setSumWeight: " + sumWeight);
         this.sumWeight = sumWeight;
     }
 
@@ -88,8 +102,8 @@ public class HVBlurRenderObject extends BaseRenderObject {
      */
     private void calculateSumWeight() {
         if (blurRadius < 1) {
-            Log.d("HBlur",
-                    "calculateSumWeight: blurRadius:" + blurRadius + " w:" + blurOffsetW + " h:" + blurOffsetH);
+            Log.d(TAG, "calculateSumWeight: blurRadius:" + blurRadius
+                    + " w:" + blurOffsetW + " h:" + blurOffsetH);
             setSumWeight(0);
             return;
         }

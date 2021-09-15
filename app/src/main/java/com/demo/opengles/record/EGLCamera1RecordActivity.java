@@ -175,8 +175,8 @@ public class EGLCamera1RecordActivity extends AppCompatActivity {
         audioRecorder = new AudioRecorder();
         audioRecorder.setOnAudioDataArrivedListener(new AudioRecorder.OnAudioDataArrivedListener() {
             @Override
-            public void onAudioDataArrived(byte[] audioData) {
-                videoEncodeRecode.putPcmData(audioData, audioData.length);
+            public void onAudioDataArrived(byte[] audioData, int length) {
+                videoEncodeRecode.putPcmData(audioData, length);
             }
         });
         audioRecorder.startRecord();

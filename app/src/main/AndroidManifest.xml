@@ -49,7 +49,9 @@
         <activity android:name=".camera.Camera1GLSurfaceViewActivity" />
         <activity android:name=".camera.Camera1GLSurfaceViewTakePhotoActivity" />
         <activity android:name=".camera.Camera1TakePhotoGLSurfaceViewActivity" />
-        <activity android:name=".gaussian.GaussianActivity" />
+        <activity android:name=".gaussian.GaussianComplexActivity" />
+        <activity android:name=".gaussian.GaussianHorActivity" />
+        <activity android:name=".gaussian.GaussianVerActivity" />
         <activity android:name=".egl.EGLActivity" />
         <activity android:name=".egl.EGLCamera1PreviewActivity" />
         <activity android:name=".egl.EGLCamera1FBOPreviewActivity" />

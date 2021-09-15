@@ -368,7 +368,7 @@ public class OpenGLESUtil {
     }
 
     /**
-     * 获取矩形的纹理坐标
+     * 获取矩形的纹理坐标->原点在左上角
      */
     public static FloatBuffer getSquareCoordinateBuffer() {
         float[] data = {
@@ -381,7 +381,7 @@ public class OpenGLESUtil {
     }
 
     /**
-     * 获取矩形的纹理坐标（倒立）
+     * 获取矩形的纹理坐标（倒立）->原点在左下角
      */
     public static FloatBuffer getSquareCoordinateReverseBuffer() {
         float[] data = {
