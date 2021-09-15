@@ -67,7 +67,7 @@ public class PcmRecordActivity extends AppCompatActivity {
             public void onClick(View v) {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
                 String dateTime = dateFormat.format(new Date());
-                savePathEncoder = getExternalCacheDir().getAbsolutePath() + File.separator + dateTime + ".pcm";
+                savePathEncoder = getExternalCacheDir().getAbsolutePath() + File.separator + dateTime + ".aac";
                 ToastUtil.show("保存路径:" + savePathEncoder);
 
                 pcmEncoder = new PcmEncoder();
