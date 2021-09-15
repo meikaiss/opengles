@@ -123,11 +123,11 @@ public class EGLCamera1RecordActivity extends AppCompatActivity {
         btnRecordPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (savePath == null){
+                if (savePath == null) {
                     ToastUtil.show("请先录制一个视频");
                     return;
                 }
-                if (VideoRecordEncoder.status == VideoRecordEncoder.OnStatusChangeListener.STATUS.START){
+                if (VideoRecordEncoder.status == VideoRecordEncoder.OnStatusChangeListener.STATUS.START) {
                     ToastUtil.show("请先结束录制");
                     return;
                 }

@@ -1,4 +1,4 @@
-package com.demo.opengles.record;
+package com.demo.opengles.pcm;
 
 import android.media.AudioFormat;
 import android.media.AudioManager;

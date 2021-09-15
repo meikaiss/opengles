@@ -40,7 +40,7 @@ import com.demo.opengles.graphic.TriangleColorActivity;
 import com.demo.opengles.graphic.TriangleMatrixActivity;
 import com.demo.opengles.graphic.TriangleModalActivity;
 import com.demo.opengles.record.EGLCamera1RecordActivity;
-import com.demo.opengles.record.PcmRecordActivity;
+import com.demo.opengles.pcm.PcmRecordActivity;
 import com.demo.opengles.surface.GLSurfaceViewAlphaVideoActivity;
 import com.demo.opengles.surface.GLSurfaceViewVideoActivity;
 import com.demo.opengles.surface.GLTextureViewAlphaVideoActivity;

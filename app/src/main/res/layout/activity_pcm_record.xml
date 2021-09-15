@@ -3,7 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -14,19 +13,39 @@
             android:id="@+id/btn_start_record"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="开始录制" />
+            android:text="开始录制PCM" />
 
         <Button
             android:id="@+id/btn_stop_record"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="停止录制" />
+            android:text="停止录制PCM" />
 
         <Button
-            android:id="@+id/btn_play_record"
+            android:id="@+id/btn_play_pcm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="播放录制" />
+            android:text="播放PCM" />
+
+
+        <Button
+            android:id="@+id/btn_start_record_encode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:text="开始录制PCM并编码aac" />
+
+        <Button
+            android:id="@+id/btn_stop_record_encode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="停止录制PCM并编码aac" />
+
+        <Button
+            android:id="@+id/btn_play_pcm_encode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="解码aac为pcm并播放" />
 
     </LinearLayout>
 
