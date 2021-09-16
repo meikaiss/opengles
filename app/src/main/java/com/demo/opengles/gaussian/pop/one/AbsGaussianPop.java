@@ -1,7 +1,6 @@
 package com.demo.opengles.gaussian.pop.one;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
@@ -19,6 +18,7 @@ import android.widget.PopupWindow;
 import com.demo.opengles.R;
 import com.demo.opengles.gaussian.render.HVBlurRenderObject;
 import com.demo.opengles.gaussian.render.OneTexFilterRenderObject;
+import com.demo.opengles.util.TimeConsumeUtil;
 import com.demo.opengles.util.ViewUtil;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -30,7 +30,7 @@ import javax.microedition.khronos.opengles.GL10;
  */
 public abstract class AbsGaussianPop {
 
-    protected Context context;
+    protected Activity activity;
     protected PopupWindow mPopWindow;
 
     private View popupView;
@@ -39,8 +39,6 @@ public abstract class AbsGaussianPop {
     private HVBlurRenderObject renderObjectH;
     private HVBlurRenderObject renderObjectV;
     private OneTexFilterRenderObject defaultRenderObject;
-
-    private Bitmap bgBitmap;
 
     /**
      * 弹框显示区域的宽度
@@ -67,12 +65,11 @@ public abstract class AbsGaussianPop {
     }
 
     public AbsGaussianPop(Activity activity) {
-        this.context = activity;
-        this.bgBitmap = screenShot(activity);
+        this.activity = activity;
 
-        popupView = LayoutInflater.from(context).inflate(R.layout.pop_window_gaussian, null);
+        popupView = LayoutInflater.from(this.activity).inflate(R.layout.pop_window_gaussian, null);
 
-        LayoutInflater.from(context).inflate(getContentLayoutId(), (ViewGroup) popupView, true);
+        LayoutInflater.from(this.activity).inflate(getContentLayoutId(), (ViewGroup) popupView, true);
 
         mPopWindow = new PopupWindow(popupView, getWidth(), getHeight());
 
@@ -83,18 +80,17 @@ public abstract class AbsGaussianPop {
         mPopWindow.setFocusable(true);
     }
 
+    private int[] location;
+    private int offsetX;
+    private View anchor;
+
     public AbsGaussianPop show(View anchor) {
-        int offsetX = -(getWidth() - anchor.getWidth()) / 2;
+        this.anchor = anchor;
+        offsetX = -(getWidth() - anchor.getWidth()) / 2;
 
-        int[] location = new int[2];
+        location = new int[2];
         anchor.getLocationOnScreen(location);
-        location[1] -= ViewUtil.getStatusBarHeight(context);
-
-        bgBitmap = Bitmap.createBitmap(bgBitmap,
-                location[0] + offsetX,
-                location[1] + anchor.getHeight(),
-                getWidth(),
-                getHeight());
+        location[1] -= ViewUtil.getStatusBarHeight(activity);
 
         initSurfaceView();
 
@@ -104,6 +100,7 @@ public abstract class AbsGaussianPop {
 
     private Bitmap screenShot(Activity activity) {
         View view = activity.getWindow().getDecorView();
+
         view.buildDrawingCache();
 
         //状态栏高度
@@ -123,7 +120,9 @@ public abstract class AbsGaussianPop {
         Bitmap bitmap = Bitmap.createBitmap(view.getDrawingCache(), 0, stateBarHeight, widths,
                 height);
 
+
         view.destroyDrawingCache();
+
         return bitmap;
     }
 
@@ -135,24 +134,31 @@ public abstract class AbsGaussianPop {
 //        glSurfaceView.setZOrderOnTop(true);
         //支持背景透明-end
 
-        renderObjectH = new HVBlurRenderObject(context);
+        renderObjectH = new HVBlurRenderObject(activity);
         renderObjectH.setBlurOffset(5, 0);
         renderObjectH.isBindFbo = true;
 
-        renderObjectV = new HVBlurRenderObject(context);
+        renderObjectV = new HVBlurRenderObject(activity);
         renderObjectV.setBlurOffset(0, 5);
         renderObjectV.isBindFbo = true;
 
-        defaultRenderObject = new OneTexFilterRenderObject(context, getVectorDrawable());
+        defaultRenderObject = new OneTexFilterRenderObject(activity, getVectorDrawable());
         defaultRenderObject.isBindFbo = false;
 
         glSurfaceView.setRenderer(renderer);
-
         glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+
+        glSurfaceView.post(new Runnable() {
+            @Override
+            public void run() {
+                glSurfaceView.requestRender();
+            }
+        });
     }
 
     private GLSurfaceView.Renderer renderer = new GLSurfaceView.Renderer() {
         private int textureId;
+        private Bitmap bgBitmap;
 
         @Override
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -160,7 +166,6 @@ public abstract class AbsGaussianPop {
             renderObjectV.onCreate();
             defaultRenderObject.onCreate();
 
-            textureId = createTexture();
         }
 
         @Override
@@ -172,14 +177,22 @@ public abstract class AbsGaussianPop {
 
         @Override
         public void onDrawFrame(GL10 gl) {
+
+            bgBitmap = screenShot(activity);
+
+            bgBitmap = Bitmap.createBitmap(bgBitmap,
+                    location[0] + offsetX,
+                    location[1] + anchor.getHeight(),
+                    getWidth(),
+                    getHeight());
+
+            textureId = createTexture();
+
             renderObjectH.onDraw(textureId);
             renderObjectV.onDraw(renderObjectH.fboTextureId);
             defaultRenderObject.onDraw(renderObjectV.fboTextureId);
 
-            //初始化时的一次绘制，有可能造成没有模糊效果，原因暂不明确
-            renderObjectH.onDraw(textureId);
-            renderObjectV.onDraw(renderObjectH.fboTextureId);
-            defaultRenderObject.onDraw(renderObjectV.fboTextureId);
+            TimeConsumeUtil.calc("Gaussian.show");
         }
 
         private int createTexture() {

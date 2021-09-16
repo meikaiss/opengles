@@ -1,68 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/root"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center">
-
-        <Button
-            android:id="@+id/btn_show"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="显示" />
-
-        <Button
-            android:id="@+id/btn_reset"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:text="还原" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center">
-
-        <Button
-            android:id="@+id/btn_background"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="背景" />
-
-        <Button
-            android:id="@+id/btn_pop"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:text="弹框" />
-
-        <Button
-            android:id="@+id/btn_pop2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:text="弹框2" />
-
-    </LinearLayout>
+    android:background="#000">
 
     <FrameLayout
-        android:id="@+id/layout_gl_surface_view"
+        android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_height="match_parent"
+        android:background="#000">
 
-    <FrameLayout
-        android:id="@+id/layout_fragment"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:visibility="visible" />
+        <LinearLayout
+            android:id="@+id/root"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="40dp"
+            android:orientation="vertical">
 
-</LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center">
+
+                <Button
+                    android:id="@+id/btn_show"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="显示" />
+
+                <Button
+                    android:id="@+id/btn_reset"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:text="还原" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center">
+
+                <Button
+                    android:id="@+id/btn_background"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="背景" />
+
+                <Button
+                    android:id="@+id/btn_pop"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:text="弹框" />
+
+                <Button
+                    android:id="@+id/btn_pop2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:text="弹框2" />
+
+            </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/layout_gl_surface_view"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <FrameLayout
+                android:id="@+id/layout_fragment"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:visibility="visible" />
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+</FrameLayout>

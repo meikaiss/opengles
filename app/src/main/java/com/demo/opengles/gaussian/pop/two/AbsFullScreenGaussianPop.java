@@ -1,7 +1,6 @@
 package com.demo.opengles.gaussian.pop.two;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
@@ -13,6 +12,7 @@ import android.opengl.GLUtils;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.PixelCopy;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupWindow;
@@ -20,6 +20,7 @@ import android.widget.PopupWindow;
 import com.demo.opengles.R;
 import com.demo.opengles.gaussian.render.HVBlurRenderObject;
 import com.demo.opengles.gaussian.render.TwoTexFilterRenderObject;
+import com.demo.opengles.util.TimeConsumeUtil;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -30,7 +31,7 @@ import javax.microedition.khronos.opengles.GL10;
  */
 public abstract class AbsFullScreenGaussianPop {
 
-    protected Context context;
+    protected Activity activity;
     protected PopupWindow mPopWindow;
 
     private View popupView;
@@ -41,8 +42,6 @@ public abstract class AbsFullScreenGaussianPop {
     private HVBlurRenderObject renderObjectH2;
     private HVBlurRenderObject renderObjectV2;
     private TwoTexFilterRenderObject twoTexFilterRenderObject;
-
-    private Bitmap screenShotBmp;
 
     /**
      * 弹框显示区域的宽度
@@ -80,12 +79,11 @@ public abstract class AbsFullScreenGaussianPop {
     }
 
     public AbsFullScreenGaussianPop(Activity activity) {
-        this.context = activity;
-        this.screenShotBmp = screenShot(activity);
+        this.activity = activity;
 
-        popupView = LayoutInflater.from(context).inflate(R.layout.pop_window_gaussian, null);
+        popupView = LayoutInflater.from(this.activity).inflate(R.layout.pop_window_gaussian, null);
 
-        LayoutInflater.from(context).inflate(getContentLayoutId(), (ViewGroup) popupView, true);
+        LayoutInflater.from(this.activity).inflate(getContentLayoutId(), (ViewGroup) popupView, true);
 
         mPopWindow = new PopupWindow(popupView, getWidth(), getHeight());
         mPopWindow.setBackgroundDrawable(new BitmapDrawable());
@@ -103,28 +101,32 @@ public abstract class AbsFullScreenGaussianPop {
     }
 
     private Bitmap screenShot(Activity activity) {
-        View view = activity.getWindow().getDecorView();
+        View view = activity. findViewById(R.id.container);
         view.buildDrawingCache();
 
-        //状态栏高度
-        Rect rect = new Rect();
-        view.getWindowVisibleDisplayFrame(rect);
-        int stateBarHeight = rect.top;
+//        //状态栏高度
+//        Rect rect = new Rect();
+//        view.getWindowVisibleDisplayFrame(rect);
+//        int stateBarHeight = rect.top;
+//
+//        Display display = activity.getWindowManager().getDefaultDisplay();
+//        //获取屏幕宽高
+//        int width = display.getWidth();
+//        int height = display.getHeight();
+//
+//        //设置允许当前窗口保存缓存信息
+//        view.setDrawingCacheEnabled(true);
+//
+//        //去掉状态栏高度
+//        Bitmap bitmap = Bitmap.createBitmap(view.getDrawingCache(), 0, stateBarHeight, width,
+//                height);
 
-        Display display = activity.getWindowManager().getDefaultDisplay();
-        //获取屏幕宽高
-        int width = display.getWidth();
-        int height = display.getHeight();
-
-        //设置允许当前窗口保存缓存信息
         view.setDrawingCacheEnabled(true);
-
-        //去掉状态栏高度
-        Bitmap bitmap = Bitmap.createBitmap(view.getDrawingCache(), 0, stateBarHeight, width,
-                height);
+        Bitmap bmp2 = view.getDrawingCache();
+        bmp2 = Bitmap.createBitmap(bmp2);
 
         view.destroyDrawingCache();
-        return bitmap;
+        return bmp2;
     }
 
     protected void onDrawFinish() {
@@ -139,35 +141,43 @@ public abstract class AbsFullScreenGaussianPop {
 //        glSurfaceView.setZOrderOnTop(true);
         //支持背景透明-end
 
-        renderObjectH = new HVBlurRenderObject(context);
+        renderObjectH = new HVBlurRenderObject(activity);
         renderObjectH.setBlurRadius(10);
         renderObjectH.setBlurOffset(1, 0);
         renderObjectH.isBindFbo = true;
-        renderObjectV = new HVBlurRenderObject(context);
+        renderObjectV = new HVBlurRenderObject(activity);
         renderObjectV.setBlurRadius(10);
         renderObjectV.setBlurOffset(0, 1);
         renderObjectV.isBindFbo = true;
 
-        renderObjectH2 = new HVBlurRenderObject(context);
+        renderObjectH2 = new HVBlurRenderObject(activity);
         renderObjectH2.setBlurRadius(20);
         renderObjectH2.setBlurOffset(2, 0);
         renderObjectH2.isBindFbo = true;
-        renderObjectV2 = new HVBlurRenderObject(context);
+        renderObjectV2 = new HVBlurRenderObject(activity);
         renderObjectV2.setBlurRadius(20);
         renderObjectV2.setBlurOffset(0, 2);
         renderObjectV2.isBindFbo = true;
 
-        twoTexFilterRenderObject = new TwoTexFilterRenderObject(context, getVectorDrawable(),
+        twoTexFilterRenderObject = new TwoTexFilterRenderObject(activity, getVectorDrawable(),
                 getDrawableWidth(), getDrawableHeight());
         twoTexFilterRenderObject.isBindFbo = false;
 
         glSurfaceView.setRenderer(renderer);
 
-        glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+        glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+
+        glSurfaceView.post(new Runnable() {
+            @Override
+            public void run() {
+                glSurfaceView.requestRender();
+            }
+        });
     }
 
     private GLSurfaceView.Renderer renderer = new GLSurfaceView.Renderer() {
         private int textureId;
+        private Bitmap screenShotBmp;
 
         @Override
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -177,7 +187,6 @@ public abstract class AbsFullScreenGaussianPop {
             renderObjectV2.onCreate();
             twoTexFilterRenderObject.onCreate();
 
-            textureId = createTexture();
         }
 
         @Override
@@ -191,11 +200,16 @@ public abstract class AbsFullScreenGaussianPop {
 
         @Override
         public void onDrawFrame(GL10 gl) {
-            onDraw();
-            //初始化时的一次绘制，有可能造成没有模糊效果，原因暂不明确
-            onDraw();
+            TimeConsumeUtil.start("FllGaussian.show.onDrawFrame");
+            screenShotBmp = screenShot(activity);
+            GLES20.glDeleteTextures(1, new int[]{textureId}, 0);
+            textureId = createTexture();
 
+            onDraw();
             onDrawFinish();
+            TimeConsumeUtil.calc("FllGaussian.show.onDrawFrame");
+
+            TimeConsumeUtil.calc("FllGaussian.show");
         }
 
         private void onDraw() {

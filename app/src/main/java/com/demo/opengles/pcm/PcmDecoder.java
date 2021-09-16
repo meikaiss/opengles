@@ -209,7 +209,7 @@ public class PcmDecoder {
                     if (outputBuffer != null && info.size > 0) {
                         while (info.presentationTimeUs / 1000 > System.currentTimeMillis() - startMs) {
                             try {
-                                sleep(300);
+                                sleep(10);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                                 break;

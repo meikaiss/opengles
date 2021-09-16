@@ -1,5 +1,7 @@
 package com.demo.opengles.gaussian;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -21,10 +23,11 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.demo.opengles.R;
-import com.demo.opengles.gaussian.pop.two.ImplFullScreenGaussianPop;
 import com.demo.opengles.gaussian.pop.one.ImplGaussianPop;
+import com.demo.opengles.gaussian.pop.two.ImplFullScreenGaussianPop;
 import com.demo.opengles.gaussian.render.HVBlurRenderObject;
 import com.demo.opengles.gaussian.render.OneTexFilterRenderObject;
+import com.demo.opengles.util.TimeConsumeUtil;
 import com.demo.opengles.util.ToastUtil;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -91,14 +94,30 @@ public class GaussianComplexActivity extends AppCompatActivity {
         findViewById(R.id.btn_pop).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                TimeConsumeUtil.clear();
+                TimeConsumeUtil.start("Gaussian.show");
                 new ImplGaussianPop(GaussianComplexActivity.this).show(v);
             }
         });
 
+        final ObjectAnimator[] objectAnimator = {null};
         findViewById(R.id.btn_pop2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                TimeConsumeUtil.clear();
+                TimeConsumeUtil.start("FllGaussian.show");
                 new ImplFullScreenGaussianPop(GaussianComplexActivity.this).show(v);
+
+                if (objectAnimator[0] != null && objectAnimator[0].isRunning()) {
+                    objectAnimator[0].end();
+                }
+                ViewGroup viewGroup = findViewById(R.id.root);
+                objectAnimator[0] = ObjectAnimator.ofFloat(viewGroup, "translationX", 0, 1000)
+                        .setDuration(5000);
+                objectAnimator[0].setRepeatMode(ValueAnimator.RESTART);
+                objectAnimator[0].setRepeatCount(ValueAnimator.INFINITE);
+
+                objectAnimator[0].start();
             }
         });
     }

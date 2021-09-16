@@ -1,5 +1,7 @@
 package com.demo.opengles.gaussian.pop.two;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.graphics.drawable.VectorDrawable;
 import android.view.View;
@@ -10,6 +12,8 @@ import com.demo.opengles.R;
 public class ImplFullScreenGaussianPop extends AbsFullScreenGaussianPop {
 
     private ViewGroup viewGroupRoot;
+    private ViewGroup viewGroupDelConfirm;
+
 
     protected int getContentLayoutId() {
         return R.layout.pop_gaussian_two_filter;
@@ -17,7 +21,7 @@ public class ImplFullScreenGaussianPop extends AbsFullScreenGaussianPop {
 
     @Override
     protected VectorDrawable getVectorDrawable() {
-        return (VectorDrawable) context.getResources().getDrawable(R.drawable.ic_bg_svg_tip_dialog);
+        return (VectorDrawable) activity.getResources().getDrawable(R.drawable.ic_bg_svg_tip_dialog);
     }
 
     @Override
@@ -35,6 +39,8 @@ public class ImplFullScreenGaussianPop extends AbsFullScreenGaussianPop {
 
         viewGroupRoot = findViewById(R.id.content_root);
         viewGroupRoot.setVisibility(View.GONE);
+
+        viewGroupDelConfirm = findViewById(R.id.layout_del_content);
     }
 
     @Override
@@ -44,16 +50,18 @@ public class ImplFullScreenGaussianPop extends AbsFullScreenGaussianPop {
             @Override
             public void run() {
                 viewGroupRoot.setVisibility(View.VISIBLE);
+
+
             }
         });
     }
 
     protected int getWidth() {
-        return context.getResources().getDisplayMetrics().widthPixels;
+        return activity.getResources().getDisplayMetrics().widthPixels;
     }
 
     protected int getHeight() {
-        return context.getResources().getDisplayMetrics().heightPixels;
+        return activity.getResources().getDisplayMetrics().heightPixels;
     }
 
 }
