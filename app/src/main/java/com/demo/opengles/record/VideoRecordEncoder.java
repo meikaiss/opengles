@@ -25,6 +25,7 @@ public class VideoRecordEncoder {
     private EglSurfaceView.Renderer mRender;
 
     private MediaMuxer mMediaMuxer;
+
     private MediaCodec.BufferInfo mVideoBuffInfo;
     private MediaCodec mVideoEncodec;
     private int width, height;
@@ -36,6 +37,7 @@ public class VideoRecordEncoder {
     private VideoEncodecThread mVideoEncodecThread;
     private AudioEncodecThread mAudioEncodecThread;
     private EGLMediaThread mEGLMediaThread;
+
     private boolean encodeStart;
     private boolean audioExit;
     private boolean videoExit;
@@ -132,17 +134,17 @@ public class VideoRecordEncoder {
 
             MediaFormat videoFormat = MediaFormat.createVideoFormat(mineType, width, height);
             videoFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
-            videoFormat.setInteger(MediaFormat.KEY_FRAME_RATE, 30);//30帧
+            videoFormat.setInteger(MediaFormat.KEY_FRAME_RATE, 60);//30帧
             videoFormat.setInteger(MediaFormat.KEY_BIT_RATE, width * height * 4);//RGBA
             videoFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
 
             //设置压缩等级  默认是baseline
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                videoFormat.setInteger(MediaFormat.KEY_PROFILE, MediaCodecInfo.CodecProfileLevel.AVCProfileMain);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    videoFormat.setInteger(MediaFormat.KEY_LEVEL, MediaCodecInfo.CodecProfileLevel.AVCLevel3);
-                }
-            }
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//                videoFormat.setInteger(MediaFormat.KEY_PROFILE, MediaCodecInfo.CodecProfileLevel.AVCProfileMain);
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                    videoFormat.setInteger(MediaFormat.KEY_LEVEL, MediaCodecInfo.CodecProfileLevel.AVCLevel3);
+//                }
+//            }
 
             mVideoEncodec.configure(videoFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
             mVideoBuffInfo = new MediaCodec.BufferInfo();
@@ -418,7 +420,8 @@ public class VideoRecordEncoder {
                                 object.wait();
                             }
                         } else if (encoderWeakReference.get().mRenderMode == RENDERMODE_CONTINUOUSLY) {
-                            Thread.sleep(1000 / 60);
+                            int fps = 60; //设置视频画面每秒帧数
+                            Thread.sleep(1000 / fps);
                         } else {
                             throw new IllegalArgumentException("renderMode");
                         }

@@ -2,7 +2,6 @@ package com.demo.opengles.camera;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.os.Bundle;
@@ -20,6 +19,8 @@ import com.demo.opengles.R;
 import com.demo.opengles.util.CollectUtil;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class Camera1TextureViewActivity extends AppCompatActivity {
@@ -113,9 +114,9 @@ public class Camera1TextureViewActivity extends AppCompatActivity {
         //设置相机参数
         Camera.Parameters parameters = camera.getParameters();
         //系统特性：拍照的聚焦频率要高于拍视频
-        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-        parameters.setPictureFormat(ImageFormat.JPEG);
-        parameters.setJpegQuality(100);
+//        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+//        parameters.setPictureFormat(ImageFormat.JPEG);
+//        parameters.setJpegQuality(100);
         CollectUtil.execute(parameters.getSupportedPreviewFormats(),
                 new CollectUtil.Executor<Integer>() {
                     @Override
@@ -132,8 +133,21 @@ public class Camera1TextureViewActivity extends AppCompatActivity {
                         + size.width + " , size.height = " + size.height);
             }
         });
-        Camera.Size size = adjustSurfaceViewWidthHeight(sizeList);
-        parameters.setPreviewSize(size.width, size.height);
+
+        Camera.Size previewSize = adjustSurfaceViewWidthHeight(sizeList);
+        previewSize = Collections.max(sizeList, new Comparator<Camera.Size>() {
+            @Override
+            public int compare(Camera.Size o1, Camera.Size o2) {
+                return ((o1.width + o1.height) >= (o2.width + o2.height)) ? 1 : -1;
+            }
+        });
+        parameters.setPreviewSize(previewSize.width, previewSize.height);
+
+        List<Camera.Size> pictureSizeList = parameters.getSupportedPictureSizes();
+        Camera.Size pictureSize = pictureSizeList.get(0);
+        parameters.setPictureSize(pictureSize.width, pictureSize.height);
+        camera.setParameters(parameters);
+
         camera.setParameters(parameters);
         camera.setPreviewTexture(surface);
 

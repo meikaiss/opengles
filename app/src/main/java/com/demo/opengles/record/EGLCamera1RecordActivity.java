@@ -32,7 +32,7 @@ public class EGLCamera1RecordActivity extends AppCompatActivity {
     private EglSurfaceView eglSurfaceView;
 
     private int cameraTextureId;
-    private SurfaceTexture surfaceTexture;
+    private SurfaceTexture cameraSurfaceTexture;
 
     private CameraRenderObject cameraRenderObject;
     private WaterMarkRenderObject waterMarkRenderObject;
@@ -76,15 +76,15 @@ public class EGLCamera1RecordActivity extends AppCompatActivity {
                 waterMarkRenderObject.onCreate();
                 defaultRenderObject.onCreate();
 
-                surfaceTexture = new SurfaceTexture(cameraTextureId);
-                surfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
+                cameraSurfaceTexture = new SurfaceTexture(cameraTextureId);
+                cameraSurfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
                     @Override
                     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
                     }
                 });
 
                 try {
-                    initCamera1(surfaceTexture);
+                    initCamera1(cameraSurfaceTexture);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -99,7 +99,7 @@ public class EGLCamera1RecordActivity extends AppCompatActivity {
 
             @Override
             public void onDrawFrame() {
-                surfaceTexture.updateTexImage();
+                cameraSurfaceTexture.updateTexImage();
                 cameraRenderObject.onDraw(cameraTextureId);
                 waterMarkRenderObject.onDraw(cameraRenderObject.fboTextureId);
                 defaultRenderObject.onDraw(waterMarkRenderObject.fboTextureId);
@@ -201,9 +201,9 @@ public class EGLCamera1RecordActivity extends AppCompatActivity {
         //设置相机参数
         Camera.Parameters parameters = camera.getParameters();
         //系统特性：拍照的聚焦频率要高于拍视频
-        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-        parameters.setPictureFormat(ImageFormat.JPEG);
-        parameters.setJpegQuality(100);
+//        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+//        parameters.setPictureFormat(ImageFormat.JPEG);
+//        parameters.setJpegQuality(100);
         CollectUtil.execute(parameters.getSupportedPreviewFormats(),
                 new CollectUtil.Executor<Integer>() {
                     @Override
@@ -221,6 +221,11 @@ public class EGLCamera1RecordActivity extends AppCompatActivity {
         //所以直接选择最清晰的预览尺寸
         Camera.Size previewSize = sizeList.get(0);
         parameters.setPreviewSize(previewSize.width, previewSize.height);
+
+        List<Camera.Size> pictureSizeList = parameters.getSupportedPictureSizes();
+        Camera.Size pictureSize = pictureSizeList.get(0);
+        parameters.setPictureSize(pictureSize.width, pictureSize.height);
+
         camera.setParameters(parameters);
 
         cameraRenderObject.inputWidth = previewSize.width;
