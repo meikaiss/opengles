@@ -41,8 +41,10 @@ public class CameraRenderObject extends BaseRenderObject {
         super.onChange(width, height);
 
         //设置正交投影参数
-        int previewWidth = Math.min(inputWidth, inputHeight);
-        int previewHeight = Math.max(inputWidth, inputHeight);
+//        int previewWidth = Math.min(inputWidth, inputHeight);
+//        int previewHeight = Math.max(inputWidth, inputHeight);
+        int previewWidth = inputWidth;
+        int previewHeight = inputHeight;
 
         if (width > height) {
             float x = width / ((float) height / previewHeight * previewWidth);

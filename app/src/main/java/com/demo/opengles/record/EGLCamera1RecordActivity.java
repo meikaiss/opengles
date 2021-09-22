@@ -140,7 +140,7 @@ public class EGLCamera1RecordActivity extends AppCompatActivity {
     }
 
     private void startRecord() {
-        videoEncodeRecode = new VideoRecordEncoder(this);
+        videoEncodeRecode = new VideoRecordEncoder(this, null);
         videoEncodeRecode.setRender(new EglSurfaceView.Renderer() {
 
             DefaultRenderObject defaultRenderObject;

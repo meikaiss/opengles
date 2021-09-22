@@ -51,7 +51,7 @@ public class WaterMarkRenderObject extends DefaultRenderObject {
     public void onChange(int width, int height) {
         super.onChange(width, height);
         waterMarkBmp = OpenGLESUtil.createTextImage(waterMarkText, 28, "#ffff00", "#00000000", 0);
-        waterMarkBmp = BitmapFactory.decodeResource(context.getResources(), R.mipmap.texture_image_markpolo);
+        waterMarkBmp = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher);
         renderGLInfo.textureId = OpenGLESUtil.createWaterTextureId(waterMarkBmp);
 
         /////////////////////////////////////////////

@@ -45,7 +45,7 @@ public class EglSurfaceView extends SurfaceView {
     private SurfaceHolder.Callback surfaceHolderCallback = new SurfaceHolder.Callback() {
         @Override
         public void surfaceCreated(@NonNull SurfaceHolder holder) {
-            Log.e("EglSurfaceView", "surfaceCreated, " + Thread.currentThread().getName());
+//            Log.e("EglSurfaceView", "surfaceCreated, " + Thread.currentThread().getName());
             if (mSurface == null) {
                 mSurface = holder.getSurface();
             }
@@ -56,7 +56,7 @@ public class EglSurfaceView extends SurfaceView {
 
         @Override
         public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height) {
-            Log.e("EglSurfaceView", "surfaceChanged, " + Thread.currentThread().getName());
+//            Log.e("EglSurfaceView", "surfaceChanged, " + Thread.currentThread().getName());
             mEGLThread.width = width;
             mEGLThread.height = height;
             mEGLThread.isChange = true;
@@ -64,7 +64,7 @@ public class EglSurfaceView extends SurfaceView {
 
         @Override
         public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
-            Log.e("EglSurfaceView", "surfaceDestroyed, " + Thread.currentThread().getName());
+//            Log.e("EglSurfaceView", "surfaceDestroyed, " + Thread.currentThread().getName());
             mEGLThread.onDestroy();
             mEGLThread = null;
             mEglContext = null;
@@ -134,6 +134,7 @@ public class EglSurfaceView extends SurfaceView {
             object = new Object();
             mEglHelper = new EglHelper();
             mEglHelper.initEgl(mEGLSurfaceViewWeakRef.get().mSurface, mEGLSurfaceViewWeakRef.get().mEglContext);
+            long drawStartTimeStamp = 0l;
 
             while (true) {
                 if (isExit) {
@@ -148,7 +149,14 @@ public class EglSurfaceView extends SurfaceView {
                             object.wait();
                         }
                     } else if (mEGLSurfaceViewWeakRef.get().mRenderMode == RENDERMODE_CONTINUOUSLY) {
-                        Thread.sleep(1000 / 60);
+                        int fps = 60; //设置视频画面每秒帧数
+                        long timePerFame = 1000 / fps;
+                        long drawConsume = System.currentTimeMillis() - drawStartTimeStamp;
+                        long sleep = timePerFame - drawConsume;
+                        if (sleep <= 0) {
+                            sleep = timePerFame;
+                        }
+                        Thread.sleep(sleep);
                     } else {
                         throw new IllegalArgumentException("renderMode");
                     }
@@ -156,6 +164,7 @@ public class EglSurfaceView extends SurfaceView {
 
                 onCreate();
                 onChange(width, height);
+                drawStartTimeStamp = System.currentTimeMillis();
                 onDraw();
                 isStart = true;
             }

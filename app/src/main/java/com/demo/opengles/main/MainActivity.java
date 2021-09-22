@@ -39,6 +39,7 @@ import com.demo.opengles.graphic.TriangleActivity;
 import com.demo.opengles.graphic.TriangleColorActivity;
 import com.demo.opengles.graphic.TriangleMatrixActivity;
 import com.demo.opengles.graphic.TriangleModalActivity;
+import com.demo.opengles.record.EGLCamera1Record4SameTimeActivity;
 import com.demo.opengles.record.EGLCamera1RecordActivity;
 import com.demo.opengles.pcm.PcmRecordActivity;
 import com.demo.opengles.surface.GLSurfaceViewAlphaVideoActivity;
@@ -96,6 +97,8 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("EGL-Camera1-FBO-视频音频同时录制并保存mp4", EGLCamera1RecordActivity.class, Manifest.permission.CAMERA,
                     Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("pcm录制并保存文件", PcmRecordActivity.class, Manifest.permission.RECORD_AUDIO));
+            add(new MainItemBean("EGL-Camera1-FBO-4路录制音视频", EGLCamera1Record4SameTimeActivity.class, Manifest.permission.CAMERA,
+                    Manifest.permission.RECORD_AUDIO));
         }
     };
 

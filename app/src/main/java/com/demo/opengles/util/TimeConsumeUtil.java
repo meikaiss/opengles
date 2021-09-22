@@ -26,6 +26,15 @@ public class TimeConsumeUtil {
         calc(flag, null);
     }
 
+    public static void end(String flag) {
+        calc(flag, null);
+        timeConsumeMap.remove(flag);
+    }
+
+    public static void direct(String flag) {
+        Log.e(TAG, "耗时统计, flag=" + flag + ", " + System.currentTimeMillis());
+    }
+
     public static void calc(String flag, String alias) {
         List<Long> value = timeConsumeMap.get(flag);
         if (value == null || value.isEmpty()) {
@@ -34,7 +43,14 @@ public class TimeConsumeUtil {
         }
 
         value.add(System.currentTimeMillis());
-        long consume = value.get(value.size() - 1) - value.get(value.size() - 2);
+        Long l1 = value.get(value.size() - 1);
+        Long l2 = value.get(value.size() - 2);
+        if (l1 == null || l2 == null) {
+            Log.e(TAG, "耗时统计, flag=" + flag + ", 调用时机不对，必须先调用start, " + Thread.currentThread().getName());
+            return;
+        }
+
+        long consume = l1 - l2;
 
         if (alias == null) {
             Log.e(TAG, "耗时统计, flag=" + flag + ", " + consume + "ms,  " + Thread.currentThread().getName());

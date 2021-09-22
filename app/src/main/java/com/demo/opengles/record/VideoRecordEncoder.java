@@ -5,13 +5,11 @@ import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
-import android.os.Build;
-import android.os.SystemClock;
-import android.util.Log;
 import android.view.Surface;
 
 import com.demo.opengles.sdk.EglHelper;
 import com.demo.opengles.sdk.EglSurfaceView;
+import com.demo.opengles.util.TimeConsumeUtil;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -44,11 +42,18 @@ public class VideoRecordEncoder {
 
     private final Object object = new Object();
 
+    private Object tag;
+
+    public boolean isEncodeStart() {
+        return encodeStart;
+    }
+
     public final static int RENDERMODE_WHEN_DIRTY = 0;
     public final static int RENDERMODE_CONTINUOUSLY = 1;
     private int mRenderMode = RENDERMODE_WHEN_DIRTY;
 
-    public VideoRecordEncoder(Context context) {
+    public VideoRecordEncoder(Context context, Object tag) {
+        this.tag = tag;
     }
 
     public void setRender(EglSurfaceView.Renderer wlGLRender) {
@@ -62,6 +67,9 @@ public class VideoRecordEncoder {
         this.mRenderMode = mRenderMode;
     }
 
+    public void requestRender(){
+        mEGLMediaThread.requestRender();
+    }
 
     public void startRecode() {
         if (mSurface != null && mEGLContext != null) {
@@ -71,13 +79,13 @@ public class VideoRecordEncoder {
             encodeStart = false;
 
             mVideoEncodecThread = new VideoEncodecThread(new WeakReference<>(this));
-            mAudioEncodecThread = new AudioEncodecThread(new WeakReference<>(this));
+//            mAudioEncodecThread = new AudioEncodecThread(new WeakReference<>(this));
             mEGLMediaThread = new EGLMediaThread(new WeakReference<>(this));
             mEGLMediaThread.isCreate = true;
             mEGLMediaThread.isChange = true;
             mEGLMediaThread.start();
             mVideoEncodecThread.start();
-            mAudioEncodecThread.start();
+//            mAudioEncodecThread.start();
         }
     }
 
@@ -88,10 +96,10 @@ public class VideoRecordEncoder {
             mVideoEncodecThread = null;
         }
 
-        if (mAudioEncodecThread != null) {
-            mAudioEncodecThread.exit();
-            mAudioEncodecThread = null;
-        }
+//        if (mAudioEncodecThread != null) {
+//            mAudioEncodecThread.exit();
+//            mAudioEncodecThread = null;
+//        }
 
         if (mEGLMediaThread != null) {
             mEGLMediaThread.onDestroy();
@@ -117,7 +125,7 @@ public class VideoRecordEncoder {
             // h264
             initVideoEncoder(MediaFormat.MIMETYPE_VIDEO_AVC, width, height);
             // aac
-            initAudioEncoder(MediaFormat.MIMETYPE_AUDIO_AAC, sampleRate, channel);
+//            initAudioEncoder(MediaFormat.MIMETYPE_AUDIO_AAC, sampleRate, channel);
 
             status = OnStatusChangeListener.STATUS.INIT;
             if (onStatusChangeListener != null) {
@@ -130,11 +138,17 @@ public class VideoRecordEncoder {
 
     private void initVideoEncoder(String mineType, int width, int height) {
         try {
+            if (width % 2 == 1) {
+                width--;
+            }
+            if (height % 2 == 1) {
+                height--;
+            }
             mVideoEncodec = MediaCodec.createEncoderByType(mineType);
 
             MediaFormat videoFormat = MediaFormat.createVideoFormat(mineType, width, height);
             videoFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
-            videoFormat.setInteger(MediaFormat.KEY_FRAME_RATE, 60);//30帧
+            videoFormat.setInteger(MediaFormat.KEY_FRAME_RATE, 30);//30帧
             videoFormat.setInteger(MediaFormat.KEY_BIT_RATE, width * height * 4);//RGBA
             videoFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
 
@@ -182,7 +196,7 @@ public class VideoRecordEncoder {
                 byteBuffer.clear();
                 byteBuffer.put(buffer);
                 long pts = getAudioPts(size, sampleRate, channel, sampleBit);
-                Log.e("zzz", "AudioTime = " + pts / 1000000.0f);
+//                Log.e("zzz", "AudioTime = " + pts / 1000000.0f);
                 mAudioEncodec.queueInputBuffer(inputBufferIndex, 0, size, pts, 0);
             }
         }
@@ -247,7 +261,9 @@ public class VideoRecordEncoder {
                 int outputBufferIndex = videoEncodec.dequeueOutputBuffer(videoBufferinfo, 0);
                 if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                     videoTrackIndex = mediaMuxer.addTrack(videoEncodec.getOutputFormat());
-                    if (encoderWeakReference.get().mAudioEncodecThread.audioTrackIndex != -1) {
+//                    boolean hasAudioEncode = encoderWeakReference.get().mAudioEncodecThread.audioTrackIndex != -1;
+                    boolean hasAudioEncode = true;
+                    if (hasAudioEncode) {
                         mediaMuxer.start();
                         encoderWeakReference.get().encodeStart = true;
 
@@ -258,8 +274,9 @@ public class VideoRecordEncoder {
                     }
                 } else {
                     while (outputBufferIndex >= 0) {
+                        TimeConsumeUtil.start("VideoEncodecThread" + encoderWeakReference.get().tag);
                         if (!encoderWeakReference.get().encodeStart) {
-                            SystemClock.sleep(10);
+//                            SystemClock.sleep(10);
                             continue;
                         }
                         ByteBuffer outputBuffer = videoEncodec.getOutputBuffers()[outputBufferIndex];
@@ -273,15 +290,18 @@ public class VideoRecordEncoder {
                         videoBufferinfo.presentationTimeUs = videoBufferinfo.presentationTimeUs - pts;
                         //写入数据
                         mediaMuxer.writeSampleData(videoTrackIndex, outputBuffer, videoBufferinfo);
-                        Log.e("zzz", "VideoTime = " + videoBufferinfo.presentationTimeUs / 1000000.0f);
+//                        Log.e("zzz", "VideoTime = " + videoBufferinfo.presentationTimeUs / 1000000.0f);
                         if (encoderWeakReference.get().onMediaInfoListener != null) {
                             encoderWeakReference.get().onMediaInfoListener.onMediaTime((int) (videoBufferinfo.presentationTimeUs / 1000000));
                         }
                         videoEncodec.releaseOutputBuffer(outputBufferIndex, false);
                         outputBufferIndex = videoEncodec.dequeueOutputBuffer(videoBufferinfo, 0);
+
+                        TimeConsumeUtil.calc("VideoEncodecThread" + encoderWeakReference.get().tag);
                     }
                 }
             }
+
         }
 
         public void exit() {
@@ -355,7 +375,7 @@ public class VideoRecordEncoder {
                 } else {
                     while (outputBufferIndex >= 0) {
                         if (!encoderWeakReference.get().encodeStart) {
-                            SystemClock.sleep(10);
+//                            SystemClock.sleep(10);
                             continue;
                         }
 
@@ -407,6 +427,7 @@ public class VideoRecordEncoder {
             object = new Object();
             eglHelper = new EglHelper();
             eglHelper.initEgl(encoderWeakReference.get().mSurface, encoderWeakReference.get().mEGLContext);
+            long drawStartTimeStamp = 0l;
 
             while (true) {
                 try {
@@ -421,7 +442,13 @@ public class VideoRecordEncoder {
                             }
                         } else if (encoderWeakReference.get().mRenderMode == RENDERMODE_CONTINUOUSLY) {
                             int fps = 60; //设置视频画面每秒帧数
-                            Thread.sleep(1000 / fps);
+                            long timePerFame = 1000 / fps;
+                            long drawConsume = System.currentTimeMillis() - drawStartTimeStamp;
+                            long sleep = timePerFame - drawConsume;
+                            if (sleep <= 0) {
+                                sleep = timePerFame;
+                            }
+                            Thread.sleep(sleep);
                         } else {
                             throw new IllegalArgumentException("renderMode");
                         }
@@ -429,6 +456,7 @@ public class VideoRecordEncoder {
 
                     onCreate();
                     onChange(encoderWeakReference.get().width, encoderWeakReference.get().height);
+                    drawStartTimeStamp = System.currentTimeMillis();
                     onDraw();
                     isStart = true;
                 } catch (Exception e) {

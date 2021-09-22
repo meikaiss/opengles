@@ -57,6 +57,7 @@
         <activity android:name=".egl.EGLCamera1FBOPreviewActivity" />
         <activity android:name=".egl.EGLCamera1FBOPreviewWaterMarkActivity" />
         <activity android:name=".record.EGLCamera1RecordActivity" />
+        <activity android:name=".record.EGLCamera1Record4SameTimeActivity" />
         <activity android:name=".helper.VideoPlayerActivity" />
         <activity android:name=".pcm.PcmRecordActivity" />
 
