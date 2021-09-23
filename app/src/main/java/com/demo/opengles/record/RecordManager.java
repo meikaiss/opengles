@@ -39,6 +39,14 @@ public class RecordManager {
 
     private String savePath;
 
+    public String getSavePath() {
+        return savePath;
+    }
+
+    public void onDestroy() {
+        camera.release();
+    }
+
     public void create(Context context, EglSurfaceView eglSurfaceView, int cameraId) {
         this.context = context;
         this.eglSurfaceView = eglSurfaceView;
@@ -65,12 +73,6 @@ public class RecordManager {
                 defaultRenderObject.onCreate();
 
                 cameraSurfaceTexture = new SurfaceTexture(cameraTextureId);
-                cameraSurfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
-                    @Override
-                    public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-//                        Log.e(TAG, "onFrameAvailable, id=" + cameraId + " , " + System.currentTimeMillis());
-                    }
-                });
 
                 try {
                     initCamera1(cameraSurfaceTexture);
@@ -175,6 +177,8 @@ public class RecordManager {
     }
 
     public void startRecord() {
+
+        /////// 开始录图像
         videoEncodeRecode = new VideoRecordEncoder(context, cameraId);
         videoEncodeRecode.setRender(new EglSurfaceView.Renderer() {
 
@@ -208,20 +212,21 @@ public class RecordManager {
                 cameraRenderObject.inputWidth, cameraRenderObject.inputHeight, 44100, 2, 16);
         videoEncodeRecode.startRecode();
 
-//        audioRecorder = new AudioRecorder();
-//        audioRecorder.setOnAudioDataArrivedListener(new AudioRecorder.OnAudioDataArrivedListener() {
-//            @Override
-//            public void onAudioDataArrived(byte[] audioData, int length) {
-//                if (videoEncodeRecode.isEncodeStart()) {
-//                    videoEncodeRecode.putPcmData(audioData, length);
-//                }
-//            }
-//        });
-//        audioRecorder.startRecord();
+        /////// 开始录音
+        audioRecorder = new AudioRecorder();
+        audioRecorder.setOnAudioDataArrivedListener(new AudioRecorder.OnAudioDataArrivedListener() {
+            @Override
+            public void onAudioDataArrived(byte[] audioData, int length) {
+                if (videoEncodeRecode.isEncodeStart()) {
+                    videoEncodeRecode.putPcmData(audioData, length);
+                }
+            }
+        });
+        audioRecorder.startRecord();
     }
 
     public void stopRecord() {
-//        audioRecorder.stopRecord();
+        audioRecorder.stopRecord();
         videoEncodeRecode.stopRecode();
         videoEncodeRecode = null;
         ToastUtil.show("停止录制");

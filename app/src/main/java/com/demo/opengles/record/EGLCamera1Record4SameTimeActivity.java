@@ -1,5 +1,6 @@
 package com.demo.opengles.record;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -9,7 +10,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.demo.opengles.R;
+import com.demo.opengles.helper.VideoPlayerActivity;
 import com.demo.opengles.util.TimeConsumeUtil;
+import com.demo.opengles.util.ToastUtil;
 
 /**
  * 4路摄像头同时预览录制
@@ -25,6 +28,15 @@ public class EGLCamera1Record4SameTimeActivity extends AppCompatActivity {
     private RecordManager recordManager2;
     private RecordManager recordManager3;
     private RecordManager recordManager4;
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        recordManager1.onDestroy();
+        recordManager2.onDestroy();
+        recordManager3.onDestroy();
+        recordManager4.onDestroy();
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -109,23 +121,24 @@ public class EGLCamera1Record4SameTimeActivity extends AppCompatActivity {
                 }
             }
         });
-//        btnRecordPlay.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (savePath == null) {
-//                    ToastUtil.show("请先录制一个视频");
-//                    return;
-//                }
-//                if (VideoRecordEncoder.status == VideoRecordEncoder.OnStatusChangeListener.STATUS.START) {
-//                    ToastUtil.show("请先结束录制");
-//                    return;
-//                }
-//
-//                Intent intent = new Intent(v.getContext(), VideoPlayerActivity.class);
-//                intent.putExtra("path", savePath);
-//                startActivity(intent);
-//            }
-//        });
+
+        btnRecordPlay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (recordManager1.getSavePath() == null) {
+                    ToastUtil.show("请先录制一个视频");
+                    return;
+                }
+                if (VideoRecordEncoder.status == VideoRecordEncoder.OnStatusChangeListener.STATUS.START) {
+                    ToastUtil.show("请先结束录制");
+                    return;
+                }
+
+                Intent intent = new Intent(v.getContext(), VideoPlayerActivity.class);
+                intent.putExtra("path", recordManager1.getSavePath());
+                startActivity(intent);
+            }
+        });
     }
 
 

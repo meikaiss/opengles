@@ -79,13 +79,13 @@ public class VideoRecordEncoder {
             encodeStart = false;
 
             mVideoEncodecThread = new VideoEncodecThread(new WeakReference<>(this));
-//            mAudioEncodecThread = new AudioEncodecThread(new WeakReference<>(this));
+            mAudioEncodecThread = new AudioEncodecThread(new WeakReference<>(this));
             mEGLMediaThread = new EGLMediaThread(new WeakReference<>(this));
             mEGLMediaThread.isCreate = true;
             mEGLMediaThread.isChange = true;
             mEGLMediaThread.start();
             mVideoEncodecThread.start();
-//            mAudioEncodecThread.start();
+            mAudioEncodecThread.start();
         }
     }
 
@@ -96,10 +96,10 @@ public class VideoRecordEncoder {
             mVideoEncodecThread = null;
         }
 
-//        if (mAudioEncodecThread != null) {
-//            mAudioEncodecThread.exit();
-//            mAudioEncodecThread = null;
-//        }
+        if (mAudioEncodecThread != null) {
+            mAudioEncodecThread.exit();
+            mAudioEncodecThread = null;
+        }
 
         if (mEGLMediaThread != null) {
             mEGLMediaThread.onDestroy();
@@ -125,7 +125,7 @@ public class VideoRecordEncoder {
             // h264
             initVideoEncoder(MediaFormat.MIMETYPE_VIDEO_AVC, width, height);
             // aac
-//            initAudioEncoder(MediaFormat.MIMETYPE_AUDIO_AAC, sampleRate, channel);
+            initAudioEncoder(MediaFormat.MIMETYPE_AUDIO_AAC, sampleRate, channel);
 
             status = OnStatusChangeListener.STATUS.INIT;
             if (onStatusChangeListener != null) {
@@ -261,8 +261,8 @@ public class VideoRecordEncoder {
                 int outputBufferIndex = videoEncodec.dequeueOutputBuffer(videoBufferinfo, 0);
                 if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                     videoTrackIndex = mediaMuxer.addTrack(videoEncodec.getOutputFormat());
-//                    boolean hasAudioEncode = encoderWeakReference.get().mAudioEncodecThread.audioTrackIndex != -1;
-                    boolean hasAudioEncode = true;
+                    boolean hasAudioEncode = encoderWeakReference.get().mAudioEncodecThread.audioTrackIndex != -1;
+//                    boolean hasAudioEncode = true;
                     if (hasAudioEncode) {
                         mediaMuxer.start();
                         encoderWeakReference.get().encodeStart = true;
