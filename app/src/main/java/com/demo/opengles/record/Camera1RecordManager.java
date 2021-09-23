@@ -19,7 +19,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-public class RecordManager {
+public class Camera1RecordManager {
     private static final String TAG = "RecordManager";
 
     private Context context;

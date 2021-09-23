@@ -24,10 +24,10 @@ public class EGLCamera1Record4SameTimeActivity extends AppCompatActivity {
     private Button btnRecordPlay;
     private Button btnCpu;
 
-    private RecordManager recordManager1;
-    private RecordManager recordManager2;
-    private RecordManager recordManager3;
-    private RecordManager recordManager4;
+    private Camera1RecordManager recordManager1;
+    private Camera1RecordManager recordManager2;
+    private Camera1RecordManager recordManager3;
+    private Camera1RecordManager recordManager4;
 
     @Override
     protected void onDestroy() {
@@ -54,10 +54,10 @@ public class EGLCamera1Record4SameTimeActivity extends AppCompatActivity {
         TimeConsumeUtil.calc("findViewById");
 
         TimeConsumeUtil.start("recordManager1.create");
-        recordManager1 = new RecordManager();
-        recordManager2 = new RecordManager();
-        recordManager3 = new RecordManager();
-        recordManager4 = new RecordManager();
+        recordManager1 = new Camera1RecordManager();
+        recordManager2 = new Camera1RecordManager();
+        recordManager3 = new Camera1RecordManager();
+        recordManager4 = new Camera1RecordManager();
 
         recordManager1.create(this, findViewById(R.id.egl_surface_view_1), 0);
         recordManager2.create(this, findViewById(R.id.egl_surface_view_2), 1);

@@ -5,6 +5,7 @@ import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.os.Bundle;
+import android.view.Surface;
 import android.view.View;
 import android.widget.Button;
 
