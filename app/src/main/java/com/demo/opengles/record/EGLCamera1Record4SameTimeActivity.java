@@ -1,6 +1,7 @@
 package com.demo.opengles.record;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -18,6 +19,7 @@ public class EGLCamera1Record4SameTimeActivity extends AppCompatActivity {
     private Button btnRecordStart;
     private Button btnRecordStop;
     private Button btnRecordPlay;
+    private Button btnCpu;
 
     private RecordManager recordManager1;
     private RecordManager recordManager2;
@@ -35,6 +37,7 @@ public class EGLCamera1Record4SameTimeActivity extends AppCompatActivity {
         btnRecordStart = findViewById(R.id.btn_start_record);
         btnRecordStop = findViewById(R.id.btn_stop_record);
         btnRecordPlay = findViewById(R.id.btn_play_record);
+        btnCpu = findViewById(R.id.btn_cpu);
 
         TimeConsumeUtil.calc("findViewById");
 
@@ -81,6 +84,29 @@ public class EGLCamera1Record4SameTimeActivity extends AppCompatActivity {
                         TimeConsumeUtil.calc("stopRecord");
                     }
                 }).start();
+            }
+        });
+
+        btnCpu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                for (int i = 0; i < 2000; i++) {
+                    Thread thread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            while (true) {
+                                float a = 0.1234556789f;
+                                float b = 12345.6789f;
+                                float c = a * b;
+
+                                Log.e("test", "c = " + c + ", threadName=" + Thread.currentThread().getName());
+                            }
+                        }
+                    });
+                    thread.setName("thread_test_" + i);
+
+                    thread.start();
+                }
             }
         });
 //        btnRecordPlay.setOnClickListener(new View.OnClickListener() {

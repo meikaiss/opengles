@@ -16,6 +16,7 @@ import com.demo.opengles.util.ToastUtil;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 public class RecordManager {
@@ -105,6 +106,9 @@ public class RecordManager {
         eglSurfaceView.setRendererMode(EglSurfaceView.RENDERMODE_CONTINUOUSLY);
     }
 
+    int maxFrame = 30;
+    LinkedList<Long> frameTimeStamp = new LinkedList<>();
+
     private void initCamera1(SurfaceTexture surfaceTexture) throws Exception {
         int cameraCount = Camera.getNumberOfCameras();
         if (cameraCount <= 0) {
@@ -115,9 +119,23 @@ public class RecordManager {
         surfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
             @Override
             public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-                TimeConsumeUtil.calc("onFrameAvailable" + cameraId);
-                if (videoEncodeRecode != null && videoEncodeRecode.isEncodeStart()){
+                long nowTimeStamp = System.currentTimeMillis();
+                if (frameTimeStamp.size() < maxFrame) {
+                    frameTimeStamp.offer(nowTimeStamp);
+                } else {
+                    long s1 = frameTimeStamp.poll();
+                    frameTimeStamp.offer(nowTimeStamp);
+
+                    float fps = (float) maxFrame / (nowTimeStamp - s1) * 1000;
+                    TimeConsumeUtil.direct("cameraId=" + cameraId + " , fps = " + fps);
+                }
+
+//                TimeConsumeUtil.calc("onFrameAvailable" + cameraId);
+
+                if (videoEncodeRecode != null && videoEncodeRecode.isEncodeStart()) {
+//                    TimeConsumeUtil.start("requestRender, " + cameraId);
                     videoEncodeRecode.requestRender();
+//                    TimeConsumeUtil.calc("requestRender, " + cameraId);
                 }
             }
         });

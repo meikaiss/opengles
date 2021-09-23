@@ -274,7 +274,11 @@ public class VideoRecordEncoder {
                     }
                 } else {
                     while (outputBufferIndex >= 0) {
-                        TimeConsumeUtil.start("VideoEncodecThread" + encoderWeakReference.get().tag);
+                        VideoRecordEncoder videoRecordEncoder = encoderWeakReference.get();
+                        if (videoRecordEncoder != null) {
+                            TimeConsumeUtil.start("VideoEncodecThread" + videoRecordEncoder.tag);
+                        }
+
                         if (!encoderWeakReference.get().encodeStart) {
 //                            SystemClock.sleep(10);
                             continue;
@@ -459,6 +463,7 @@ public class VideoRecordEncoder {
                     drawStartTimeStamp = System.currentTimeMillis();
                     onDraw();
                     isStart = true;
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

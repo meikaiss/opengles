@@ -31,7 +31,7 @@ public class GaussianVerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_gaussian_hor);
+        setContentView(R.layout.activity_gaussian_ver);
 
         glSurfaceView = findViewById(R.id.gl_surface_view);
         glSurfaceView.setEGLContextClientVersion(2);
