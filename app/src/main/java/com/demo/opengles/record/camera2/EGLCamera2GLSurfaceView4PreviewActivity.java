@@ -15,16 +15,6 @@ public class EGLCamera2GLSurfaceView4PreviewActivity extends AppCompatActivity {
     private Camera2GLSurfaceViewPreviewManager recordManager4;
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        recordManager1.onDestroy();
-        recordManager2.onDestroy();
-        recordManager3.onDestroy();
-        recordManager4.onDestroy();
-    }
-
-    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_egl_camera2_glsurfaceview_preview4);
@@ -39,6 +29,16 @@ public class EGLCamera2GLSurfaceView4PreviewActivity extends AppCompatActivity {
         recordManager3.create(this, findViewById(R.id.egl_surface_view_3), 2);
         recordManager4.create(this, findViewById(R.id.egl_surface_view_4), 3);
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        recordManager1.onDestroy();
+        recordManager2.onDestroy();
+        recordManager3.onDestroy();
+        recordManager4.onDestroy();
     }
 
 }

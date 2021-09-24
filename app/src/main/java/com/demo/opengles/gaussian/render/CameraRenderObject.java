@@ -40,6 +40,10 @@ public class CameraRenderObject extends BaseRenderObject {
     public void onChange(int width, int height) {
         super.onChange(width, height);
 
+        if (inputWidth == 0 || inputHeight == 0) {
+            throw new IllegalStateException("相机预览渲染时采用了正交投影矩阵变换，用来防止图像变形。如果不设置预览图像宽度，就无法计算正交投影矩阵，从而导致预览的x或y轴范围是0，最终导致没有显示出任何内容");
+        }
+
         //设置正交投影参数
 //        int previewWidth = Math.min(inputWidth, inputHeight);
 //        int previewHeight = Math.max(inputWidth, inputHeight);
@@ -77,4 +81,5 @@ public class CameraRenderObject extends BaseRenderObject {
 
         GLES20.glUniformMatrix4fv(uMatrixLocation, 1, false, mMVPMatrix, 0);
     }
+
 }

@@ -28,8 +28,6 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.microedition.khronos.opengles.GL10;
-
 public class OpenGLESUtil {
     private static final String TAG = "OpenGLESUtils";
 

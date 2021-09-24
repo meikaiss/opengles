@@ -28,6 +28,7 @@ public class EGLCamera1FBOPreviewActivity extends AppCompatActivity {
 
     private int cameraTextureId;
     private SurfaceTexture surfaceTexture;
+    private Camera.Size previewSize;
 
     private CameraRenderObject cameraRenderObject;
     private DefaultRenderObject defaultRenderObject;
@@ -66,6 +67,9 @@ public class EGLCamera1FBOPreviewActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+
+                cameraRenderObject.inputWidth = previewSize.width;
+                cameraRenderObject.inputHeight = previewSize.height;
             }
 
             @Override
@@ -125,12 +129,9 @@ public class EGLCamera1FBOPreviewActivity extends AppCompatActivity {
         });
         //在使用正交投影变换的情况下，不需要考虑图像宽高比与View宽高比不一致的问题，因为正交投影会保持图像原有的宽高比，允许上下或两侧出现空白
         //所以直接选择最清晰的预览尺寸
-        Camera.Size previewSize = sizeList.get(0);
+        previewSize = sizeList.get(0);
         parameters.setPreviewSize(previewSize.width, previewSize.height);
         camera.setParameters(parameters);
-
-        cameraRenderObject.inputWidth = previewSize.width;
-        cameraRenderObject.inputHeight = previewSize.height;
 
         camera.setPreviewTexture(surfaceTexture);
         camera.startPreview();
