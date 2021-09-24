@@ -69,11 +69,7 @@ public class Camera2SurfaceViewPreviewManager {
     @SuppressLint("MissingPermission")
     private void openCamera2() throws Exception {
         cameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
-        try {
-            characteristics = cameraManager.getCameraCharacteristics(cameraId + "");
-        } catch (CameraAccessException e) {
-            e.printStackTrace();
-        }
+        characteristics = cameraManager.getCameraCharacteristics(cameraId + "");
 
         cameraManager.openCamera(cameraId + "", new CameraDevice.StateCallback() {
             @Override

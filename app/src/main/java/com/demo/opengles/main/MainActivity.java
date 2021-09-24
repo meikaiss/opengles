@@ -42,8 +42,8 @@ import com.demo.opengles.graphic.TriangleModalActivity;
 import com.demo.opengles.pcm.PcmRecordActivity;
 import com.demo.opengles.record.camera1.EGLCamera1Record4SameTimeActivity;
 import com.demo.opengles.record.camera1.EGLCamera1RecordActivity;
+import com.demo.opengles.record.camera2.EGLCamera2GLSurfaceView4PreviewActivity;
 import com.demo.opengles.record.camera2.EGLCamera2SurfaceView4PreviewActivity;
-import com.demo.opengles.record.camera_git.GLSurfaceCamera2Activity;
 import com.demo.opengles.surface.GLSurfaceViewAlphaVideoActivity;
 import com.demo.opengles.surface.GLSurfaceViewVideoActivity;
 import com.demo.opengles.surface.GLTextureViewAlphaVideoActivity;
@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
                     Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("EGL-Camera2-SurfaceView-4路预览", EGLCamera2SurfaceView4PreviewActivity.class, Manifest.permission.CAMERA,
                     Manifest.permission.RECORD_AUDIO));
-            add(new MainItemBean("EGL-Camera2-FBO-单路录制音视频_gitdemo", GLSurfaceCamera2Activity.class, Manifest.permission.CAMERA,
+            add(new MainItemBean("EGL-Camera2-GLSurfaceView-4路预览", EGLCamera2GLSurfaceView4PreviewActivity.class, Manifest.permission.CAMERA,
                     Manifest.permission.RECORD_AUDIO));
         }
     };

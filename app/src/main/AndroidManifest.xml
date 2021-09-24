@@ -59,9 +59,10 @@
         <activity android:name=".record.camera1.EGLCamera1RecordActivity" />
         <activity android:name=".record.camera1.EGLCamera1Record4SameTimeActivity" />
         <activity android:name=".record.camera2.EGLCamera2SurfaceView4PreviewActivity" />
+        <activity android:name=".record.camera2.EGLCamera2GLSurfaceView4PreviewActivity" />
+
         <activity android:name=".helper.VideoPlayerActivity" />
         <activity android:name=".pcm.PcmRecordActivity" />
-        <activity android:name=".record.camera_git.GLSurfaceCamera2Activity" />
 
     </application>
 
