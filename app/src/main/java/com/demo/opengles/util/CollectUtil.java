@@ -24,6 +24,20 @@ public class CollectUtil {
         }
     }
 
+    public static <T> T max(T[] array, ValueComputer<T> valueComputer) {
+        if (array == null || array.length == 0 || valueComputer == null) {
+            return null;
+        }
+
+        T max = array[0];
+        for (int i = 1; i < array.length; i++) {
+            if (valueComputer.computeValue(array[i]) > valueComputer.computeValue(max)) {
+                max = array[i];
+            }
+        }
+        return max;
+    }
+
     public static <T> T max(List<T> list, ValueComputer<T> valueComputer) {
         if (list == null || list.isEmpty() || valueComputer == null) {
             return null;

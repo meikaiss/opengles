@@ -28,6 +28,8 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.microedition.khronos.opengles.GL10;
+
 public class OpenGLESUtil {
     private static final String TAG = "OpenGLESUtils";
 
@@ -93,6 +95,44 @@ public class OpenGLESUtil {
         int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexCode);
         int fragShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragCode);
         return linkProgram(vertexShader, fragShader);
+    }
+
+    public static int createProgram(String vertexSource, String fragmentSource) {
+        // 1. load shader
+        int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexSource);
+        if (vertexShader == GLES20.GL_NONE) {
+            Log.e(TAG, "load vertex shader failed! ");
+            return GLES20.GL_NONE;
+        }
+        int fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentSource);
+        if (fragmentShader == GLES20.GL_NONE) {
+            Log.e(TAG, "load fragment shader failed! ");
+            return GLES20.GL_NONE;
+        }
+        // 2. create gl program
+        int program = GLES20.glCreateProgram();
+        if (program == GLES20.GL_NONE) {
+            Log.e(TAG, "create program failed! ");
+            return GLES20.GL_NONE;
+        }
+        // 3. attach shader
+        GLES20.glAttachShader(program, vertexShader);
+        GLES20.glAttachShader(program, fragmentShader);
+        // we can delete shader after attach
+        GLES20.glDeleteShader(vertexShader);
+        GLES20.glDeleteShader(fragmentShader);
+        // 4. link program
+        GLES20.glLinkProgram(program);
+        // 5. check link status
+        int[] linkStatus = new int[1];
+        GLES20.glGetProgramiv(program, GLES20.GL_LINK_STATUS, linkStatus, 0);
+        if (linkStatus[0] == GLES20.GL_FALSE) { // link failed
+            Log.e(TAG, "Error link program: ");
+            Log.e(TAG, GLES20.glGetProgramInfoLog(program));
+            GLES20.glDeleteProgram(program); // delete program
+            return GLES20.GL_NONE;
+        }
+        return program;
     }
 
     /**

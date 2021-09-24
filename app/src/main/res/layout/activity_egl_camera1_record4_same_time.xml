@@ -76,14 +76,6 @@
             android:layout_marginStart="10dp"
             android:text="播放" />
 
-        <Button
-            android:id="@+id/btn_cpu"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:text="消耗" />
-
     </LinearLayout>
-
 
 </FrameLayout>

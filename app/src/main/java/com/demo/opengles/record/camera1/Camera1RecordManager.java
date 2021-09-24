@@ -1,4 +1,4 @@
-package com.demo.opengles.record;
+package com.demo.opengles.record.camera1;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
@@ -44,7 +44,9 @@ public class Camera1RecordManager {
     }
 
     public void onDestroy() {
-        camera.release();
+        if (camera != null) {
+            camera.release();
+        }
     }
 
     public void create(Context context, EglSurfaceView eglSurfaceView, int cameraId) {

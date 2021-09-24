@@ -1,4 +1,4 @@
-package com.demo.opengles.record;
+package com.demo.opengles.record.camera1;
 
 import android.content.Context;
 import android.media.MediaCodec;
