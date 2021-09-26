@@ -1,4 +1,4 @@
-package com.demo.opengles.record.camera2;
+package com.demo.opengles.record.camera2.glsurfaceview;
 
 import android.os.Bundle;
 

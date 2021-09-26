@@ -1,4 +1,4 @@
-package com.demo.opengles.record.camera2;
+package com.demo.opengles.record.camera2.glsurfaceview;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -21,6 +21,8 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 
 import com.demo.opengles.gaussian.render.CameraRenderObject;
+import com.demo.opengles.gaussian.render.DefaultRenderObject;
+import com.demo.opengles.gaussian.render.WaterMarkRenderObject;
 import com.demo.opengles.sdk.EglSurfaceView;
 import com.demo.opengles.util.IOUtil;
 import com.demo.opengles.util.OpenGLESUtil;
@@ -52,7 +54,8 @@ public class Camera2GLSurfaceViewPreviewManager {
     private Surface surface;
 
     private CameraRenderObject cameraRenderObject;
-//    private DefaultRenderObject defaultRenderObject;
+    private WaterMarkRenderObject waterMarkRenderObject;
+    private DefaultRenderObject defaultRenderObject;
 
     public void create(Activity activity, GLSurfaceView glSurfaceView, int cameraId) {
         this.activity = activity;
@@ -62,11 +65,14 @@ public class Camera2GLSurfaceViewPreviewManager {
         glSurfaceView.setEGLContextClientVersion(2);
 
         cameraRenderObject = new CameraRenderObject(activity);
-        cameraRenderObject.isBindFbo = false;
+        cameraRenderObject.isBindFbo = true;
         cameraRenderObject.isOES = true;
-//        defaultRenderObject = new DefaultRenderObject(context);
-//        defaultRenderObject.isBindFbo = false;
-//        defaultRenderObject.isOES = false;
+        waterMarkRenderObject = new WaterMarkRenderObject(activity);
+        waterMarkRenderObject.isBindFbo = true;
+        waterMarkRenderObject.isOES = false;
+        defaultRenderObject = new DefaultRenderObject(activity);
+        defaultRenderObject.isBindFbo = false;
+        defaultRenderObject.isOES = false;
 
         cameraHandlerThread = new HandlerThread("cameraOpenThread");
         cameraHandlerThread.start();
@@ -77,7 +83,6 @@ public class Camera2GLSurfaceViewPreviewManager {
             public void onSurfaceCreated(GL10 gl, EGLConfig config) {
                 cameraTextureId = OpenGLESUtil.getOesTexture();
                 cameraSurfaceTexture = new SurfaceTexture(cameraTextureId);
-                cameraSurfaceTexture.setDefaultBufferSize(1080, 1920);
                 surface = new Surface(cameraSurfaceTexture);
 
                 cameraSurfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
@@ -88,7 +93,8 @@ public class Camera2GLSurfaceViewPreviewManager {
                 });
 
                 cameraRenderObject.onCreate();
-//                defaultRenderObject.onCreate();
+                waterMarkRenderObject.onCreate();
+                defaultRenderObject.onCreate();
 
                 try {
                     openCamera2();
@@ -103,17 +109,16 @@ public class Camera2GLSurfaceViewPreviewManager {
             @Override
             public void onSurfaceChanged(GL10 gl, int width, int height) {
                 cameraRenderObject.onChange(width, height);
-//                defaultRenderObject.onChange(width, height);
+                waterMarkRenderObject.onChange(width, height);
+                defaultRenderObject.onChange(width, height);
             }
 
             @Override
             public void onDrawFrame(GL10 gl) {
                 cameraSurfaceTexture.updateTexImage();
                 cameraRenderObject.onDraw(cameraTextureId);
-//                defaultRenderObject.onDraw(cameraRenderObject.fboTextureId);
-
-//                GLES20.glClearColor(1f, 0, 0, 1.0f);
-//                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+                waterMarkRenderObject.onDraw(cameraRenderObject.fboTextureId);
+                defaultRenderObject.onDraw(waterMarkRenderObject.fboTextureId);
             }
         });
 

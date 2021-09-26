@@ -1,4 +1,4 @@
-package com.demo.opengles.record.camera2;
+package com.demo.opengles.record.camera2.surfaceview;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

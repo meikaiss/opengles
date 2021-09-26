@@ -10,7 +10,7 @@ import com.demo.opengles.R;
 import com.demo.opengles.util.OpenGLESUtil;
 
 /**
- * 将外界传入的纹理渲染到屏幕或离屏缓存上，不做任何额外的变换
+ * 将外界传入的纹理叠加一层水印渲染到屏幕或离屏缓存上，不做任何额外的变换
  * Created by meikai on 2021/08/29.
  */
 public class WaterMarkRenderObject extends DefaultRenderObject {

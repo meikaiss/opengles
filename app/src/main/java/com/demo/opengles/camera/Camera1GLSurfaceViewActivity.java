@@ -314,6 +314,9 @@ public class Camera1GLSurfaceViewActivity extends AppCompatActivity {
         }
 
         public void onSurfaceChanged(GL10 gl, int width, int height) {
+
+            GLES20.glClearColor(1, 0, 0, 1.0f);
+
             //设置正交投影参数
 
             int previewWidth = Math.min(previewSize.width, previewSize.height);

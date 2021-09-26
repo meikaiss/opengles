@@ -1,7 +1,6 @@
-package com.demo.opengles.record.camera2;
+package com.demo.opengles.record.camera2.surfaceview;
 
 import android.os.Bundle;
-import android.widget.Button;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
