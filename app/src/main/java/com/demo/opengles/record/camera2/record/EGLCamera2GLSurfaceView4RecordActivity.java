@@ -35,14 +35,14 @@ public class EGLCamera2GLSurfaceView4RecordActivity extends AppCompatActivity {
         btnRecordPlay = findViewById(R.id.btn_play_record);
 
         recordManager1 = new Camera2GLSurfaceViewRecordManager();
-        recordManager2 = new Camera2GLSurfaceViewRecordManager();
-        recordManager3 = new Camera2GLSurfaceViewRecordManager();
-        recordManager4 = new Camera2GLSurfaceViewRecordManager();
+//        recordManager2 = new Camera2GLSurfaceViewRecordManager();
+//        recordManager3 = new Camera2GLSurfaceViewRecordManager();
+//        recordManager4 = new Camera2GLSurfaceViewRecordManager();
 
         recordManager1.create(this, findViewById(R.id.egl_surface_view_1), 0);
-        recordManager2.create(this, findViewById(R.id.egl_surface_view_2), 1);
-        recordManager3.create(this, findViewById(R.id.egl_surface_view_3), 2);
-        recordManager4.create(this, findViewById(R.id.egl_surface_view_4), 3);
+//        recordManager2.create(this, findViewById(R.id.egl_surface_view_2), 1);
+//        recordManager3.create(this, findViewById(R.id.egl_surface_view_3), 2);
+//        recordManager4.create(this, findViewById(R.id.egl_surface_view_4), 3);
 
         initBtnClickListener();
     }
@@ -52,9 +52,9 @@ public class EGLCamera2GLSurfaceView4RecordActivity extends AppCompatActivity {
         super.onDestroy();
 
         recordManager1.onDestroy();
-        recordManager2.onDestroy();
-        recordManager3.onDestroy();
-        recordManager4.onDestroy();
+//        recordManager2.onDestroy();
+//        recordManager3.onDestroy();
+//        recordManager4.onDestroy();
     }
 
     private void initBtnClickListener() {
@@ -66,9 +66,9 @@ public class EGLCamera2GLSurfaceView4RecordActivity extends AppCompatActivity {
                     public void run() {
                         TimeConsumeUtil.start("startRecord");
                         recordManager1.startRecord();
-                        recordManager2.startRecord();
-                        recordManager3.startRecord();
-                        recordManager4.startRecord();
+//                        recordManager2.startRecord();
+//                        recordManager3.startRecord();
+//                        recordManager4.startRecord();
                         TimeConsumeUtil.calc("startRecord");
                     }
                 }).start();
@@ -82,9 +82,9 @@ public class EGLCamera2GLSurfaceView4RecordActivity extends AppCompatActivity {
                     public void run() {
                         TimeConsumeUtil.start("stopRecord");
                         recordManager1.stopRecord();
-                        recordManager2.stopRecord();
-                        recordManager3.stopRecord();
-                        recordManager4.stopRecord();
+//                        recordManager2.stopRecord();
+//                        recordManager3.stopRecord();
+//                        recordManager4.stopRecord();
                         TimeConsumeUtil.calc("stopRecord");
                     }
                 }).start();

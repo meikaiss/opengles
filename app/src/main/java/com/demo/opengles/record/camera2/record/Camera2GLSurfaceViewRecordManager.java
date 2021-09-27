@@ -72,7 +72,6 @@ public class Camera2GLSurfaceViewRecordManager {
         this.eglSurfaceView = eglSurfaceView;
         this.cameraId = cameraId;
 
-
         cameraRenderObject = new CameraRenderObject(activity);
         cameraRenderObject.isBindFbo = true;
         cameraRenderObject.isOES = true;
@@ -97,9 +96,9 @@ public class Camera2GLSurfaceViewRecordManager {
                         eglSurfaceView.requestRender();
 
                         if (videoEncodeRecode != null && videoEncodeRecode.isEncodeStart()) {
-//                    TimeConsumeUtil.start("requestRender, " + cameraId);
+//                            TimeConsumeUtil.start("requestRender, " + cameraId);
                             videoEncodeRecode.requestRender();
-//                    TimeConsumeUtil.calc("requestRender, " + cameraId);
+//                            TimeConsumeUtil.calc("requestRender, " + cameraId);
                         }
                     }
                 });
@@ -111,10 +110,15 @@ public class Camera2GLSurfaceViewRecordManager {
                     openCamera2();
                 } catch (Exception e) {
                     e.printStackTrace();
+                    return;
                 }
 
-                cameraRenderObject.inputWidth = mPreviewSize.getWidth();
-                cameraRenderObject.inputHeight = mPreviewSize.getHeight();
+                if (mPreviewSize != null) {
+                    //设置Surface纹理的宽高，Camera2在预览时会选择宽高最相近的预览尺寸，将此尺寸的图像输送到Surface纹理中
+                    cameraSurfaceTexture.setDefaultBufferSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
+                    cameraRenderObject.inputWidth = mPreviewSize.getWidth();
+                    cameraRenderObject.inputHeight = mPreviewSize.getHeight();
+                }
             }
 
             @Override
@@ -136,7 +140,6 @@ public class Camera2GLSurfaceViewRecordManager {
 
 
     public void startRecord() {
-
         /////// 开始录图像
         videoEncodeRecode = new VideoRecordEncoder(activity, cameraId);
         videoEncodeRecode.setRender(new EglSurfaceView.Renderer() {
@@ -202,8 +205,9 @@ public class Camera2GLSurfaceViewRecordManager {
         StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
 
         Size largest = Collections.max(Arrays.asList(map.getOutputSizes(ImageFormat.JPEG)), new CompareSizesByArea());
-        mPreviewSize = chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class),
-                eglSurfaceView.getWidth(), eglSurfaceView.getHeight(), largest);
+        Size[] sizes = map.getOutputSizes(SurfaceTexture.class);
+        mPreviewSize = chooseOptimalSize(sizes, eglSurfaceView.getWidth(), eglSurfaceView.getHeight(), largest);
+        mPreviewSize = sizes[0];
 
         cameraManager.openCamera(cameraId + "", new CameraDevice.StateCallback() {
             @Override
@@ -227,7 +231,6 @@ public class Camera2GLSurfaceViewRecordManager {
 
             }
         }, cameraThreadHandler);
-
     }
 
     private void createCameraSession() throws CameraAccessException {

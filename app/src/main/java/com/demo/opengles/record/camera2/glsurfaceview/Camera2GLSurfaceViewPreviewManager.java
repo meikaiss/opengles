@@ -102,6 +102,8 @@ public class Camera2GLSurfaceViewPreviewManager {
                     e.printStackTrace();
                 }
 
+                //设置Surface纹理的宽高，Camera2在预览时会选择宽高最相近的预览尺寸，将此尺寸的图像输送到Surface纹理中
+                cameraSurfaceTexture.setDefaultBufferSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
                 cameraRenderObject.inputWidth = mPreviewSize.getWidth();
                 cameraRenderObject.inputHeight = mPreviewSize.getHeight();
             }
@@ -132,8 +134,9 @@ public class Camera2GLSurfaceViewPreviewManager {
         StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
 
         Size largest = Collections.max(Arrays.asList(map.getOutputSizes(ImageFormat.JPEG)), new CompareSizesByArea());
-        mPreviewSize = chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class),
-                glSurfaceView.getWidth(), glSurfaceView.getHeight(), largest);
+        Size[] sizes = map.getOutputSizes(SurfaceTexture.class);
+        mPreviewSize = chooseOptimalSize(sizes, glSurfaceView.getWidth(), glSurfaceView.getHeight(), largest);
+        mPreviewSize = sizes[0]; //直接选择最大的预览尺寸
 
         cameraManager.openCamera(cameraId + "", new CameraDevice.StateCallback() {
             @Override

@@ -3,12 +3,15 @@ package com.demo.opengles.gaussian.render;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
+import android.util.Log;
 
 /**
  * 将外界传入的纹理渲染到屏幕或离屏缓存上，不做任何额外的变换
  * Created by meikai on 2021/08/29.
  */
 public class CameraRenderObject extends BaseRenderObject {
+
+    private static final String TAG = "CameraRenderObject";
 
     /**
      * 相机采集到的图像的宽度，单位：像素
@@ -41,28 +44,43 @@ public class CameraRenderObject extends BaseRenderObject {
         super.onChange(width, height);
 
         if (inputWidth == 0 || inputHeight == 0) {
-            throw new IllegalStateException("相机预览渲染时采用了正交投影矩阵变换，用来防止图像变形。如果不设置预览图像宽度，就无法计算正交投影矩阵，从而导致预览的x或y轴范围是0，最终导致没有显示出任何内容");
+            Log.e(TAG, "相机预览渲染时采用了正交投影矩阵变换，用来防止图像变形。如果不设置预览图像宽度，就无法计算正交投影矩阵，从而导致预览的x或y轴范围是0，最终导致没有显示出任何内容");
         }
 
         //设置正交投影参数
-//        int previewWidth = Math.min(inputWidth, inputHeight);
-//        int previewHeight = Math.max(inputWidth, inputHeight);
-        int previewWidth = inputWidth;
-        int previewHeight = inputHeight;
+        /**
+         * 正交投影用于解决绘制目标宽高与View宽高不一致时引起的变形
+         * 固定某一边仍然使用归一化坐标，即[-1,1]
+         * 另一边扩大或缩小归一，例如修改坐标范围到delta=[-0.5,0.5]、[-1.5,1.5]
+         * 但纹理坐标的范围仍然是[-1,1]，此时映射到delta坐标内即不会变形，但会裁剪或空余
+         */
+        int previewWidth = Math.min(inputWidth, inputHeight);
+        int previewHeight = Math.max(inputWidth, inputHeight);
+        previewWidth = inputWidth;
+        previewHeight = inputHeight;
 
+        float sWHImage = previewWidth / (float) previewHeight;
+        float sWHView = width / (float) height;
         if (width > height) {
-            float x = width / ((float) height / previewHeight * previewWidth);
-            Matrix.orthoM(mProjectMatrix, 0, -x, x, -1, 1, -1, 1);
+            if (sWHImage > sWHView) {
+                Matrix.orthoM(mProjectMatrix, 0, -sWHView * sWHImage, sWHView * sWHImage,
+                        -1, 1, -1, 1);
+            } else {
+                Matrix.orthoM(mProjectMatrix, 0, -sWHView / sWHImage, sWHView / sWHImage,
+                        -1, 1, -1, 1);
+            }
         } else {
-            /**
-             * 正交投影用于解决绘制目标宽高与View宽高不一致时引起的变形
-             * 固定某一边仍然使用归一化坐标，即[-1,1]
-             * 另一边扩大或缩小归一，例如修改坐标范围到delta=[-0.5,0.5]、[-1.5,1.5]
-             * 但纹理坐标的范围仍然是[-1,1]，此时映射到delta坐标内即不会变形，但会裁剪或空余
-             */
-            float y = height / ((float) width / previewWidth * previewHeight);
-            Matrix.orthoM(mProjectMatrix, 0, -1, 1, -y, y, -1, 1);
+            if (sWHImage > sWHView) {
+                Matrix.orthoM(mProjectMatrix, 0, -1, 1, -1 / sWHView * sWHImage,
+                        1 / sWHView * sWHImage, -1, 1);
+            } else {
+                Matrix.orthoM(mProjectMatrix, 0, -1, 1, -sWHImage / sWHView,
+                        sWHImage / sWHView, -1, 1);
+            }
         }
+
+        //此行仅用于调试预览尺寸时使用，正常情况不需要此行
+//        Matrix.setIdentityM(mProjectMatrix, 0);
 
         /**
          * 后置摄像头的硬件固定与手机竖屏方向逆时针旋转90度，
