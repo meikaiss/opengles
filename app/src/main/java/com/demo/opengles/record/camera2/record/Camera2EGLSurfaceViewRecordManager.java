@@ -21,6 +21,7 @@ import androidx.annotation.NonNull;
 
 import com.demo.opengles.gaussian.render.CameraRenderObject;
 import com.demo.opengles.gaussian.render.DefaultRenderObject;
+import com.demo.opengles.gaussian.render.WaterMarkRenderObject;
 import com.demo.opengles.record.camera1.AudioRecorder;
 import com.demo.opengles.record.camera1.VideoRecordEncoder;
 import com.demo.opengles.sdk.EglSurfaceView;
@@ -35,7 +36,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 
-public class Camera2GLSurfaceViewRecordManager {
+public class Camera2EGLSurfaceViewRecordManager {
 
     private Activity activity;
     private EglSurfaceView eglSurfaceView;
@@ -55,6 +56,7 @@ public class Camera2GLSurfaceViewRecordManager {
     private Surface surface;
 
     private CameraRenderObject cameraRenderObject;
+    private WaterMarkRenderObject waterMarkRenderObject;
     private DefaultRenderObject defaultRenderObject;
 
     private VideoRecordEncoder videoEncodeRecode;
@@ -75,6 +77,9 @@ public class Camera2GLSurfaceViewRecordManager {
         cameraRenderObject = new CameraRenderObject(activity);
         cameraRenderObject.isBindFbo = true;
         cameraRenderObject.isOES = true;
+        waterMarkRenderObject = new WaterMarkRenderObject(activity);
+        waterMarkRenderObject.isBindFbo = true;
+        waterMarkRenderObject.isOES = false;
         defaultRenderObject = new DefaultRenderObject(activity);
         defaultRenderObject.isBindFbo = false;
         defaultRenderObject.isOES = false;
@@ -104,6 +109,7 @@ public class Camera2GLSurfaceViewRecordManager {
                 });
 
                 cameraRenderObject.onCreate();
+                waterMarkRenderObject.onCreate();
                 defaultRenderObject.onCreate();
 
                 try {
@@ -124,6 +130,7 @@ public class Camera2GLSurfaceViewRecordManager {
             @Override
             public void onSurfaceChanged(int width, int height) {
                 cameraRenderObject.onChange(width, height);
+                waterMarkRenderObject.onChange(width, height);
                 defaultRenderObject.onChange(width, height);
             }
 
@@ -131,13 +138,13 @@ public class Camera2GLSurfaceViewRecordManager {
             public void onDrawFrame() {
                 cameraSurfaceTexture.updateTexImage();
                 cameraRenderObject.onDraw(cameraTextureId);
-                defaultRenderObject.onDraw(cameraRenderObject.fboTextureId);
+                waterMarkRenderObject.onDraw(cameraRenderObject.fboTextureId);
+                defaultRenderObject.onDraw(waterMarkRenderObject.fboTextureId);
             }
         });
 
         eglSurfaceView.setRendererMode(EglSurfaceView.RENDERMODE_WHEN_DIRTY);
     }
-
 
     public void startRecord() {
         /////// 开始录图像
@@ -159,7 +166,7 @@ public class Camera2GLSurfaceViewRecordManager {
 
             @Override
             public void onDrawFrame() {
-                defaultRenderObject.onDraw(cameraRenderObject.fboTextureId);
+                defaultRenderObject.onDraw(waterMarkRenderObject.fboTextureId);
             }
         });
         videoEncodeRecode.setRenderMode(VideoRecordEncoder.RENDERMODE_WHEN_DIRTY);
@@ -212,7 +219,7 @@ public class Camera2GLSurfaceViewRecordManager {
         cameraManager.openCamera(cameraId + "", new CameraDevice.StateCallback() {
             @Override
             public void onOpened(@NonNull CameraDevice camera) {
-                Camera2GLSurfaceViewRecordManager.this.camera = camera;
+                Camera2EGLSurfaceViewRecordManager.this.camera = camera;
 
                 try {
                     createCameraSession();
@@ -240,7 +247,7 @@ public class Camera2GLSurfaceViewRecordManager {
         camera.createCaptureSession(Arrays.asList(surface), new CameraCaptureSession.StateCallback() {
             @Override
             public void onConfigured(@NonNull CameraCaptureSession session) {
-                Camera2GLSurfaceViewRecordManager.this.session = session;
+                Camera2EGLSurfaceViewRecordManager.this.session = session;
 
                 try {
                     //注意长安的板子不允许设置这两项配置，否则无法预览

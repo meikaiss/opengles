@@ -16,10 +16,10 @@ import com.demo.opengles.util.ToastUtil;
 
 public class EGLCamera2GLSurfaceView4RecordActivity extends AppCompatActivity {
 
-    private Camera2GLSurfaceViewRecordManager recordManager1;
-    private Camera2GLSurfaceViewRecordManager recordManager2;
-    private Camera2GLSurfaceViewRecordManager recordManager3;
-    private Camera2GLSurfaceViewRecordManager recordManager4;
+    private Camera2EGLSurfaceViewRecordManager recordManager1;
+    private Camera2EGLSurfaceViewRecordManager recordManager2;
+    private Camera2EGLSurfaceViewRecordManager recordManager3;
+    private Camera2EGLSurfaceViewRecordManager recordManager4;
 
     private Button btnRecordStart;
     private Button btnRecordStop;
@@ -34,7 +34,7 @@ public class EGLCamera2GLSurfaceView4RecordActivity extends AppCompatActivity {
         btnRecordStop = findViewById(R.id.btn_stop_record);
         btnRecordPlay = findViewById(R.id.btn_play_record);
 
-        recordManager1 = new Camera2GLSurfaceViewRecordManager();
+        recordManager1 = new Camera2EGLSurfaceViewRecordManager();
 //        recordManager2 = new Camera2GLSurfaceViewRecordManager();
 //        recordManager3 = new Camera2GLSurfaceViewRecordManager();
 //        recordManager4 = new Camera2GLSurfaceViewRecordManager();

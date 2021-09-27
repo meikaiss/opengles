@@ -6,7 +6,7 @@ import android.opengl.Matrix;
 import android.util.Log;
 
 /**
- * 将外界传入的纹理渲染到屏幕或离屏缓存上，不做任何额外的变换
+ * 将外界传入的相机纹理渲染到屏幕或离屏缓存上，不做任何额外的变换
  * Created by meikai on 2021/08/29.
  */
 public class CameraRenderObject extends BaseRenderObject {
@@ -54,10 +54,16 @@ public class CameraRenderObject extends BaseRenderObject {
          * 另一边扩大或缩小归一，例如修改坐标范围到delta=[-0.5,0.5]、[-1.5,1.5]
          * 但纹理坐标的范围仍然是[-1,1]，此时映射到delta坐标内即不会变形，但会裁剪或空余
          */
-        int previewWidth = Math.min(inputWidth, inputHeight);
-        int previewHeight = Math.max(inputWidth, inputHeight);
-        previewWidth = inputWidth;
-        previewHeight = inputHeight;
+        int previewWidth;
+        int previewHeight;
+
+        /**
+         * 为了解决后置相机硬件固定与手机竖屏方向成90度问题
+         * 直接将相机矩阵的上方向修改为x正方向
+         * 因此宽高需要倒置
+         */
+        previewWidth = inputHeight;
+        previewHeight = inputWidth;
 
         float sWHImage = previewWidth / (float) previewHeight;
         float sWHView = width / (float) height;
