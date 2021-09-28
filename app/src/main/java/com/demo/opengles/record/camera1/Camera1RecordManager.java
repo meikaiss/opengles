@@ -87,8 +87,8 @@ public class Camera1RecordManager {
 
             @Override
             public void onSurfaceChanged(int width, int height) {
-                cameraRenderObject.onChange(cameraRenderObject.inputWidth, cameraRenderObject.inputHeight);
-                waterMarkRenderObject.onChange(cameraRenderObject.inputWidth, cameraRenderObject.inputHeight);
+                cameraRenderObject.onChange(width, height);
+                waterMarkRenderObject.onChange(width, height);
                 defaultRenderObject.onChange(width, height);
 
 //                TimeConsumeUtil.calc("Renderer", "onSurfaceChanged");

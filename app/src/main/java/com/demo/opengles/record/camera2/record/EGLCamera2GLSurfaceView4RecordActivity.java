@@ -35,9 +35,9 @@ public class EGLCamera2GLSurfaceView4RecordActivity extends AppCompatActivity {
         btnRecordPlay = findViewById(R.id.btn_play_record);
 
         recordManager1 = new Camera2EGLSurfaceViewRecordManager();
-//        recordManager2 = new Camera2GLSurfaceViewRecordManager();
-//        recordManager3 = new Camera2GLSurfaceViewRecordManager();
-//        recordManager4 = new Camera2GLSurfaceViewRecordManager();
+//        recordManager2 = new Camera2EGLSurfaceViewRecordManager();
+//        recordManager3 = new Camera2EGLSurfaceViewRecordManager();
+//        recordManager4 = new Camera2EGLSurfaceViewRecordManager();
 
         recordManager1.create(this, findViewById(R.id.egl_surface_view_1), 0);
 //        recordManager2.create(this, findViewById(R.id.egl_surface_view_2), 1);

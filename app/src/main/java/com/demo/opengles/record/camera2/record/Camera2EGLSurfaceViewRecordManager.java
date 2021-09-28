@@ -140,10 +140,17 @@ public class Camera2EGLSurfaceViewRecordManager {
                 cameraRenderObject.onDraw(cameraTextureId);
                 waterMarkRenderObject.onDraw(cameraRenderObject.fboTextureId);
                 defaultRenderObject.onDraw(waterMarkRenderObject.fboTextureId);
+
+                if (videoEncodeRecode != null && videoEncodeRecode.isEncodeStart()) {
+//                            TimeConsumeUtil.start("requestRender, " + cameraId);
+                    videoEncodeRecode.requestRender();
+//                            TimeConsumeUtil.calc("requestRender, " + cameraId);
+                }
             }
         });
 
-        eglSurfaceView.setRendererMode(EglSurfaceView.RENDERMODE_WHEN_DIRTY);
+        //长安板子在使用Camera2时，有概率导致onFrameAvailable永远不回调，因此这里使用continue
+        eglSurfaceView.setRendererMode(EglSurfaceView.RENDERMODE_CONTINUOUSLY);
     }
 
     public void startRecord() {
