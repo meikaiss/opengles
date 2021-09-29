@@ -21,6 +21,10 @@ public class CameraRenderObject extends BaseRenderObject {
      * 相机采集到的图像的高度，单位：像素
      */
     public int inputHeight;
+    /**
+     * 硬件层特征，为了让图像在手机屏幕直立显示时，需要将图像顺时针旋转此角度。不同手机厂商的此角度值会有不同
+     */
+    public int orientation;
 
     private float[] mViewMatrix = new float[16];
     private float[] mProjectMatrix = new float[16];
@@ -62,8 +66,11 @@ public class CameraRenderObject extends BaseRenderObject {
          * 直接将相机矩阵的上方向修改为x正方向
          * 因此宽高需要倒置
          */
-        previewWidth = inputHeight;
-        previewHeight = inputWidth;
+        previewWidth = inputWidth;
+        previewHeight = inputHeight;
+
+//        previewWidth = inputHeight;
+//        previewHeight = inputWidth;
 
         float sWHImage = previewWidth / (float) previewHeight;
         float sWHView = width / (float) height;
@@ -94,7 +101,7 @@ public class CameraRenderObject extends BaseRenderObject {
          * 摄像机有三个参数：摄像机位置坐标、摄像机视线的朝向点、摄像机与视线垂直面的上方向点
          */
         Matrix.setLookAtM(mViewMatrix, 0, 0.0f, 0.0f, 1.0f,
-                0f, 0f, 0f, 1f, 0f, 0f);
+                0f, 0f, 0f, 0f, 1f, 0f);
         //计算变换矩阵
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0);
     }

@@ -141,6 +141,7 @@ public class Camera2EGLSurfaceViewRecordManager {
                 waterMarkRenderObject.onDraw(cameraRenderObject.fboTextureId);
                 defaultRenderObject.onDraw(waterMarkRenderObject.fboTextureId);
 
+                //在这里刷新录制画面并不是一个好方案，最好是在onFrameAvailable里更新，避免相机刷新帧率低于view刷新帧率时，却在视频内生成很多相同的画面帧
                 if (videoEncodeRecode != null && videoEncodeRecode.isEncodeStart()) {
 //                            TimeConsumeUtil.start("requestRender, " + cameraId);
                     videoEncodeRecode.requestRender();
@@ -218,8 +219,13 @@ public class Camera2EGLSurfaceViewRecordManager {
         characteristics = cameraManager.getCameraCharacteristics(cameraId + "");
         StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
 
-        Size largest = Collections.max(Arrays.asList(map.getOutputSizes(ImageFormat.JPEG)), new CompareSizesByArea());
+        //硬件层特征，为了让图像在手机屏幕直立显示时，需要将图像顺时针旋转此角度。不同手机厂商的此角度值会有不同
+        cameraRenderObject.orientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
+        //framework-sdk特性：这里获取到的size的宽高的方向是针对手机屏幕竖屏时的宽高，而不是针对摄像头成像的上方向的宽高
         Size[] sizes = map.getOutputSizes(SurfaceTexture.class);
+
+        Size largest = Collections.max(Arrays.asList(map.getOutputSizes(ImageFormat.JPEG)), new CompareSizesByArea());
+
         mPreviewSize = chooseOptimalSize(sizes, eglSurfaceView.getWidth(), eglSurfaceView.getHeight(), largest);
         mPreviewSize = sizes[0];
 

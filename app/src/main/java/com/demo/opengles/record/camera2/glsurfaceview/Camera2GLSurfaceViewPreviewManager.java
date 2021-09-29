@@ -103,9 +103,11 @@ public class Camera2GLSurfaceViewPreviewManager {
                 }
 
                 //设置Surface纹理的宽高，Camera2在预览时会选择宽高最相近的预览尺寸，将此尺寸的图像输送到Surface纹理中
-                cameraSurfaceTexture.setDefaultBufferSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
-                cameraRenderObject.inputWidth = mPreviewSize.getWidth();
-                cameraRenderObject.inputHeight = mPreviewSize.getHeight();
+                if (mPreviewSize != null) {
+                    cameraSurfaceTexture.setDefaultBufferSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
+                    cameraRenderObject.inputWidth = mPreviewSize.getWidth();
+                    cameraRenderObject.inputHeight = mPreviewSize.getHeight();
+                }
             }
 
             @Override
