@@ -9,6 +9,7 @@ import com.demo.opengles.gaussian.render.DefaultRenderObject;
 import com.demo.opengles.gaussian.render.WaterMarkRenderObject;
 import com.demo.opengles.sdk.EglSurfaceView;
 import com.demo.opengles.util.CollectUtil;
+import com.demo.opengles.util.FpsUtil;
 import com.demo.opengles.util.OpenGLESUtil;
 import com.demo.opengles.util.TimeConsumeUtil;
 import com.demo.opengles.util.ToastUtil;
@@ -16,7 +17,6 @@ import com.demo.opengles.util.ToastUtil;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 
 public class Camera1RecordManager {
@@ -110,29 +110,17 @@ public class Camera1RecordManager {
         eglSurfaceView.setRendererMode(EglSurfaceView.RENDERMODE_CONTINUOUSLY);
     }
 
-    int maxFrame = 30;
-    LinkedList<Long> frameTimeStamp = new LinkedList<>();
-
     private void initCamera1(SurfaceTexture surfaceTexture) throws Exception {
         int cameraCount = Camera.getNumberOfCameras();
         if (cameraCount <= 0) {
             return;
         }
 
-        TimeConsumeUtil.start("onFrameAvailable" + cameraId);
+        FpsUtil fpsUtil = new FpsUtil("onFrameAvailable" + cameraId);
         surfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
             @Override
             public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-                long nowTimeStamp = System.currentTimeMillis();
-                if (frameTimeStamp.size() < maxFrame) {
-                    frameTimeStamp.offer(nowTimeStamp);
-                } else {
-                    long s1 = frameTimeStamp.poll();
-                    frameTimeStamp.offer(nowTimeStamp);
-
-                    float fps = (float) maxFrame / (nowTimeStamp - s1) * 1000;
-                    TimeConsumeUtil.direct("cameraId=" + cameraId + " , fps = " + fps);
-                }
+                fpsUtil.trigger();
 
 //                TimeConsumeUtil.calc("onFrameAvailable" + cameraId);
 

@@ -25,6 +25,7 @@ import com.demo.opengles.gaussian.render.WaterMarkRenderObject;
 import com.demo.opengles.record.camera1.AudioRecorder;
 import com.demo.opengles.record.camera1.VideoRecordEncoder;
 import com.demo.opengles.sdk.EglSurfaceView;
+import com.demo.opengles.util.FpsUtil;
 import com.demo.opengles.util.IOUtil;
 import com.demo.opengles.util.OpenGLESUtil;
 import com.demo.opengles.util.ToastUtil;
@@ -95,14 +96,16 @@ public class Camera2EGLSurfaceViewRecordManager {
                 cameraSurfaceTexture = new SurfaceTexture(cameraTextureId);
                 surface = new Surface(cameraSurfaceTexture);
 
+                FpsUtil fpsUtil = new FpsUtil("camera2-onFrameAvailable" + cameraId);
                 cameraSurfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
                     @Override
                     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+                        fpsUtil.trigger();
                         eglSurfaceView.requestRender();
 
                         if (videoEncodeRecode != null && videoEncodeRecode.isEncodeStart()) {
 //                            TimeConsumeUtil.start("requestRender, " + cameraId);
-                            videoEncodeRecode.requestRender();
+//                            videoEncodeRecode.requestRender();
 //                            TimeConsumeUtil.calc("requestRender, " + cameraId);
                         }
                     }
@@ -150,68 +153,8 @@ public class Camera2EGLSurfaceViewRecordManager {
             }
         });
 
-        //长安板子在使用Camera2时，有概率导致onFrameAvailable永远不回调，因此这里使用continue
-        eglSurfaceView.setRendererMode(EglSurfaceView.RENDERMODE_CONTINUOUSLY);
+        eglSurfaceView.setRendererMode(EglSurfaceView.RENDERMODE_WHEN_DIRTY);
     }
-
-    public void startRecord() {
-        /////// 开始录图像
-        videoEncodeRecode = new VideoRecordEncoder(activity, cameraId);
-        videoEncodeRecode.setRender(new EglSurfaceView.Renderer() {
-
-            DefaultRenderObject defaultRenderObject;
-
-            @Override
-            public void onSurfaceCreated() {
-                defaultRenderObject = new DefaultRenderObject(activity);
-                defaultRenderObject.onCreate();
-            }
-
-            @Override
-            public void onSurfaceChanged(int width, int height) {
-                defaultRenderObject.onChange(width, height);
-            }
-
-            @Override
-            public void onDrawFrame() {
-                defaultRenderObject.onDraw(waterMarkRenderObject.fboTextureId);
-            }
-        });
-        videoEncodeRecode.setRenderMode(VideoRecordEncoder.RENDERMODE_WHEN_DIRTY);
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-        String dateTime = dateFormat.format(new Date());
-        String fileName = "cameraId" + cameraId + "_" + dateTime + ".mp4";
-        savePath = activity.getExternalCacheDir().getAbsolutePath() + File.separator + fileName;
-        ToastUtil.show("开始录制:" + cameraId);
-
-        videoEncodeRecode.initEncoder(eglSurfaceView.getEglContext(), savePath,
-                cameraRenderObject.inputWidth, cameraRenderObject.inputHeight, 44100, 2, 16);
-        videoEncodeRecode.startRecode();
-
-        /////// 开始录音
-        audioRecorder = new AudioRecorder();
-        audioRecorder.setOnAudioDataArrivedListener(new AudioRecorder.OnAudioDataArrivedListener() {
-            @Override
-            public void onAudioDataArrived(byte[] audioData, int length) {
-                if (videoEncodeRecode.isEncodeStart()) {
-                    videoEncodeRecode.putPcmData(audioData, length);
-                }
-            }
-        });
-        audioRecorder.startRecord();
-    }
-
-    public void stopRecord() {
-        audioRecorder.stopRecord();
-        videoEncodeRecode.stopRecode();
-        videoEncodeRecode = null;
-        ToastUtil.show("停止录制");
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @SuppressLint("MissingPermission")
     private void openCamera2() throws Exception {
@@ -221,7 +164,8 @@ public class Camera2EGLSurfaceViewRecordManager {
 
         //硬件层特征，为了让图像在手机屏幕直立显示时，需要将图像顺时针旋转此角度。不同手机厂商的此角度值会有不同
         cameraRenderObject.orientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
-        //framework-sdk特性：这里获取到的size的宽高的方向是针对手机屏幕竖屏时的宽高，而不是针对摄像头成像的上方向的宽高
+        cameraRenderObject.orientationEnable = true;
+        //framework-sdk特性：这里获取到的size的宽高的方向是针对屏幕竖屏的上方向的宽高(此宽高与orientation无关)
         Size[] sizes = map.getOutputSizes(SurfaceTexture.class);
 
         Size largest = Collections.max(Arrays.asList(map.getOutputSizes(ImageFormat.JPEG)), new CompareSizesByArea());
@@ -252,6 +196,98 @@ public class Camera2EGLSurfaceViewRecordManager {
             }
         }, cameraThreadHandler);
     }
+
+    public void startRecord() {
+        videoEncodeRecode = new VideoRecordEncoder(activity, cameraId);
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+        String dateTime = dateFormat.format(new Date());
+        String fileName = "cameraId" + cameraId + "_" + dateTime + ".mp4";
+        savePath = activity.getExternalCacheDir().getAbsolutePath() + File.separator + fileName;
+        ToastUtil.show("开始录制:" + cameraId);
+
+        int videoOutputWidth, videoOutputHeight; //生成的视频文件的宽高
+        videoOutputWidth = mPreviewSize.getWidth();
+        videoOutputHeight = mPreviewSize.getHeight();
+
+        if (cameraRenderObject.orientationEnable && (cameraRenderObject.orientation == 90 || cameraRenderObject.orientation == 270)) {
+            videoOutputWidth = mPreviewSize.getHeight();
+            videoOutputHeight = mPreviewSize.getWidth();
+        }
+
+        videoEncodeRecode.initEncoder(eglSurfaceView.getEglContext(), savePath,
+                videoOutputWidth, videoOutputHeight, 44100, 2, 16);
+        videoEncodeRecode.setRender(new EglSurfaceView.Renderer() {
+
+            CameraRenderObject record_CameraRenderObj;
+            WaterMarkRenderObject record_WaterMarkRenderObject;
+            DefaultRenderObject record_DefaultRenderObject;
+
+            @Override
+            public void onSurfaceCreated() {
+                record_CameraRenderObj = new CameraRenderObject(activity);
+                record_CameraRenderObj.inputWidth = cameraRenderObject.inputWidth;
+                record_CameraRenderObj.inputHeight = cameraRenderObject.inputHeight;
+                record_CameraRenderObj.orientationEnable = cameraRenderObject.orientationEnable;
+                record_CameraRenderObj.isBindFbo = true;
+                record_CameraRenderObj.isOES = true;
+                record_CameraRenderObj.onCreate();
+
+                record_WaterMarkRenderObject = new WaterMarkRenderObject(activity);
+                record_WaterMarkRenderObject.isBindFbo = true;
+                record_WaterMarkRenderObject.isOES = false;
+                record_WaterMarkRenderObject.onCreate();
+
+                record_DefaultRenderObject = new DefaultRenderObject(activity);
+                record_DefaultRenderObject.isBindFbo = false;
+                record_DefaultRenderObject.isOES = false;
+                record_DefaultRenderObject.onCreate();
+            }
+
+            @Override
+            public void onSurfaceChanged(int width, int height) {
+                record_CameraRenderObj.onChange(width, height);
+                record_WaterMarkRenderObject.onChange(width, height);
+                record_DefaultRenderObject.onChange(width, height);
+            }
+
+            @Override
+            public void onDrawFrame() {
+                record_CameraRenderObj.onDraw(cameraTextureId);
+                record_WaterMarkRenderObject.onDraw(record_CameraRenderObj.fboTextureId);
+                record_DefaultRenderObject.onDraw(record_WaterMarkRenderObject.fboTextureId);
+            }
+        });
+        videoEncodeRecode.setRenderMode(VideoRecordEncoder.RENDERMODE_WHEN_DIRTY);
+        videoEncodeRecode.startRecode();
+
+        /////// 开始录音
+        audioRecorder = new AudioRecorder();
+        audioRecorder.setOnAudioDataArrivedListener(new AudioRecorder.OnAudioDataArrivedListener() {
+            @Override
+            public void onAudioDataArrived(byte[] audioData, int length) {
+                if (videoEncodeRecode.isEncodeStart()) {
+                    videoEncodeRecode.putPcmData(audioData, length);
+                }
+            }
+        });
+        audioRecorder.startRecord();
+    }
+
+    public void stopRecord() {
+        if (videoEncodeRecode != null && videoEncodeRecode.isEncodeStart()) {
+            audioRecorder.stopRecord();
+            videoEncodeRecode.stopRecode();
+            videoEncodeRecode = null;
+            ToastUtil.show("停止录制");
+        } else {
+            ToastUtil.show("请先开始录制");
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private void createCameraSession() throws CameraAccessException {
         CaptureRequest.Builder builder = camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
@@ -295,7 +331,8 @@ public class Camera2EGLSurfaceViewRecordManager {
         cameraHandlerThread.quitSafely();
     }
 
-    ////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private Size chooseOptimalSize(Size[] sizes, int viewWidth, int viewHeight, Size pictureSize) {
         int totalRotation = getRotation();

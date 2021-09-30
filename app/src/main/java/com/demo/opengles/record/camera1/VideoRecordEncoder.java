@@ -9,6 +9,7 @@ import android.view.Surface;
 
 import com.demo.opengles.sdk.EglHelper;
 import com.demo.opengles.sdk.EglSurfaceView;
+import com.demo.opengles.util.FpsUtil;
 import com.demo.opengles.util.TimeConsumeUtil;
 
 import java.io.IOException;
@@ -67,46 +68,8 @@ public class VideoRecordEncoder {
         this.mRenderMode = mRenderMode;
     }
 
-    public void requestRender(){
+    public void requestRender() {
         mEGLMediaThread.requestRender();
-    }
-
-    public void startRecode() {
-        if (mSurface != null && mEGLContext != null) {
-            audioPts = 0;
-            audioExit = false;
-            videoExit = false;
-            encodeStart = false;
-
-            mVideoEncodecThread = new VideoEncodecThread(new WeakReference<>(this));
-            mAudioEncodecThread = new AudioEncodecThread(new WeakReference<>(this));
-            mEGLMediaThread = new EGLMediaThread(new WeakReference<>(this));
-            mEGLMediaThread.isCreate = true;
-            mEGLMediaThread.isChange = true;
-            mEGLMediaThread.start();
-            mVideoEncodecThread.start();
-            mAudioEncodecThread.start();
-        }
-    }
-
-    public void stopRecode() {
-
-        if (mVideoEncodecThread != null) {
-            mVideoEncodecThread.exit();
-            mVideoEncodecThread = null;
-        }
-
-        if (mAudioEncodecThread != null) {
-            mAudioEncodecThread.exit();
-            mAudioEncodecThread = null;
-        }
-
-        if (mEGLMediaThread != null) {
-            mEGLMediaThread.onDestroy();
-            mEGLMediaThread = null;
-        }
-        audioPts = 0;
-        encodeStart = false;
     }
 
     public void initEncoder(EGLContext eglContext, String savePath, int width, int height, int sampleRate, int channel, int sampleBit) {
@@ -186,6 +149,44 @@ public class VideoRecordEncoder {
             mAudioEncodec = null;
             mAudioBuffInfo = null;
         }
+    }
+
+    public void startRecode() {
+        if (mSurface != null && mEGLContext != null) {
+            audioPts = 0;
+            audioExit = false;
+            videoExit = false;
+            encodeStart = false;
+
+            mVideoEncodecThread = new VideoEncodecThread(new WeakReference<>(this));
+            mAudioEncodecThread = new AudioEncodecThread(new WeakReference<>(this));
+            mEGLMediaThread = new EGLMediaThread(new WeakReference<>(this));
+            mEGLMediaThread.isCreate = true;
+            mEGLMediaThread.isChange = true;
+            mEGLMediaThread.start();
+            mVideoEncodecThread.start();
+            mAudioEncodecThread.start();
+        }
+    }
+
+    public void stopRecode() {
+
+        if (mVideoEncodecThread != null) {
+            mVideoEncodecThread.exit();
+            mVideoEncodecThread = null;
+        }
+
+        if (mAudioEncodecThread != null) {
+            mAudioEncodecThread.exit();
+            mAudioEncodecThread = null;
+        }
+
+        if (mEGLMediaThread != null) {
+            mEGLMediaThread.onDestroy();
+            mEGLMediaThread = null;
+        }
+        audioPts = 0;
+        encodeStart = false;
     }
 
     public void putPcmData(byte[] buffer, int size) {
@@ -301,7 +302,7 @@ public class VideoRecordEncoder {
                         videoEncodec.releaseOutputBuffer(outputBufferIndex, false);
                         outputBufferIndex = videoEncodec.dequeueOutputBuffer(videoBufferinfo, 0);
 
-                        TimeConsumeUtil.calc("VideoEncodecThread" + encoderWeakReference.get().tag);
+                        TimeConsumeUtil.calc("VideoEncodecThread" + encoderWeakReference.get().tag, "videoEncodec读取数据耗时");
                     }
                 }
             }
@@ -412,7 +413,7 @@ public class VideoRecordEncoder {
     static class EGLMediaThread extends Thread {
         private WeakReference<VideoRecordEncoder> encoderWeakReference;
         private EglHelper eglHelper;
-        private Object object;
+        private Object lock;
         private boolean isExit = false;
         private boolean isCreate = false;
         private boolean isChange = false;
@@ -428,12 +429,15 @@ public class VideoRecordEncoder {
             super.run();
             isExit = false;
             isStart = false;
-            object = new Object();
+            lock = new Object();
             eglHelper = new EglHelper();
             eglHelper.initEgl(encoderWeakReference.get().mSurface, encoderWeakReference.get().mEGLContext);
             long drawStartTimeStamp = 0l;
 
+            FpsUtil fpsUtil = new FpsUtil("videoRecord-onDraw" + encoderWeakReference.get().tag);
+
             while (true) {
+                fpsUtil.trigger();
                 try {
                     if (isExit) {
                         release();
@@ -441,8 +445,8 @@ public class VideoRecordEncoder {
                     }
                     if (isStart) {
                         if (encoderWeakReference.get().mRenderMode == RENDERMODE_WHEN_DIRTY) {
-                            synchronized (object) {
-                                object.wait();
+                            synchronized (lock) {
+                                lock.wait();
                             }
                         } else if (encoderWeakReference.get().mRenderMode == RENDERMODE_CONTINUOUSLY) {
                             int fps = 60; //设置视频画面每秒帧数
@@ -461,6 +465,7 @@ public class VideoRecordEncoder {
                     onCreate();
                     onChange(encoderWeakReference.get().width, encoderWeakReference.get().height);
                     drawStartTimeStamp = System.currentTimeMillis();
+
                     onDraw();
                     isStart = true;
 
@@ -500,9 +505,9 @@ public class VideoRecordEncoder {
         }
 
         void requestRender() {
-            if (object != null) {
-                synchronized (object) {
-                    object.notifyAll();
+            if (lock != null) {
+                synchronized (lock) {
+                    lock.notifyAll();
                 }
             }
         }
@@ -518,7 +523,7 @@ public class VideoRecordEncoder {
             if (eglHelper != null) {
                 eglHelper.destroyEgl();
                 eglHelper = null;
-                object = null;
+                lock = null;
                 encoderWeakReference = null;
             }
         }
