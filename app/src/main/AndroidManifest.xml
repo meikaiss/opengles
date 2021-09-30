@@ -52,6 +52,7 @@
         <activity android:name=".gaussian.GaussianComplexActivity" />
         <activity android:name=".gaussian.GaussianHorActivity" />
         <activity android:name=".gaussian.GaussianVerActivity" />
+        <activity android:name=".gaussian.GaussianHorVerActivity" />
         <activity android:name=".egl.EGLActivity" />
         <activity android:name=".egl.EGLCamera1PreviewActivity" />
         <activity android:name=".egl.EGLCamera1FBOPreviewActivity" />

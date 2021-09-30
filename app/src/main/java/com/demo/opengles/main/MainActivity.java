@@ -21,6 +21,7 @@ import com.demo.opengles.egl.EGLCamera1FBOPreviewWaterMarkActivity;
 import com.demo.opengles.egl.EGLCamera1PreviewActivity;
 import com.demo.opengles.gaussian.GaussianComplexActivity;
 import com.demo.opengles.gaussian.GaussianHorActivity;
+import com.demo.opengles.gaussian.GaussianHorVerActivity;
 import com.demo.opengles.gaussian.GaussianVerActivity;
 import com.demo.opengles.graphic.BallActivity;
 import com.demo.opengles.graphic.CircleActivity;
@@ -81,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("帧缓冲-离屏渲染", FrameBufferActivity.class));
             add(new MainItemBean("高斯模糊-水平方向", GaussianHorActivity.class));
             add(new MainItemBean("高斯模糊-垂直方向", GaussianVerActivity.class));
+            add(new MainItemBean("高斯模糊-水平垂直同时", GaussianHorVerActivity.class));
             add(new MainItemBean("高斯模糊-多层不规则形状", GaussianComplexActivity.class));
             add(new MainItemBean("位置变换-平移-旋转-缩放", TransformActivity.class));
             add(new MainItemBean("Surface绘图表面-SurfaceView", SurfaceViewActivity.class));

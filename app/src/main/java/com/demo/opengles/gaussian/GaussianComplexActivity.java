@@ -100,7 +100,6 @@ public class GaussianComplexActivity extends AppCompatActivity {
             }
         });
 
-        final ObjectAnimator[] objectAnimator = {null};
         findViewById(R.id.btn_pop2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -120,6 +119,15 @@ public class GaussianComplexActivity extends AppCompatActivity {
                 objectAnimator[0].start();
             }
         });
+    }
+
+    final ObjectAnimator[] objectAnimator = {null};
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (objectAnimator[0] != null && objectAnimator[0].isRunning()) {
+            objectAnimator[0].end();
+        }
     }
 
     private void addSurfaceView() {
