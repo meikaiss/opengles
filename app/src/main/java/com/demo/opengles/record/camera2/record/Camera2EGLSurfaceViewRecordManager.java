@@ -132,7 +132,7 @@ public class Camera2EGLSurfaceViewRecordManager {
 
             @Override
             public void onSurfaceChanged(int width, int height) {
-                cameraRenderObject.onChange(width, height);
+                cameraRenderObject.onChange(width*5, height*5);
                 waterMarkRenderObject.onChange(width, height);
                 defaultRenderObject.onChange(width, height);
             }
@@ -230,7 +230,7 @@ public class Camera2EGLSurfaceViewRecordManager {
                 record_CameraRenderObj.inputHeight = cameraRenderObject.inputHeight;
                 record_CameraRenderObj.orientationEnable = cameraRenderObject.orientationEnable;
                 record_CameraRenderObj.isBindFbo = false;
-                record_CameraRenderObj.isOES = true;
+                record_CameraRenderObj.isOES = false;
                 record_CameraRenderObj.onCreate();
 
                 record_WaterMarkRenderObject = new WaterMarkRenderObject(activity);
@@ -253,9 +253,9 @@ public class Camera2EGLSurfaceViewRecordManager {
 
             @Override
             public void onDrawFrame() {
-                record_CameraRenderObj.onDraw(cameraTextureId);
+//                record_CameraRenderObj.onDraw(cameraTextureId);
 //                record_WaterMarkRenderObject.onDraw(record_CameraRenderObj.fboTextureId);
-//                record_DefaultRenderObject.onDraw(record_WaterMarkRenderObject.fboTextureId);
+                record_DefaultRenderObject.onDraw(cameraRenderObject.fboTextureId);
             }
         });
         videoEncodeRecode.setRenderMode(VideoRecordEncoder.RENDERMODE_WHEN_DIRTY);
