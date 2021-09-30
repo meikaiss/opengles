@@ -238,6 +238,8 @@ public class VideoRecordEncoder {
             super.run();
             isExit = false;
             videoEncodec.start();
+
+            FpsUtil fpsUtil = new FpsUtil("videoEncodec.output");
             while (true) {
                 if (isExit) {
                     videoEncodec.stop();
@@ -260,6 +262,7 @@ public class VideoRecordEncoder {
                 }
 
                 int outputBufferIndex = videoEncodec.dequeueOutputBuffer(videoBufferinfo, 0);
+//                TimeConsumeUtil.calc("VideoEncodecThread" + encoderWeakReference.get().tag, "videoEncodec读取数据耗时="+outputBufferIndex);
                 if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                     videoTrackIndex = mediaMuxer.addTrack(videoEncodec.getOutputFormat());
                     boolean hasAudioEncode = encoderWeakReference.get().mAudioEncodecThread.audioTrackIndex != -1;
@@ -302,7 +305,9 @@ public class VideoRecordEncoder {
                         videoEncodec.releaseOutputBuffer(outputBufferIndex, false);
                         outputBufferIndex = videoEncodec.dequeueOutputBuffer(videoBufferinfo, 0);
 
-                        TimeConsumeUtil.calc("VideoEncodecThread" + encoderWeakReference.get().tag, "videoEncodec读取数据耗时");
+                        fpsUtil.trigger();
+
+                        TimeConsumeUtil.calc("VideoEncodecThread" + encoderWeakReference.get().tag, "videoEncodec读取数据耗时@@"+outputBufferIndex);
                     }
                 }
             }

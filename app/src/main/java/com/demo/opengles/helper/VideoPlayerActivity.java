@@ -54,6 +54,11 @@ public class VideoPlayerActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
     private void parseVideoInfo(String path) {
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         try {

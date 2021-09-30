@@ -46,16 +46,19 @@ public class TimeConsumeUtil {
         Long l1 = value.get(value.size() - 1);
         Long l2 = value.get(value.size() - 2);
         if (l1 == null || l2 == null) {
-            Log.e(TAG, "耗时统计, flag=" + flag + ", 调用时机不对，必须先调用start, " + Thread.currentThread().getName());
+            Log.e(TAG, "耗时统计, flag=" + flag + ", 调用时机不对，必须先调用start, " + Thread.currentThread().getName() + ", "
+                    + System.currentTimeMillis());
             return;
         }
 
         long consume = l1 - l2;
 
         if (alias == null) {
-            Log.e(TAG, "耗时统计, flag=" + flag + ", " + consume + "ms,  " + Thread.currentThread().getName());
+            Log.e(TAG, "耗时统计, flag=" + flag + ", " + consume + "ms,  " + Thread.currentThread().getName() + ", "
+                    + System.currentTimeMillis());
         } else {
-            Log.e(TAG, "耗时统计, flag=" + flag + ", " + alias + ", " + consume + "ms,  " + Thread.currentThread().getName());
+            Log.e(TAG, "耗时统计, flag=" + flag + ", " + alias + ", " + consume + "ms,  " + Thread.currentThread().getName()
+                    + ", " + System.currentTimeMillis());
         }
     }
 

@@ -103,11 +103,11 @@ public class Camera2EGLSurfaceViewRecordManager {
                         fpsUtil.trigger();
                         eglSurfaceView.requestRender();
 
-                        if (videoEncodeRecode != null && videoEncodeRecode.isEncodeStart()) {
-//                            TimeConsumeUtil.start("requestRender, " + cameraId);
-//                            videoEncodeRecode.requestRender();
-//                            TimeConsumeUtil.calc("requestRender, " + cameraId);
-                        }
+//                        if (videoEncodeRecode != null && videoEncodeRecode.isEncodeStart()) {
+////                            TimeConsumeUtil.start("requestRender, " + cameraId);
+////                            videoEncodeRecode.requestRender();
+////                            TimeConsumeUtil.calc("requestRender, " + cameraId);
+//                        }
                     }
                 });
 
@@ -229,7 +229,7 @@ public class Camera2EGLSurfaceViewRecordManager {
                 record_CameraRenderObj.inputWidth = cameraRenderObject.inputWidth;
                 record_CameraRenderObj.inputHeight = cameraRenderObject.inputHeight;
                 record_CameraRenderObj.orientationEnable = cameraRenderObject.orientationEnable;
-                record_CameraRenderObj.isBindFbo = true;
+                record_CameraRenderObj.isBindFbo = false;
                 record_CameraRenderObj.isOES = true;
                 record_CameraRenderObj.onCreate();
 
@@ -254,8 +254,8 @@ public class Camera2EGLSurfaceViewRecordManager {
             @Override
             public void onDrawFrame() {
                 record_CameraRenderObj.onDraw(cameraTextureId);
-                record_WaterMarkRenderObject.onDraw(record_CameraRenderObj.fboTextureId);
-                record_DefaultRenderObject.onDraw(record_WaterMarkRenderObject.fboTextureId);
+//                record_WaterMarkRenderObject.onDraw(record_CameraRenderObj.fboTextureId);
+//                record_DefaultRenderObject.onDraw(record_WaterMarkRenderObject.fboTextureId);
             }
         });
         videoEncodeRecode.setRenderMode(VideoRecordEncoder.RENDERMODE_WHEN_DIRTY);
