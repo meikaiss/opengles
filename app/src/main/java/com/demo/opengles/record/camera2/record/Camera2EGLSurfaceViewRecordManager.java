@@ -20,6 +20,7 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 
 import com.demo.opengles.gaussian.render.CameraRenderObject;
+import com.demo.opengles.gaussian.render.DefaultFitRenderObject;
 import com.demo.opengles.gaussian.render.DefaultRenderObject;
 import com.demo.opengles.gaussian.render.WaterMarkRenderObject;
 import com.demo.opengles.record.camera1.AudioRecorder;
@@ -59,6 +60,7 @@ public class Camera2EGLSurfaceViewRecordManager {
     private CameraRenderObject cameraRenderObject;
     private WaterMarkRenderObject waterMarkRenderObject;
     private DefaultRenderObject defaultRenderObject;
+    private DefaultFitRenderObject defaultFitRenderObject;
 
     private VideoRecordEncoder videoEncodeRecode;
     private AudioRecorder audioRecorder;
@@ -84,6 +86,9 @@ public class Camera2EGLSurfaceViewRecordManager {
         defaultRenderObject = new DefaultRenderObject(activity);
         defaultRenderObject.isBindFbo = false;
         defaultRenderObject.isOES = false;
+        defaultFitRenderObject = new DefaultFitRenderObject(activity);
+        defaultRenderObject.isBindFbo = false;
+        defaultRenderObject.isOES = false;
 
         cameraHandlerThread = new HandlerThread("cameraOpenThread");
         cameraHandlerThread.start();
@@ -103,17 +108,18 @@ public class Camera2EGLSurfaceViewRecordManager {
                         fpsUtil.trigger();
                         eglSurfaceView.requestRender();
 
-//                        if (videoEncodeRecode != null && videoEncodeRecode.isEncodeStart()) {
-////                            TimeConsumeUtil.start("requestRender, " + cameraId);
-////                            videoEncodeRecode.requestRender();
-////                            TimeConsumeUtil.calc("requestRender, " + cameraId);
-//                        }
+                        if (videoEncodeRecode != null && videoEncodeRecode.isEncodeStart()) {
+//                            TimeConsumeUtil.start("requestRender, " + cameraId);
+                            videoEncodeRecode.requestRender();
+//                            TimeConsumeUtil.calc("requestRender, " + cameraId);
+                        }
                     }
                 });
 
                 cameraRenderObject.onCreate();
                 waterMarkRenderObject.onCreate();
-                defaultRenderObject.onCreate();
+//                defaultRenderObject.onCreate();
+                defaultFitRenderObject.onCreate();
 
                 try {
                     openCamera2();
@@ -132,9 +138,17 @@ public class Camera2EGLSurfaceViewRecordManager {
 
             @Override
             public void onSurfaceChanged(int width, int height) {
-                cameraRenderObject.onChange(width*5, height*5);
-                waterMarkRenderObject.onChange(width, height);
-                defaultRenderObject.onChange(width, height);
+//                cameraRenderObject.onChange(width, height);
+//                waterMarkRenderObject.onChange(width, height);
+
+                cameraRenderObject.onChange(cameraRenderObject.inputHeight, cameraRenderObject.inputWidth);
+                waterMarkRenderObject.onChange(cameraRenderObject.inputHeight, cameraRenderObject.inputWidth);
+
+//                defaultRenderObject.onChange(width, height);
+
+                defaultFitRenderObject.inputWidth = waterMarkRenderObject.width;
+                defaultFitRenderObject.inputHeight = waterMarkRenderObject.height;
+                defaultFitRenderObject.onChange(width, height);
             }
 
             @Override
@@ -142,14 +156,8 @@ public class Camera2EGLSurfaceViewRecordManager {
                 cameraSurfaceTexture.updateTexImage();
                 cameraRenderObject.onDraw(cameraTextureId);
                 waterMarkRenderObject.onDraw(cameraRenderObject.fboTextureId);
-                defaultRenderObject.onDraw(waterMarkRenderObject.fboTextureId);
-
-                //在这里刷新录制画面并不是一个好方案，最好是在onFrameAvailable里更新，避免相机刷新帧率低于view刷新帧率时，却在视频内生成很多相同的画面帧
-                if (videoEncodeRecode != null && videoEncodeRecode.isEncodeStart()) {
-//                            TimeConsumeUtil.start("requestRender, " + cameraId);
-                    videoEncodeRecode.requestRender();
-//                            TimeConsumeUtil.calc("requestRender, " + cameraId);
-                }
+//                defaultRenderObject.onDraw(waterMarkRenderObject.fboTextureId);
+                defaultFitRenderObject.onDraw(waterMarkRenderObject.fboTextureId);
             }
         });
 
@@ -198,6 +206,11 @@ public class Camera2EGLSurfaceViewRecordManager {
     }
 
     public void startRecord() {
+        if (videoEncodeRecode != null) {
+            ToastUtil.show("正在录制中");
+            return;
+        }
+
         videoEncodeRecode = new VideoRecordEncoder(activity, cameraId);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
@@ -219,25 +232,10 @@ public class Camera2EGLSurfaceViewRecordManager {
                 videoOutputWidth, videoOutputHeight, 44100, 2, 16);
         videoEncodeRecode.setRender(new EglSurfaceView.Renderer() {
 
-            CameraRenderObject record_CameraRenderObj;
-            WaterMarkRenderObject record_WaterMarkRenderObject;
             DefaultRenderObject record_DefaultRenderObject;
 
             @Override
             public void onSurfaceCreated() {
-                record_CameraRenderObj = new CameraRenderObject(activity);
-                record_CameraRenderObj.inputWidth = cameraRenderObject.inputWidth;
-                record_CameraRenderObj.inputHeight = cameraRenderObject.inputHeight;
-                record_CameraRenderObj.orientationEnable = cameraRenderObject.orientationEnable;
-                record_CameraRenderObj.isBindFbo = false;
-                record_CameraRenderObj.isOES = false;
-                record_CameraRenderObj.onCreate();
-
-                record_WaterMarkRenderObject = new WaterMarkRenderObject(activity);
-                record_WaterMarkRenderObject.isBindFbo = true;
-                record_WaterMarkRenderObject.isOES = false;
-                record_WaterMarkRenderObject.onCreate();
-
                 record_DefaultRenderObject = new DefaultRenderObject(activity);
                 record_DefaultRenderObject.isBindFbo = false;
                 record_DefaultRenderObject.isOES = false;
@@ -246,16 +244,12 @@ public class Camera2EGLSurfaceViewRecordManager {
 
             @Override
             public void onSurfaceChanged(int width, int height) {
-                record_CameraRenderObj.onChange(width, height);
-                record_WaterMarkRenderObject.onChange(width, height);
                 record_DefaultRenderObject.onChange(width, height);
             }
 
             @Override
             public void onDrawFrame() {
-//                record_CameraRenderObj.onDraw(cameraTextureId);
-//                record_WaterMarkRenderObject.onDraw(record_CameraRenderObj.fboTextureId);
-                record_DefaultRenderObject.onDraw(cameraRenderObject.fboTextureId);
+                record_DefaultRenderObject.onDraw(waterMarkRenderObject.fboTextureId);
             }
         });
         videoEncodeRecode.setRenderMode(VideoRecordEncoder.RENDERMODE_WHEN_DIRTY);

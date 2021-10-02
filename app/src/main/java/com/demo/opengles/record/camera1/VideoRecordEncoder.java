@@ -3,8 +3,10 @@ package com.demo.opengles.record.camera1;
 import android.content.Context;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
+import android.media.MediaCodecList;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
+import android.util.Log;
 import android.view.Surface;
 
 import com.demo.opengles.sdk.EglHelper;
@@ -19,6 +21,8 @@ import java.nio.ByteBuffer;
 import javax.microedition.khronos.egl.EGLContext;
 
 public class VideoRecordEncoder {
+    private static final String TAG = "VideoRecordEncoder";
+
     private Surface mSurface;
     private EGLContext mEGLContext;
     private EglSurfaceView.Renderer mRender;
@@ -107,7 +111,44 @@ public class VideoRecordEncoder {
             if (height % 2 == 1) {
                 height--;
             }
-            mVideoEncodec = MediaCodec.createEncoderByType(mineType);
+
+            Log.e(TAG, "////////////////////////////////////////////////////////////////////////");
+            Log.e(TAG, "////////////////////////////////////////////////////////////////////////");
+            Log.e(TAG, "////////////////////////////////////////////////////////////////////////");
+            Log.e(TAG, "MediaCodec编解码信息如下");
+            MediaCodecList mediaCodecList = new MediaCodecList(MediaCodecList.REGULAR_CODECS);
+            for (int i = 0; i < mediaCodecList.getCodecInfos().length; i++) {
+                MediaCodecInfo mediaCodecInfo = mediaCodecList.getCodecInfos()[i];
+
+                String supportTypes = "";
+                for (int j = 0; j < mediaCodecInfo.getSupportedTypes().length; j++) {
+                    supportTypes += mediaCodecInfo.getSupportedTypes()[j] + ";";
+                }
+
+                Log.e(TAG, (mediaCodecInfo.isEncoder() ? "编码器" : "解码器")
+                        + ", " + (mediaCodecInfo.isSoftwareOnly() ? "软件" : "硬件")
+                        + ", " + (mediaCodecInfo.isVendor() ? "厂商" : "安卓")
+                        + ", " + mediaCodecInfo.getName() + ", " + supportTypes + ", "
+                );
+            }
+            Log.e(TAG, "////////////////////////////////////////////////////////////////////////");
+            Log.e(TAG, "////////////////////////////////////////////////////////////////////////");
+            Log.e(TAG, "////////////////////////////////////////////////////////////////////////");
+
+            mVideoEncodec = MediaCodec.createByCodecName("OMX.qcom.video.encoder.avc"); //已知此名称必定为硬件编码器
+
+            MediaCodecInfo usedMediaCodecInfo = mVideoEncodec.getCodecInfo();
+            String supportTypes = "";
+            for (int j = 0; j < usedMediaCodecInfo.getSupportedTypes().length; j++) {
+                supportTypes += usedMediaCodecInfo.getSupportedTypes()[j] + ";";
+            }
+            Log.e(TAG, (usedMediaCodecInfo.isEncoder() ? "编码器" : "解码器")
+                    + ", " + (usedMediaCodecInfo.isSoftwareOnly() ? "软件" : "硬件")
+                    + ", " + (usedMediaCodecInfo.isVendor() ? "厂商" : "安卓")
+                    + ", " + usedMediaCodecInfo.getName() + ", " + supportTypes + ", "
+            );
+
+//            mVideoEncodec = MediaCodec.createEncoderByType(mineType);
 
             MediaFormat videoFormat = MediaFormat.createVideoFormat(mineType, width, height);
             videoFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
@@ -307,7 +348,7 @@ public class VideoRecordEncoder {
 
                         fpsUtil.trigger();
 
-                        TimeConsumeUtil.calc("VideoEncodecThread" + encoderWeakReference.get().tag, "videoEncodec读取数据耗时@@"+outputBufferIndex);
+                        TimeConsumeUtil.calc("VideoEncodecThread" + encoderWeakReference.get().tag, "videoEncodec读取数据耗时@@" + outputBufferIndex);
                     }
                 }
             }

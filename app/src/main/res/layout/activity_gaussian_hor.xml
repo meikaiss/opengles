@@ -14,14 +14,14 @@
             android:id="@+id/btn_add"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="水平步长+1" />
+            android:text="双向步长+1" />
 
         <Button
             android:id="@+id/btn_reduce"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:text="水平步长-1" />
+            android:text="双向步长-1" />
 
     </LinearLayout>
 
