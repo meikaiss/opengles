@@ -16,9 +16,9 @@ import android.view.View;
 import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.demo.opengles.R;
+import com.demo.opengles.main.BaseActivity;
 import com.demo.opengles.util.CollectUtil;
 
 import java.nio.ByteBuffer;
@@ -32,7 +32,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 import static android.opengl.GLES11Ext.GL_TEXTURE_EXTERNAL_OES;
 
-public class Camera1TakePhotoGLSurfaceViewActivity extends AppCompatActivity {
+public class Camera1TakePhotoGLSurfaceViewActivity extends BaseActivity {
 
     private static final String TAG = "Camera1GLSurfaceViewAct";
 

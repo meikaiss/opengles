@@ -11,17 +11,17 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.demo.opengles.R;
 import com.demo.opengles.gaussian.render.DefaultRenderObject;
 import com.demo.opengles.gaussian.render.HVBlurRenderObject;
+import com.demo.opengles.main.BaseActivity;
 import com.demo.opengles.util.TimeConsumeUtil;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class GaussianHorVerMultiActivity extends AppCompatActivity {
+public class GaussianHorVerMultiActivity extends BaseActivity {
 
     private GLSurfaceView glSurfaceView;
 

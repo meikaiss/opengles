@@ -9,13 +9,13 @@ import android.view.SurfaceView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.demo.opengles.R;
+import com.demo.opengles.main.BaseActivity;
 
 import java.io.IOException;
 
-public class SurfaceViewVideoActivity extends AppCompatActivity {
+public class SurfaceViewVideoActivity extends BaseActivity {
 
     private SurfaceView surfaceView;
     private MediaPlayer mediaPlayer;

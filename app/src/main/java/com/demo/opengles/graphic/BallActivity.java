@@ -11,8 +11,8 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
+import com.demo.opengles.main.BaseActivity;
 import com.demo.opengles.util.ToastUtil;
 
 import java.nio.ByteBuffer;
@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class BallActivity extends AppCompatActivity {
+public class BallActivity extends BaseActivity {
 
     private FloatBuffer vertexBuffer;  //球面顶点buffer
 

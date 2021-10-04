@@ -11,9 +11,9 @@ import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.demo.opengles.R;
+import com.demo.opengles.main.BaseActivity;
 import com.demo.opengles.sdk.EglSurfaceView;
 import com.demo.opengles.util.CollectUtil;
 
@@ -25,7 +25,7 @@ import java.util.List;
 
 import static android.opengl.GLES11Ext.GL_TEXTURE_EXTERNAL_OES;
 
-public class EGLCamera1PreviewActivity extends AppCompatActivity {
+public class EGLCamera1PreviewActivity extends BaseActivity {
 
     private static final String TAG = "EGLCamera";
 

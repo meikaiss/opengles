@@ -4,16 +4,16 @@ import android.os.Bundle;
 import android.view.View;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.demo.opengles.R;
+import com.demo.opengles.main.BaseActivity;
 import com.demo.opengles.util.ToastUtil;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class PcmRecordActivity extends AppCompatActivity {
+public class PcmRecordActivity extends BaseActivity {
 
     private PcmRecorder audioRecorder;
     private String savePath;

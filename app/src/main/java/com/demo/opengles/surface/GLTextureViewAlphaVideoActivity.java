@@ -12,9 +12,9 @@ import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.demo.opengles.R;
+import com.demo.opengles.main.BaseActivity;
 import com.demo.opengles.sdk.GLTextureView;
 import com.demo.opengles.util.CollectUtil;
 
@@ -29,7 +29,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 import static android.opengl.GLES11Ext.GL_TEXTURE_EXTERNAL_OES;
 
-public class GLTextureViewAlphaVideoActivity extends AppCompatActivity {
+public class GLTextureViewAlphaVideoActivity extends BaseActivity {
 
     private final String vertexShader =
             "attribute vec2 aPosition;\n"

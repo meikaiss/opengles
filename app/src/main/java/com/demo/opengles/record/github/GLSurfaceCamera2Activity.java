@@ -8,11 +8,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.demo.opengles.R;
+import com.demo.opengles.main.BaseActivity;
 
-public class GLSurfaceCamera2Activity extends AppCompatActivity implements View.OnClickListener {
+public class GLSurfaceCamera2Activity extends BaseActivity implements View.OnClickListener {
 
     private static final String TAG = "GLSurfaceCamera2Act";
 

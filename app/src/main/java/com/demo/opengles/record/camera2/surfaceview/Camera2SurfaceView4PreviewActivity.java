@@ -3,11 +3,11 @@ package com.demo.opengles.record.camera2.surfaceview;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.demo.opengles.R;
+import com.demo.opengles.main.BaseActivity;
 
-public class Camera2SurfaceView4PreviewActivity extends AppCompatActivity {
+public class Camera2SurfaceView4PreviewActivity extends BaseActivity {
 
     private Camera2SurfaceViewPreviewManager recordManager1;
     private Camera2SurfaceViewPreviewManager recordManager2;

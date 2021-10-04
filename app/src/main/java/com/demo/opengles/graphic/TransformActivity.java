@@ -14,9 +14,9 @@ import android.widget.FrameLayout;
 import android.widget.SeekBar;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.demo.opengles.R;
+import com.demo.opengles.main.BaseActivity;
 import com.demo.opengles.sdk.OnSeekBarChangeListenerImpl;
 import com.demo.opengles.util.CollectUtil;
 
@@ -30,7 +30,7 @@ import java.util.List;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class TransformActivity extends AppCompatActivity {
+public class TransformActivity extends BaseActivity {
 
     private final String vertexShaderCode =
             "uniform mat4 vMatrix;" +

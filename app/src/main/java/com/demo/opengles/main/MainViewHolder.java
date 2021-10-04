@@ -52,13 +52,14 @@ public class MainViewHolder extends RecyclerView.ViewHolder {
         }
 
         Intent intent = new Intent(binding.getRoot().getContext(), bean.clz);
+        intent.putExtra("title", bean.name);
         binding.getRoot().getContext().startActivity(intent);
     }
 
 
     public int checkSelfPermission(Context context, @NonNull List<String> permissionList) {
         for (int i = 0; i < permissionList.size(); i++) {
-            if (ContextCompat.checkSelfPermission(context, permissionList.get(i)) != PackageManager.PERMISSION_GRANTED){
+            if (ContextCompat.checkSelfPermission(context, permissionList.get(i)) != PackageManager.PERMISSION_GRANTED) {
                 return PackageManager.PERMISSION_DENIED;
             }
         }

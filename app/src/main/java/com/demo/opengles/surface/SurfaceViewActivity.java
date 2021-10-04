@@ -10,9 +10,9 @@ import android.view.SurfaceView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.demo.opengles.R;
+import com.demo.opengles.main.BaseActivity;
 
 /**
  * 一般来说，每一个窗口在SurfaceFlinger服务中都对应有一个Layer，用来描述它的绘图表面。对于那些具有SurfaceView的窗口来说，每一个SurfaceView
@@ -25,7 +25,7 @@ import com.demo.opengles.R;
  * 轴位置的，但是前者会在后者的上面挖一个“洞”出来，以便它的UI可以对用户可见。实际上，SurfaceView在其宿主Activity窗口上所挖的“洞”只不过是在其宿主Activity
  * 窗口上设置了一块透明区域。
  */
-public class SurfaceViewActivity extends AppCompatActivity {
+public class SurfaceViewActivity extends BaseActivity {
     private static final String TAG = "SurfaceView";
 
     private SurfaceView surfaceView;

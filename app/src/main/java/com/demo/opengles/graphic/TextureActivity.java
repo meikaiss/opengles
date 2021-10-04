@@ -11,10 +11,9 @@ import android.os.Bundle;
 import android.view.View;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.demo.opengles.R;
-import com.demo.opengles.util.OpenGLESUtil;
+import com.demo.opengles.main.BaseActivity;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -23,7 +22,7 @@ import java.nio.FloatBuffer;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class TextureActivity extends AppCompatActivity {
+public class TextureActivity extends BaseActivity {
 
     private final String vertexShaderCode =
             "uniform mat4 vMatrix;\n" +

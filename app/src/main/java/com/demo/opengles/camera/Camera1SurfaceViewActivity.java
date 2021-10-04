@@ -13,16 +13,16 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.demo.opengles.R;
+import com.demo.opengles.main.BaseActivity;
 import com.demo.opengles.util.CollectUtil;
 
 import java.io.IOException;
 import java.util.List;
 
-public class Camera1SurfaceViewActivity extends AppCompatActivity {
+public class Camera1SurfaceViewActivity extends BaseActivity {
     private static final String TAG = "Camera1SV_Act";
 
     private SurfaceView surfaceView;

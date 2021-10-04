@@ -10,13 +10,13 @@ import android.view.TextureView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.demo.opengles.R;
+import com.demo.opengles.main.BaseActivity;
 
 import java.io.IOException;
 
-public class TextureViewVideoActivity extends AppCompatActivity {
+public class TextureViewVideoActivity extends BaseActivity {
 
     private TextureView textureView;
     private MediaPlayer mediaPlayer;

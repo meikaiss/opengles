@@ -9,15 +9,15 @@ import android.view.View;
 import android.widget.Button;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.demo.opengles.R;
 import com.demo.opengles.helper.VideoPlayerActivity;
+import com.demo.opengles.main.BaseActivity;
 import com.demo.opengles.record.camera1.VideoRecordEncoder;
 import com.demo.opengles.util.TimeConsumeUtil;
 import com.demo.opengles.util.ToastUtil;
 
-public class EGLCamera2GLSurfaceView4RecordActivity extends AppCompatActivity {
+public class EGLCamera2GLSurfaceView4RecordActivity extends BaseActivity {
 
     private Camera2EGLSurfaceViewRecordManager recordManager1;
     private Camera2EGLSurfaceViewRecordManager recordManager2;

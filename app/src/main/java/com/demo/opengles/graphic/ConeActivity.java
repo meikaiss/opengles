@@ -6,7 +6,8 @@ import android.opengl.Matrix;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+
+import com.demo.opengles.main.BaseActivity;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -16,7 +17,7 @@ import java.util.ArrayList;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class ConeActivity extends AppCompatActivity {
+public class ConeActivity extends BaseActivity {
 
     private FloatBuffer vertexBuffer;  //锥面顶点buffer
     private final String vertexShaderCode =

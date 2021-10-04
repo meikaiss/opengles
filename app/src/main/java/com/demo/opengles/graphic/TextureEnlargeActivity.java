@@ -13,9 +13,9 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.demo.opengles.R;
+import com.demo.opengles.main.BaseActivity;
 import com.demo.opengles.util.CollectUtil;
 
 import java.nio.ByteBuffer;
@@ -27,7 +27,7 @@ import java.util.List;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class TextureEnlargeActivity extends AppCompatActivity {
+public class TextureEnlargeActivity extends BaseActivity {
 
     //放大镜效果-顶点着色器
     private final String vertexShaderCode =

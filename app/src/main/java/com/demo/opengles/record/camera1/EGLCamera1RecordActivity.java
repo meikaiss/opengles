@@ -8,13 +8,13 @@ import android.view.View;
 import android.widget.Button;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.demo.opengles.R;
 import com.demo.opengles.gaussian.render.CameraRenderObject;
 import com.demo.opengles.gaussian.render.DefaultRenderObject;
 import com.demo.opengles.gaussian.render.WaterMarkRenderObject;
 import com.demo.opengles.helper.VideoPlayerActivity;
+import com.demo.opengles.main.BaseActivity;
 import com.demo.opengles.sdk.EglSurfaceView;
 import com.demo.opengles.util.CollectUtil;
 import com.demo.opengles.util.OpenGLESUtil;
@@ -25,7 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-public class EGLCamera1RecordActivity extends AppCompatActivity {
+public class EGLCamera1RecordActivity extends BaseActivity {
 
     private Camera camera;
     private EglSurfaceView eglSurfaceView;

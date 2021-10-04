@@ -12,10 +12,10 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.demo.opengles.R;
+import com.demo.opengles.main.BaseActivity;
 import com.demo.opengles.util.CollectUtil;
 
 import java.io.IOException;
@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class Camera1TextureViewActivity extends AppCompatActivity {
+public class Camera1TextureViewActivity extends BaseActivity {
     private static final String TAG = "Camera1TV_Act";
 
     private TextureView textureView;

@@ -20,13 +20,13 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.demo.opengles.R;
 import com.demo.opengles.gaussian.pop.one.ImplGaussianPop;
 import com.demo.opengles.gaussian.pop.two.ImplFullScreenGaussianPop;
 import com.demo.opengles.gaussian.render.HVBlurRenderObject;
 import com.demo.opengles.gaussian.render.OneTexFilterRenderObject;
+import com.demo.opengles.main.BaseActivity;
 import com.demo.opengles.util.TimeConsumeUtil;
 import com.demo.opengles.util.ToastUtil;
 
@@ -36,7 +36,7 @@ import javax.microedition.khronos.opengles.GL10;
 /**
  * Created by meikai on 2021/08/29.
  */
-public class GaussianComplexActivity extends AppCompatActivity {
+public class GaussianComplexActivity extends BaseActivity {
 
     private Button btnShow;
     private FrameLayout layoutGlSurfaceView;

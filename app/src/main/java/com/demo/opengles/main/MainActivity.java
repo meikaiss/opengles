@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("Camera2-SurfaceView-4路预览", Camera2SurfaceView4PreviewActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("Camera2-GLSurfaceView-4路预览", Camera2GLSurfaceView4PreviewActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("Camera2-EglSurfaceView-4路预览", Camera2EGLSurfaceView4PreviewActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
-            add(new MainItemBean("Camera2-GLSurfaceView-4路录制", EGLCamera2GLSurfaceView4RecordActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
+            add(new MainItemBean("Camera2-EglSurfaceView-4路录制", EGLCamera2GLSurfaceView4RecordActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("github-camera2_glSurfaceView", GLSurfaceCamera2Activity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
         }
     };

@@ -10,16 +10,16 @@ import android.os.Bundle;
 import android.view.View;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.demo.opengles.R;
 import com.demo.opengles.gaussian.render.DefaultRenderObject;
 import com.demo.opengles.gaussian.render.HVBlurRenderObject;
+import com.demo.opengles.main.BaseActivity;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class GaussianHorActivity extends AppCompatActivity {
+public class GaussianHorActivity extends BaseActivity {
 
     private GLSurfaceView glSurfaceView;
 

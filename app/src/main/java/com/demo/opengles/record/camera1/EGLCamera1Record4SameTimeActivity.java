@@ -9,17 +9,17 @@ import android.view.View;
 import android.widget.Button;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.demo.opengles.R;
 import com.demo.opengles.helper.VideoPlayerActivity;
+import com.demo.opengles.main.BaseActivity;
 import com.demo.opengles.util.TimeConsumeUtil;
 import com.demo.opengles.util.ToastUtil;
 
 /**
  * 4路摄像头同时预览录制
  */
-public class EGLCamera1Record4SameTimeActivity extends AppCompatActivity {
+public class EGLCamera1Record4SameTimeActivity extends BaseActivity {
 
     private Button btnRecordStart;
     private Button btnRecordStop;

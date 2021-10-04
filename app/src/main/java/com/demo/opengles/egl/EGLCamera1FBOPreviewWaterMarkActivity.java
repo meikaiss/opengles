@@ -5,22 +5,21 @@ import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Surface;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.demo.opengles.R;
 import com.demo.opengles.gaussian.render.CameraRenderObject;
 import com.demo.opengles.gaussian.render.DefaultRenderObject;
 import com.demo.opengles.gaussian.render.WaterMarkRenderObject;
+import com.demo.opengles.main.BaseActivity;
 import com.demo.opengles.sdk.EglSurfaceView;
 import com.demo.opengles.util.CollectUtil;
 import com.demo.opengles.util.OpenGLESUtil;
 
 import java.util.List;
 
-public class EGLCamera1FBOPreviewWaterMarkActivity extends AppCompatActivity {
+public class EGLCamera1FBOPreviewWaterMarkActivity extends BaseActivity {
 
     private static final String TAG = "EGLCamera1FBO";
 
