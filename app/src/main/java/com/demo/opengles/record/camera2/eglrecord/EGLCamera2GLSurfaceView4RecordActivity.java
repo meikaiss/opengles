@@ -1,4 +1,4 @@
-package com.demo.opengles.record.camera2.record;
+package com.demo.opengles.record.camera2.eglrecord;
 
 import android.content.Context;
 import android.content.Intent;
@@ -31,7 +31,7 @@ public class EGLCamera2GLSurfaceView4RecordActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_egl_camera2_glsurfaceview_record4);
+        setContentView(R.layout.activity_egl_camera2_eglsurfaceview_record4);
 
         btnRecordStart = findViewById(R.id.btn_start_record);
         btnRecordStop = findViewById(R.id.btn_stop_record);
@@ -121,7 +121,7 @@ public class EGLCamera2GLSurfaceView4RecordActivity extends BaseActivity {
                     ToastUtil.show("请先完成录制");
                     return;
                 }
-                if (VideoRecordEncoder.status == VideoRecordEncoder.OnStatusChangeListener.STATUS.START) {
+                if (recordManager1.isStart()) {
                     ToastUtil.show("请先结束录制");
                     return;
                 }

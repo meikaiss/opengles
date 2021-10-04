@@ -1,4 +1,4 @@
-package com.demo.opengles.record.camera1;
+package com.demo.opengles.record.camera2.glrecord;
 
 import android.content.Context;
 import android.content.Intent;
@@ -16,51 +16,27 @@ import com.demo.opengles.main.BaseActivity;
 import com.demo.opengles.util.TimeConsumeUtil;
 import com.demo.opengles.util.ToastUtil;
 
-/**
- * 4路摄像头同时预览录制
- */
-public class EGLCamera1Record4SameTimeActivity extends BaseActivity {
+public class Camera2GLSurfaceView4RecordActivity extends BaseActivity {
+
+    private Camera2GLSurfaceViewRecordManager recordManager1;
+    private Camera2GLSurfaceViewRecordManager recordManager2;
+    private Camera2GLSurfaceViewRecordManager recordManager3;
+    private Camera2GLSurfaceViewRecordManager recordManager4;
 
     private Button btnRecordStart;
     private Button btnRecordStop;
     private Button btnRecordPlay;
 
-    private Camera1RecordManager recordManager1;
-    private Camera1RecordManager recordManager2;
-    private Camera1RecordManager recordManager3;
-    private Camera1RecordManager recordManager4;
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        recordManager1.onDestroy();
-        if (has4Camera()) {
-            recordManager2.onDestroy();
-            recordManager3.onDestroy();
-            recordManager4.onDestroy();
-        }
-    }
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        TimeConsumeUtil.start("onCreate");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_egl_camera1_record4_same_time);
-        TimeConsumeUtil.calc("onCreate");
+        setContentView(R.layout.activity_egl_camera2_glsurfaceview_record4);
 
-        TimeConsumeUtil.start("findViewById");
-        btnRecordStart = findViewById(R.id.btn_start_record);
-        btnRecordStop = findViewById(R.id.btn_stop_record);
-        btnRecordPlay = findViewById(R.id.btn_play_record);
-
-        TimeConsumeUtil.calc("findViewById");
-
-        TimeConsumeUtil.start("recordManager1.create");
-        recordManager1 = new Camera1RecordManager();
+        recordManager1 = new Camera2GLSurfaceViewRecordManager();
         if (has4Camera()) {
-            recordManager2 = new Camera1RecordManager();
-            recordManager3 = new Camera1RecordManager();
-            recordManager4 = new Camera1RecordManager();
+            recordManager2 = new Camera2GLSurfaceViewRecordManager();
+            recordManager3 = new Camera2GLSurfaceViewRecordManager();
+            recordManager4 = new Camera2GLSurfaceViewRecordManager();
         }
 
         recordManager1.create(this, findViewById(R.id.egl_surface_view_1), 0);
@@ -70,7 +46,36 @@ public class EGLCamera1Record4SameTimeActivity extends BaseActivity {
             recordManager4.create(this, findViewById(R.id.egl_surface_view_4), 3);
         }
 
-        TimeConsumeUtil.calc("recordManager1.create");
+        initBtnClickListener();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        recordManager1.onDestroy();
+        if (has4Camera()) {
+            recordManager2.onDestroy();
+            recordManager3.onDestroy();
+            recordManager4.onDestroy();
+        }
+    }
+
+    private boolean has4Camera() {
+        CameraManager cameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+        try {
+            return cameraManager.getCameraIdList().length >= 4;
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    private void initBtnClickListener() {
+
+        btnRecordStart = findViewById(R.id.btn_start_record);
+        btnRecordStop = findViewById(R.id.btn_stop_record);
+        btnRecordPlay = findViewById(R.id.btn_play_record);
 
         btnRecordStart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -113,10 +118,9 @@ public class EGLCamera1Record4SameTimeActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 if (recordManager1.getSavePath() == null) {
-                    ToastUtil.show("请先录制一个视频");
+                    ToastUtil.show("请先完成录制");
                     return;
                 }
-
                 if (recordManager1.isStart()) {
                     ToastUtil.show("请先结束录制");
                     return;
@@ -128,16 +132,5 @@ public class EGLCamera1Record4SameTimeActivity extends BaseActivity {
             }
         });
     }
-
-    private boolean has4Camera() {
-        CameraManager cameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
-        try {
-            return cameraManager.getCameraIdList().length >= 4;
-        } catch (CameraAccessException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
 
 }

@@ -1,4 +1,4 @@
-package com.demo.opengles.record.camera2.record;
+package com.demo.opengles.record.camera2.glrecord;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -12,21 +12,22 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.opengl.EGL14;
+import android.opengl.GLSurfaceView;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
 
 import com.demo.opengles.gaussian.render.CameraRenderObject;
-import com.demo.opengles.gaussian.render.DefaultFitRenderObject;
 import com.demo.opengles.gaussian.render.DefaultRenderObject;
 import com.demo.opengles.gaussian.render.WaterMarkRenderObject;
 import com.demo.opengles.record.camera1.AudioRecorder;
 import com.demo.opengles.record.camera1.VideoRecordEncoder;
 import com.demo.opengles.sdk.EglSurfaceView;
-import com.demo.opengles.util.FpsUtil;
 import com.demo.opengles.util.IOUtil;
 import com.demo.opengles.util.OpenGLESUtil;
 import com.demo.opengles.util.ToastUtil;
@@ -38,10 +39,16 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 
-public class Camera2EGLSurfaceViewRecordManager {
+import javax.microedition.khronos.egl.EGL10;
+import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.egl.EGLContext;
+import javax.microedition.khronos.egl.EGLDisplay;
+import javax.microedition.khronos.opengles.GL10;
+
+public class Camera2GLSurfaceViewRecordManager {
 
     private Activity activity;
-    private EglSurfaceView eglSurfaceView;
+    private GLSurfaceView glSurfaceView;
     private int cameraId;
 
     private CameraManager cameraManager;
@@ -60,22 +67,23 @@ public class Camera2EGLSurfaceViewRecordManager {
     private CameraRenderObject cameraRenderObject;
     private WaterMarkRenderObject waterMarkRenderObject;
     private DefaultRenderObject defaultRenderObject;
-    private DefaultFitRenderObject defaultFitRenderObject;
 
     private VideoRecordEncoder videoEncodeRecode;
     private AudioRecorder audioRecorder;
 
     private String savePath;
 
+
     public String getSavePath() {
         return savePath;
     }
 
-
-    public void create(Activity activity, EglSurfaceView eglSurfaceView, int cameraId) {
+    public void create(Activity activity, GLSurfaceView glSurfaceView, int cameraId) {
         this.activity = activity;
-        this.eglSurfaceView = eglSurfaceView;
+        this.glSurfaceView = glSurfaceView;
         this.cameraId = cameraId;
+
+        glSurfaceView.setEGLContextClientVersion(2);
 
         cameraRenderObject = new CameraRenderObject(activity);
         cameraRenderObject.isBindFbo = true;
@@ -86,32 +94,46 @@ public class Camera2EGLSurfaceViewRecordManager {
         defaultRenderObject = new DefaultRenderObject(activity);
         defaultRenderObject.isBindFbo = false;
         defaultRenderObject.isOES = false;
-        defaultFitRenderObject = new DefaultFitRenderObject(activity);
-        defaultRenderObject.isBindFbo = false;
-        defaultRenderObject.isOES = false;
 
         cameraHandlerThread = new HandlerThread("cameraOpenThread");
         cameraHandlerThread.start();
         cameraThreadHandler = new Handler(cameraHandlerThread.getLooper());
 
-        eglSurfaceView.setRenderer(new EglSurfaceView.Renderer() {
+        glSurfaceView.setEGLContextFactory(new GLSurfaceView.EGLContextFactory() {
             @Override
-            public void onSurfaceCreated() {
+            public EGLContext createContext(EGL10 egl, EGLDisplay display, EGLConfig eglConfig) {
+                int[] attrib_list = {EGL14.EGL_CONTEXT_CLIENT_VERSION, 2,
+                        EGL10.EGL_NONE};
+
+                EGLContext eglContext = egl.eglCreateContext(display, eglConfig, EGL10.EGL_NO_CONTEXT,
+                        2 != 0 ? attrib_list : null);
+
+                glSurfaceView.setTag(eglContext);
+                return eglContext;
+            }
+
+            @Override
+            public void destroyContext(EGL10 egl, EGLDisplay display, EGLContext context) {
+                if (!egl.eglDestroyContext(display, context)) {
+                    Log.e("DefaultContextFactory", "display:" + display + " context: " + context);
+                }
+            }
+        });
+
+        glSurfaceView.setRenderer(new GLSurfaceView.Renderer() {
+            @Override
+            public void onSurfaceCreated(GL10 gl, EGLConfig config) {
                 cameraTextureId = OpenGLESUtil.createOesTexture();
                 cameraSurfaceTexture = new SurfaceTexture(cameraTextureId);
                 surface = new Surface(cameraSurfaceTexture);
 
-                FpsUtil fpsUtil = new FpsUtil("camera2-onFrameAvailable" + cameraId);
                 cameraSurfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
                     @Override
                     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-                        fpsUtil.trigger();
-                        eglSurfaceView.requestRender();
+                        glSurfaceView.requestRender();
 
                         if (videoEncodeRecode != null && videoEncodeRecode.isEncodeStart()) {
-//                            TimeConsumeUtil.start("requestRender, " + cameraId);
                             videoEncodeRecode.requestRender();
-//                            TimeConsumeUtil.calc("requestRender, " + cameraId);
                         }
                     }
                 });
@@ -119,17 +141,15 @@ public class Camera2EGLSurfaceViewRecordManager {
                 cameraRenderObject.onCreate();
                 waterMarkRenderObject.onCreate();
                 defaultRenderObject.onCreate();
-                defaultFitRenderObject.onCreate();
 
                 try {
                     openCamera2();
                 } catch (Exception e) {
                     e.printStackTrace();
-                    return;
                 }
 
+                //设置Surface纹理的宽高，Camera2在预览时会选择宽高最相近的预览尺寸，将此尺寸的图像输送到Surface纹理中
                 if (mPreviewSize != null) {
-                    //设置Surface纹理的宽高，Camera2在预览时会选择宽高最相近的预览尺寸，将此尺寸的图像输送到Surface纹理中
                     cameraSurfaceTexture.setDefaultBufferSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
                     cameraRenderObject.inputWidth = mPreviewSize.getWidth();
                     cameraRenderObject.inputHeight = mPreviewSize.getHeight();
@@ -137,31 +157,22 @@ public class Camera2EGLSurfaceViewRecordManager {
             }
 
             @Override
-            public void onSurfaceChanged(int width, int height) {
-                cameraRenderObject.onChange(width, height);
-                waterMarkRenderObject.onChange(width, height);
-
-//                cameraRenderObject.onChange(cameraRenderObject.inputHeight, cameraRenderObject.inputWidth);
-//                waterMarkRenderObject.onChange(cameraRenderObject.inputHeight, cameraRenderObject.inputWidth);
-
+            public void onSurfaceChanged(GL10 gl, int width, int height) {
+                cameraRenderObject.onChange(cameraRenderObject.inputHeight, cameraRenderObject.inputWidth);
+                waterMarkRenderObject.onChange(cameraRenderObject.inputHeight, cameraRenderObject.inputWidth);
                 defaultRenderObject.onChange(width, height);
-
-//                defaultFitRenderObject.inputWidth = waterMarkRenderObject.width;
-//                defaultFitRenderObject.inputHeight = waterMarkRenderObject.height;
-//                defaultFitRenderObject.onChange(width, height);
             }
 
             @Override
-            public void onDrawFrame() {
+            public void onDrawFrame(GL10 gl) {
                 cameraSurfaceTexture.updateTexImage();
                 cameraRenderObject.onDraw(cameraTextureId);
                 waterMarkRenderObject.onDraw(cameraRenderObject.fboTextureId);
                 defaultRenderObject.onDraw(waterMarkRenderObject.fboTextureId);
-//                defaultFitRenderObject.onDraw(waterMarkRenderObject.fboTextureId);
             }
         });
 
-        eglSurfaceView.setRendererMode(EglSurfaceView.RENDERMODE_WHEN_DIRTY);
+        glSurfaceView.setRenderMode(EglSurfaceView.RENDERMODE_WHEN_DIRTY);
     }
 
     @SuppressLint("MissingPermission")
@@ -170,21 +181,15 @@ public class Camera2EGLSurfaceViewRecordManager {
         characteristics = cameraManager.getCameraCharacteristics(cameraId + "");
         StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
 
-        //硬件层特征，为了让图像在手机屏幕直立显示时，需要将图像顺时针旋转此角度。不同手机厂商的此角度值会有不同
-        cameraRenderObject.orientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
-        cameraRenderObject.orientationEnable = true;
-        //framework-sdk特性：这里获取到的size的宽高的方向是针对屏幕竖屏的上方向的宽高(此宽高与orientation无关)
-        Size[] sizes = map.getOutputSizes(SurfaceTexture.class);
-
         Size largest = Collections.max(Arrays.asList(map.getOutputSizes(ImageFormat.JPEG)), new CompareSizesByArea());
-
-        mPreviewSize = chooseOptimalSize(sizes, eglSurfaceView.getWidth(), eglSurfaceView.getHeight(), largest);
-        mPreviewSize = sizes[0];
+        Size[] sizes = map.getOutputSizes(SurfaceTexture.class);
+        mPreviewSize = chooseOptimalSize(sizes, glSurfaceView.getWidth(), glSurfaceView.getHeight(), largest);
+        mPreviewSize = sizes[0]; //直接选择最大的预览尺寸
 
         cameraManager.openCamera(cameraId + "", new CameraDevice.StateCallback() {
             @Override
             public void onOpened(@NonNull CameraDevice camera) {
-                Camera2EGLSurfaceViewRecordManager.this.camera = camera;
+                Camera2GLSurfaceViewRecordManager.this.camera = camera;
 
                 try {
                     createCameraSession();
@@ -203,6 +208,14 @@ public class Camera2EGLSurfaceViewRecordManager {
 
             }
         }, cameraThreadHandler);
+
+    }
+
+    public boolean isStart() {
+        if (videoEncodeRecode != null && videoEncodeRecode.isEncodeStart()) {
+            return true;
+        }
+        return false;
     }
 
     public void startRecord() {
@@ -228,7 +241,7 @@ public class Camera2EGLSurfaceViewRecordManager {
             videoOutputHeight = mPreviewSize.getWidth();
         }
 
-        videoEncodeRecode.initEncoder(eglSurfaceView.getEglContext(), savePath,
+        videoEncodeRecode.initEncoder((EGLContext) glSurfaceView.getTag(), savePath,
                 videoOutputWidth, videoOutputHeight, 44100, 2, 16);
         videoEncodeRecode.setRender(new EglSurfaceView.Renderer() {
 
@@ -279,10 +292,6 @@ public class Camera2EGLSurfaceViewRecordManager {
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
     private void createCameraSession() throws CameraAccessException {
         CaptureRequest.Builder builder = camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
         builder.addTarget(surface);
@@ -290,7 +299,7 @@ public class Camera2EGLSurfaceViewRecordManager {
         camera.createCaptureSession(Arrays.asList(surface), new CameraCaptureSession.StateCallback() {
             @Override
             public void onConfigured(@NonNull CameraCaptureSession session) {
-                Camera2EGLSurfaceViewRecordManager.this.session = session;
+                Camera2GLSurfaceViewRecordManager.this.session = session;
 
                 try {
                     //注意长安的板子不允许设置这两项配置，否则无法预览
@@ -325,8 +334,7 @@ public class Camera2EGLSurfaceViewRecordManager {
         cameraHandlerThread.quitSafely();
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
 
     private Size chooseOptimalSize(Size[] sizes, int viewWidth, int viewHeight, Size pictureSize) {
         int totalRotation = getRotation();

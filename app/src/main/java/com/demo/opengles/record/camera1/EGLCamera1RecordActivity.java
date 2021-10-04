@@ -126,10 +126,6 @@ public class EGLCamera1RecordActivity extends BaseActivity {
                     ToastUtil.show("请先录制一个视频");
                     return;
                 }
-                if (VideoRecordEncoder.status == VideoRecordEncoder.OnStatusChangeListener.STATUS.START) {
-                    ToastUtil.show("请先结束录制");
-                    return;
-                }
 
                 Intent intent = new Intent(v.getContext(), VideoPlayerActivity.class);
                 intent.putExtra("path", savePath);

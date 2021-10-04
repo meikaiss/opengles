@@ -166,6 +166,13 @@ public class Camera1RecordManager {
         camera.startPreview();
     }
 
+    public boolean isStart() {
+        if (videoEncodeRecode != null && videoEncodeRecode.isEncodeStart()) {
+            return true;
+        }
+        return false;
+    }
+
     public void startRecord() {
 
         /////// 开始录图像
