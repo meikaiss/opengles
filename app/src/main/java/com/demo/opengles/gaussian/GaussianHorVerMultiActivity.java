@@ -8,6 +8,7 @@ import android.opengl.GLSurfaceView;
 import android.opengl.GLUtils;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,11 +16,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.demo.opengles.R;
 import com.demo.opengles.gaussian.render.DefaultRenderObject;
 import com.demo.opengles.gaussian.render.HVBlurRenderObject;
+import com.demo.opengles.util.TimeConsumeUtil;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class GaussianHorVerActivity extends AppCompatActivity {
+public class GaussianHorVerMultiActivity extends AppCompatActivity {
 
     private GLSurfaceView glSurfaceView;
 
@@ -29,10 +31,12 @@ public class GaussianHorVerActivity extends AppCompatActivity {
 
     private int textureId;
 
+    private int multiLevel = 1;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_gaussian_hor_ver);
+        setContentView(R.layout.activity_gaussian_hor_ver_multi);
 
         glSurfaceView = findViewById(R.id.gl_surface_view);
         glSurfaceView.setEGLContextClientVersion(2);
@@ -72,9 +76,22 @@ public class GaussianHorVerActivity extends AppCompatActivity {
 
             @Override
             public void onDrawFrame(GL10 gl) {
+
+                TimeConsumeUtil.start("多层耗时");
+
+
                 renderObjectH.onDraw(textureId);
                 renderObjectV.onDraw(renderObjectH.fboTextureId);
+
+                for (int i = 0; i < multiLevel - 1; i++) {
+                    renderObjectH.onDraw(renderObjectV.fboTextureId);
+                    renderObjectV.onDraw(renderObjectH.fboTextureId);
+                }
+
                 defaultRenderObject.onDraw(renderObjectV.fboTextureId);
+
+                TimeConsumeUtil.calc("多层耗时");
+                TimeConsumeUtil.clear();
 
             }
         });
@@ -84,12 +101,15 @@ public class GaussianHorVerActivity extends AppCompatActivity {
     }
 
     private void initView() {
+        TextView textViewStep = findViewById(R.id.tv_step);
+        TextView textView = findViewById(R.id.tv_level);
         findViewById(R.id.btn_add).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 renderObjectH.setBlurOffset(renderObjectH.getBlurOffsetW() + 1, 0);
                 renderObjectV.setBlurOffset(0, renderObjectV.getBlurOffsetH() + 1);
                 glSurfaceView.requestRender();
+                textViewStep.setText(renderObjectH.getBlurOffsetW() + "像素");
             }
         });
         findViewById(R.id.btn_reduce).setOnClickListener(new View.OnClickListener() {
@@ -98,6 +118,26 @@ public class GaussianHorVerActivity extends AppCompatActivity {
                 renderObjectH.setBlurOffset(renderObjectH.getBlurOffsetW() - 1, 0);
                 renderObjectV.setBlurOffset(0, renderObjectV.getBlurOffsetH() - 1);
                 glSurfaceView.requestRender();
+                textViewStep.setText(renderObjectH.getBlurOffsetW() + "像素");
+            }
+        });
+        findViewById(R.id.btn_multi_add).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                multiLevel++;
+                glSurfaceView.requestRender();
+                textView.setText(multiLevel + "层");
+            }
+        });
+        findViewById(R.id.btn_multi_reduce).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                multiLevel--;
+                if (multiLevel < 1) {
+                    multiLevel = 1;
+                }
+                glSurfaceView.requestRender();
+                textView.setText(multiLevel + "层");
             }
         });
     }
