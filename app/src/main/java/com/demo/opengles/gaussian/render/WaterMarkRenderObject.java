@@ -33,7 +33,7 @@ public class WaterMarkRenderObject extends DefaultRenderObject {
     public void onCreate() {
         super.onCreate();
         renderGLInfo = new RenderGLInfo();
-        renderGLInfo.initShaderFileName("render/base/watermark/vertex.frag", "render/base/watermark/frag.frag");
+        renderGLInfo.initShaderFileName("render/watermark/vertex.frag", "render/watermark/frag.frag");
         renderGLInfo.createProgram(context, isBindFbo);
 
         uMatrixLocation2 = GLES20.glGetUniformLocation(renderGLInfo.program, "uMatrix");

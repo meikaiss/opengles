@@ -40,7 +40,7 @@ public class CameraRenderObject extends BaseRenderObject {
 
     public CameraRenderObject(Context context) {
         super(context);
-        initShaderFileName("render/base/camera/vertex.frag", "render/base/camera/frag.frag");
+        initShaderFileName("render/camera/vertex.frag", "render/camera/frag.frag");
     }
 
     @Override

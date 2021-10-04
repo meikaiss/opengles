@@ -68,7 +68,7 @@ public class Camera1RecordManager {
             @Override
             public void onSurfaceCreated() {
                 TimeConsumeUtil.start("Renderer" + cameraId);
-                cameraTextureId = OpenGLESUtil.getOesTexture();
+                cameraTextureId = OpenGLESUtil.createOesTexture();
 
                 cameraRenderObject.onCreate();
                 waterMarkRenderObject.onCreate();

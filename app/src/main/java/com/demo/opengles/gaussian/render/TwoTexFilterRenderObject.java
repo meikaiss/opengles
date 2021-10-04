@@ -20,8 +20,8 @@ public class TwoTexFilterRenderObject extends BaseRenderObject {
 
     //第2个纹理的id，注：第1个纹理的id在基类中
     private int texture2Id;
-    //Drawable的纹理id
-    private int textureIdDrawable;
+    //裁剪样板Drawable的纹理id
+    private int clipDrawableTextureId;
 
     private Drawable drawable;
     private int drawableWidth;
@@ -33,7 +33,7 @@ public class TwoTexFilterRenderObject extends BaseRenderObject {
         this.drawable = drawable;
         this.drawableWidth = drawableWidth;
         this.drawableHeight = drawableHeight;
-        initShaderFileName("render/base/two/vertex.frag", "render/base/two/frag.frag");
+        initShaderFileName("render/two/vertex.frag", "render/two/frag.frag");
     }
 
     public void setTexture2Id(int texture2Id) {
@@ -59,13 +59,14 @@ public class TwoTexFilterRenderObject extends BaseRenderObject {
         drawable.setBounds(left, top, left + drawableWidth, top + drawableHeight);
         drawable.draw(canvas);
 
-        //默认的0号纹理引脚已经绑定作为输入源，所以这里内部额外的纹理使用1号引脚
-        textureIdDrawable = createTexture(clipBmp, GLES20.GL_TEXTURE2);
+        //默认的0号纹理引脚已经绑定作为输入源，所以这里内部额外的纹理使用2号引脚
+        clipDrawableTextureId = createTexture(clipBmp, GLES20.GL_TEXTURE2);
     }
 
     @Override
     protected void bindExtraGLEnv() {
         super.bindExtraGLEnv();
+
 
         //启用渲染引擎的1号引脚
         GLES20.glActiveTexture(GLES20.GL_TEXTURE1);

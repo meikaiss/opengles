@@ -197,7 +197,7 @@ public class OpenGLESUtil {
     /**
      * 创建外部纹理（OES）
      */
-    public static int getOesTexture() {
+    public static int createOesTexture() {
         int[] textures = new int[1];
         //从offset=0号纹理单元开始生成n=1个纹理，并将纹理id保存到int[]=texture数组中
         GLES20.glGenTextures(1, textures, 0);

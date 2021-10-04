@@ -97,7 +97,7 @@ public class Camera2EGLSurfaceViewRecordManager {
         eglSurfaceView.setRenderer(new EglSurfaceView.Renderer() {
             @Override
             public void onSurfaceCreated() {
-                cameraTextureId = OpenGLESUtil.getOesTexture();
+                cameraTextureId = OpenGLESUtil.createOesTexture();
                 cameraSurfaceTexture = new SurfaceTexture(cameraTextureId);
                 surface = new Surface(cameraSurfaceTexture);
 

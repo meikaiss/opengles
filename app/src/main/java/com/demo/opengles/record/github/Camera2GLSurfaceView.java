@@ -47,7 +47,7 @@ public class Camera2GLSurfaceView extends GLSurfaceView implements GLSurfaceView
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         Log.d(TAG, "onSurfaceCreated. width: " + getWidth() + ", height: " + getHeight());
-        mTextureId = OpenGLESUtil.getOesTexture();
+        mTextureId = OpenGLESUtil.createOesTexture();
         mSurfaceTexture = new SurfaceTexture(mTextureId);
         mSurfaceTexture.setOnFrameAvailableListener(this);
 //        mDrawer = new CameraDrawer();

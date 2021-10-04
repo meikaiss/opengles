@@ -12,7 +12,6 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
-import android.opengl.GLSurfaceView;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Size;
@@ -23,7 +22,6 @@ import androidx.annotation.NonNull;
 import com.demo.opengles.gaussian.render.CameraRenderObject;
 import com.demo.opengles.gaussian.render.DefaultRenderObject;
 import com.demo.opengles.gaussian.render.WaterMarkRenderObject;
-import com.demo.opengles.record.camera2.glsurfaceview.Camera2GLSurfaceViewPreviewManager;
 import com.demo.opengles.sdk.EglSurfaceView;
 import com.demo.opengles.util.IOUtil;
 import com.demo.opengles.util.OpenGLESUtil;
@@ -31,9 +29,6 @@ import com.demo.opengles.util.OpenGLESUtil;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-
-import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.opengles.GL10;
 
 public class Camera2EGLSurfaceViewPreviewManager {
 
@@ -81,7 +76,7 @@ public class Camera2EGLSurfaceViewPreviewManager {
         eglSurfaceView.setRenderer(new EglSurfaceView.Renderer() {
             @Override
             public void onSurfaceCreated() {
-                cameraTextureId = OpenGLESUtil.getOesTexture();
+                cameraTextureId = OpenGLESUtil.createOesTexture();
                 cameraSurfaceTexture = new SurfaceTexture(cameraTextureId);
                 surface = new Surface(cameraSurfaceTexture);
 

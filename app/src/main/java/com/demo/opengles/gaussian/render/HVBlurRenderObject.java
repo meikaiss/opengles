@@ -35,8 +35,8 @@ public class HVBlurRenderObject extends BaseRenderObject {
 
     public HVBlurRenderObject(Context context) {
         super(context);
-        initShaderFileName("render/filter/gaussian_blur/vertex.frag",
-                "render/filter/gaussian_blur/frag.frag");
+        initShaderFileName("render/gaussian/vertex.frag",
+                "render/gaussian/frag.frag");
 
         // 设置缩放因子
         setScaleRatio(1);

@@ -7,8 +7,6 @@ import android.graphics.drawable.Drawable;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 
-import com.demo.opengles.gaussian.render.BaseRenderObject;
-
 /**
  * 将外界传入的纹理渲染到屏幕或离屏缓存上，并以Drawable的形状进行裁剪，Drawable外部的区域为透明色，内部区域为输入纹理与Drawable的叠加色
  * Created by meikai on 2021/08/29.
@@ -22,7 +20,7 @@ public class OneTexFilterRenderObject extends BaseRenderObject {
     public OneTexFilterRenderObject(Context context, Drawable drawable) {
         super(context);
         this.drawable = drawable;
-        initShaderFileName("render/base/one/vertex.frag", "render/base/one/frag.frag");
+        initShaderFileName("render/one/vertex.frag", "render/one/frag.frag");
     }
 
     @Override

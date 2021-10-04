@@ -52,7 +52,7 @@ public abstract class BaseRenderObject implements IRenderAble {
     public int height;
 
     public boolean isBindFbo;
-    //标记输入的纹理是否为外部纹理，例如相机输入; 启用此标记时，需要设置对应的fragShader标记位
+    //标记输入的纹理是否为外部纹理，例如相机输入; 启用此标记时，需要设置对应的fragShader language的标记位为samplerExternalOES
     public boolean isOES;
 
     public boolean isCreate = false;

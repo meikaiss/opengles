@@ -22,7 +22,7 @@ public class DefaultFitRenderObject extends BaseRenderObject {
 
     public DefaultFitRenderObject(Context context) {
         super(context);
-        initShaderFileName("render/base/matrix/vertex.frag", "render/base/matrix/frag.frag");
+        initShaderFileName("render/matrix/vertex.frag", "render/matrix/frag.frag");
     }
 
     @Override

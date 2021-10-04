@@ -49,7 +49,7 @@ public class EGLCamera1FBOPreviewActivity extends BaseActivity {
         eglSurfaceView.setRenderer(new EglSurfaceView.Renderer() {
             @Override
             public void onSurfaceCreated() {
-                cameraTextureId = OpenGLESUtil.getOesTexture();
+                cameraTextureId = OpenGLESUtil.createOesTexture();
 
                 cameraRenderObject.onCreate();
                 defaultRenderObject.onCreate();

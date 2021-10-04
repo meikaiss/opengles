@@ -81,7 +81,7 @@ public class Camera2GLSurfaceViewPreviewManager {
         glSurfaceView.setRenderer(new GLSurfaceView.Renderer() {
             @Override
             public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-                cameraTextureId = OpenGLESUtil.getOesTexture();
+                cameraTextureId = OpenGLESUtil.createOesTexture();
                 cameraSurfaceTexture = new SurfaceTexture(cameraTextureId);
                 surface = new Surface(cameraSurfaceTexture);
 
