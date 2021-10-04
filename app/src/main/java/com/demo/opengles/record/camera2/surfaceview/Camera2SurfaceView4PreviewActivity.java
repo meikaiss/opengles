@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.demo.opengles.R;
 
-public class EGLCamera2SurfaceView4PreviewActivity extends AppCompatActivity {
+public class Camera2SurfaceView4PreviewActivity extends AppCompatActivity {
 
     private Camera2SurfaceViewPreviewManager recordManager1;
     private Camera2SurfaceViewPreviewManager recordManager2;

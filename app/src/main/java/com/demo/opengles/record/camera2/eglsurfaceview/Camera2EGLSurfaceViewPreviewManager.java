@@ -1,4 +1,4 @@
-package com.demo.opengles.record.camera2.record;
+package com.demo.opengles.record.camera2.eglsurfaceview;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -12,6 +12,7 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.opengl.GLSurfaceView;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Size;
@@ -20,25 +21,21 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 
 import com.demo.opengles.gaussian.render.CameraRenderObject;
-import com.demo.opengles.gaussian.render.DefaultFitRenderObject;
 import com.demo.opengles.gaussian.render.DefaultRenderObject;
 import com.demo.opengles.gaussian.render.WaterMarkRenderObject;
-import com.demo.opengles.record.camera1.AudioRecorder;
-import com.demo.opengles.record.camera1.VideoRecordEncoder;
+import com.demo.opengles.record.camera2.glsurfaceview.Camera2GLSurfaceViewPreviewManager;
 import com.demo.opengles.sdk.EglSurfaceView;
-import com.demo.opengles.util.FpsUtil;
 import com.demo.opengles.util.IOUtil;
 import com.demo.opengles.util.OpenGLESUtil;
-import com.demo.opengles.util.ToastUtil;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 
-public class Camera2EGLSurfaceViewRecordManager {
+import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.opengles.GL10;
+
+public class Camera2EGLSurfaceViewPreviewManager {
 
     private Activity activity;
     private EglSurfaceView eglSurfaceView;
@@ -60,22 +57,12 @@ public class Camera2EGLSurfaceViewRecordManager {
     private CameraRenderObject cameraRenderObject;
     private WaterMarkRenderObject waterMarkRenderObject;
     private DefaultRenderObject defaultRenderObject;
-    private DefaultFitRenderObject defaultFitRenderObject;
-
-    private VideoRecordEncoder videoEncodeRecode;
-    private AudioRecorder audioRecorder;
-
-    private String savePath;
-
-    public String getSavePath() {
-        return savePath;
-    }
-
 
     public void create(Activity activity, EglSurfaceView eglSurfaceView, int cameraId) {
         this.activity = activity;
         this.eglSurfaceView = eglSurfaceView;
         this.cameraId = cameraId;
+
 
         cameraRenderObject = new CameraRenderObject(activity);
         cameraRenderObject.isBindFbo = true;
@@ -84,9 +71,6 @@ public class Camera2EGLSurfaceViewRecordManager {
         waterMarkRenderObject.isBindFbo = true;
         waterMarkRenderObject.isOES = false;
         defaultRenderObject = new DefaultRenderObject(activity);
-        defaultRenderObject.isBindFbo = false;
-        defaultRenderObject.isOES = false;
-        defaultFitRenderObject = new DefaultFitRenderObject(activity);
         defaultRenderObject.isBindFbo = false;
         defaultRenderObject.isOES = false;
 
@@ -101,35 +85,25 @@ public class Camera2EGLSurfaceViewRecordManager {
                 cameraSurfaceTexture = new SurfaceTexture(cameraTextureId);
                 surface = new Surface(cameraSurfaceTexture);
 
-                FpsUtil fpsUtil = new FpsUtil("camera2-onFrameAvailable" + cameraId);
                 cameraSurfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
                     @Override
                     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-                        fpsUtil.trigger();
                         eglSurfaceView.requestRender();
-
-                        if (videoEncodeRecode != null && videoEncodeRecode.isEncodeStart()) {
-//                            TimeConsumeUtil.start("requestRender, " + cameraId);
-                            videoEncodeRecode.requestRender();
-//                            TimeConsumeUtil.calc("requestRender, " + cameraId);
-                        }
                     }
                 });
 
                 cameraRenderObject.onCreate();
                 waterMarkRenderObject.onCreate();
                 defaultRenderObject.onCreate();
-                defaultFitRenderObject.onCreate();
 
                 try {
                     openCamera2();
                 } catch (Exception e) {
                     e.printStackTrace();
-                    return;
                 }
 
+                //设置Surface纹理的宽高，Camera2在预览时会选择宽高最相近的预览尺寸，将此尺寸的图像输送到Surface纹理中
                 if (mPreviewSize != null) {
-                    //设置Surface纹理的宽高，Camera2在预览时会选择宽高最相近的预览尺寸，将此尺寸的图像输送到Surface纹理中
                     cameraSurfaceTexture.setDefaultBufferSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
                     cameraRenderObject.inputWidth = mPreviewSize.getWidth();
                     cameraRenderObject.inputHeight = mPreviewSize.getHeight();
@@ -140,15 +114,7 @@ public class Camera2EGLSurfaceViewRecordManager {
             public void onSurfaceChanged(int width, int height) {
                 cameraRenderObject.onChange(width, height);
                 waterMarkRenderObject.onChange(width, height);
-
-//                cameraRenderObject.onChange(cameraRenderObject.inputHeight, cameraRenderObject.inputWidth);
-//                waterMarkRenderObject.onChange(cameraRenderObject.inputHeight, cameraRenderObject.inputWidth);
-
                 defaultRenderObject.onChange(width, height);
-
-//                defaultFitRenderObject.inputWidth = waterMarkRenderObject.width;
-//                defaultFitRenderObject.inputHeight = waterMarkRenderObject.height;
-//                defaultFitRenderObject.onChange(width, height);
             }
 
             @Override
@@ -157,7 +123,6 @@ public class Camera2EGLSurfaceViewRecordManager {
                 cameraRenderObject.onDraw(cameraTextureId);
                 waterMarkRenderObject.onDraw(cameraRenderObject.fboTextureId);
                 defaultRenderObject.onDraw(waterMarkRenderObject.fboTextureId);
-//                defaultFitRenderObject.onDraw(waterMarkRenderObject.fboTextureId);
             }
         });
 
@@ -170,21 +135,15 @@ public class Camera2EGLSurfaceViewRecordManager {
         characteristics = cameraManager.getCameraCharacteristics(cameraId + "");
         StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
 
-        //硬件层特征，为了让图像在手机屏幕直立显示时，需要将图像顺时针旋转此角度。不同手机厂商的此角度值会有不同
-        cameraRenderObject.orientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
-        cameraRenderObject.orientationEnable = true;
-        //framework-sdk特性：这里获取到的size的宽高的方向是针对屏幕竖屏的上方向的宽高(此宽高与orientation无关)
+        Size largest = Collections.max(Arrays.asList(map.getOutputSizes(ImageFormat.JPEG)), new Camera2EGLSurfaceViewPreviewManager.CompareSizesByArea());
         Size[] sizes = map.getOutputSizes(SurfaceTexture.class);
-
-        Size largest = Collections.max(Arrays.asList(map.getOutputSizes(ImageFormat.JPEG)), new CompareSizesByArea());
-
         mPreviewSize = chooseOptimalSize(sizes, eglSurfaceView.getWidth(), eglSurfaceView.getHeight(), largest);
-        mPreviewSize = sizes[0];
+        mPreviewSize = sizes[0]; //直接选择最大的预览尺寸
 
         cameraManager.openCamera(cameraId + "", new CameraDevice.StateCallback() {
             @Override
             public void onOpened(@NonNull CameraDevice camera) {
-                Camera2EGLSurfaceViewRecordManager.this.camera = camera;
+                Camera2EGLSurfaceViewPreviewManager.this.camera = camera;
 
                 try {
                     createCameraSession();
@@ -203,85 +162,8 @@ public class Camera2EGLSurfaceViewRecordManager {
 
             }
         }, cameraThreadHandler);
+
     }
-
-    public void startRecord() {
-        if (videoEncodeRecode != null) {
-            ToastUtil.show("正在录制中");
-            return;
-        }
-
-        videoEncodeRecode = new VideoRecordEncoder(activity, cameraId);
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-        String dateTime = dateFormat.format(new Date());
-        String fileName = "cameraId" + cameraId + "_" + dateTime + ".mp4";
-        savePath = activity.getExternalCacheDir().getAbsolutePath() + File.separator + fileName;
-        ToastUtil.show("开始录制:" + cameraId);
-
-        int videoOutputWidth, videoOutputHeight; //生成的视频文件的宽高
-        videoOutputWidth = mPreviewSize.getWidth();
-        videoOutputHeight = mPreviewSize.getHeight();
-
-        if (cameraRenderObject.orientationEnable && (cameraRenderObject.orientation == 90 || cameraRenderObject.orientation == 270)) {
-            videoOutputWidth = mPreviewSize.getHeight();
-            videoOutputHeight = mPreviewSize.getWidth();
-        }
-
-        videoEncodeRecode.initEncoder(eglSurfaceView.getEglContext(), savePath,
-                videoOutputWidth, videoOutputHeight, 44100, 2, 16);
-        videoEncodeRecode.setRender(new EglSurfaceView.Renderer() {
-
-            DefaultRenderObject record_DefaultRenderObject;
-
-            @Override
-            public void onSurfaceCreated() {
-                record_DefaultRenderObject = new DefaultRenderObject(activity);
-                record_DefaultRenderObject.isBindFbo = false;
-                record_DefaultRenderObject.isOES = false;
-                record_DefaultRenderObject.onCreate();
-            }
-
-            @Override
-            public void onSurfaceChanged(int width, int height) {
-                record_DefaultRenderObject.onChange(width, height);
-            }
-
-            @Override
-            public void onDrawFrame() {
-                record_DefaultRenderObject.onDraw(waterMarkRenderObject.fboTextureId);
-            }
-        });
-        videoEncodeRecode.setRenderMode(VideoRecordEncoder.RENDERMODE_WHEN_DIRTY);
-        videoEncodeRecode.startRecode();
-
-        /////// 开始录音
-        audioRecorder = new AudioRecorder();
-        audioRecorder.setOnAudioDataArrivedListener(new AudioRecorder.OnAudioDataArrivedListener() {
-            @Override
-            public void onAudioDataArrived(byte[] audioData, int length) {
-                if (videoEncodeRecode.isEncodeStart()) {
-                    videoEncodeRecode.putPcmData(audioData, length);
-                }
-            }
-        });
-        audioRecorder.startRecord();
-    }
-
-    public void stopRecord() {
-        if (videoEncodeRecode != null && videoEncodeRecode.isEncodeStart()) {
-            audioRecorder.stopRecord();
-            videoEncodeRecode.stopRecode();
-            videoEncodeRecode = null;
-            ToastUtil.show("停止录制");
-        } else {
-            ToastUtil.show("请先开始录制");
-        }
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private void createCameraSession() throws CameraAccessException {
         CaptureRequest.Builder builder = camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
@@ -290,7 +172,7 @@ public class Camera2EGLSurfaceViewRecordManager {
         camera.createCaptureSession(Arrays.asList(surface), new CameraCaptureSession.StateCallback() {
             @Override
             public void onConfigured(@NonNull CameraCaptureSession session) {
-                Camera2EGLSurfaceViewRecordManager.this.session = session;
+                Camera2EGLSurfaceViewPreviewManager.this.session = session;
 
                 try {
                     //注意长安的板子不允许设置这两项配置，否则无法预览
@@ -325,8 +207,7 @@ public class Camera2EGLSurfaceViewRecordManager {
         cameraHandlerThread.quitSafely();
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
 
     private Size chooseOptimalSize(Size[] sizes, int viewWidth, int viewHeight, Size pictureSize) {
         int totalRotation = getRotation();
