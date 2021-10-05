@@ -23,6 +23,7 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 
 import com.demo.opengles.gaussian.render.CameraRenderObject;
+import com.demo.opengles.gaussian.render.DefaultFitRenderObject;
 import com.demo.opengles.gaussian.render.DefaultRenderObject;
 import com.demo.opengles.gaussian.render.WaterMarkRenderObject;
 import com.demo.opengles.record.camera1.AudioRecorder;
@@ -66,6 +67,7 @@ public class Camera2GLSurfaceViewRecordManager {
 
     private CameraRenderObject cameraRenderObject;
     private WaterMarkRenderObject waterMarkRenderObject;
+    private DefaultFitRenderObject defaultFitRenderObject;
     private DefaultRenderObject defaultRenderObject;
 
     private VideoRecordEncoder videoEncodeRecode;
@@ -91,9 +93,9 @@ public class Camera2GLSurfaceViewRecordManager {
         waterMarkRenderObject = new WaterMarkRenderObject(activity);
         waterMarkRenderObject.isBindFbo = true;
         waterMarkRenderObject.isOES = false;
-        defaultRenderObject = new DefaultRenderObject(activity);
-        defaultRenderObject.isBindFbo = false;
-        defaultRenderObject.isOES = false;
+        defaultFitRenderObject = new DefaultFitRenderObject(activity);
+        defaultFitRenderObject.isBindFbo = false;
+        defaultFitRenderObject.isOES = false;
 
         cameraHandlerThread = new HandlerThread("cameraOpenThread");
         cameraHandlerThread.start();
@@ -140,7 +142,7 @@ public class Camera2GLSurfaceViewRecordManager {
 
                 cameraRenderObject.onCreate();
                 waterMarkRenderObject.onCreate();
-                defaultRenderObject.onCreate();
+                defaultFitRenderObject.onCreate();
 
                 try {
                     openCamera2();
@@ -160,7 +162,10 @@ public class Camera2GLSurfaceViewRecordManager {
             public void onSurfaceChanged(GL10 gl, int width, int height) {
                 cameraRenderObject.onChange(cameraRenderObject.inputHeight, cameraRenderObject.inputWidth);
                 waterMarkRenderObject.onChange(cameraRenderObject.inputHeight, cameraRenderObject.inputWidth);
-                defaultRenderObject.onChange(width, height);
+
+                defaultFitRenderObject.inputWidth = waterMarkRenderObject.width;
+                defaultFitRenderObject.inputHeight = waterMarkRenderObject.height;
+                defaultFitRenderObject.onChange(width, height);
             }
 
             @Override
@@ -168,7 +173,7 @@ public class Camera2GLSurfaceViewRecordManager {
                 cameraSurfaceTexture.updateTexImage();
                 cameraRenderObject.onDraw(cameraTextureId);
                 waterMarkRenderObject.onDraw(cameraRenderObject.fboTextureId);
-                defaultRenderObject.onDraw(waterMarkRenderObject.fboTextureId);
+                defaultFitRenderObject.onDraw(waterMarkRenderObject.fboTextureId);
             }
         });
 

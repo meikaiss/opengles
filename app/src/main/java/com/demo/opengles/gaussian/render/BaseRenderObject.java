@@ -129,6 +129,8 @@ public abstract class BaseRenderObject implements IRenderAble {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
         GLES20.glUseProgram(program);
 
+        GLES20.glViewport(0, 0, width, height);
+
         if (isBindFbo) {
             GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fboId);
             //切换到离屏屏幕时，需要重新clear颜色，因为上一句clear清除的是正式屏幕的颜色

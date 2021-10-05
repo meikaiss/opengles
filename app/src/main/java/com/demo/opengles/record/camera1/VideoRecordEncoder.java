@@ -1,5 +1,6 @@
 package com.demo.opengles.record.camera1;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
@@ -103,6 +104,7 @@ public class VideoRecordEncoder {
         }
     }
 
+    @SuppressLint("NewApi")
     private void initVideoEncoder(String mineType, int width, int height) {
         try {
             if (width % 2 == 1) {

@@ -65,7 +65,7 @@ public class DefaultFitRenderObject extends BaseRenderObject {
          * 通过调整摄像机的上方向为x方向，来解决此问题
          * 摄像机有三个参数：摄像机位置坐标、摄像机视线的朝向点、摄像机与视线垂直面的上方向点
          */
-        Matrix.setLookAtM(mViewMatrix, 0, 0.0f, 0.0f, 1.0f,
+        Matrix.setLookAtM(mViewMatrix, 0, 0.0f, 0.0f, 1f,
                 0f, 0f, 0f, 0f, 1f, 0f);
         //计算变换矩阵
         Matrix.multiplyMM(mMVPMatrix, 0,
