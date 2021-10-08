@@ -64,6 +64,7 @@
         <activity android:name=".record.camera2.surfaceview.Camera2SurfaceView4PreviewActivity" />
         <activity android:name=".record.camera2.glsurfaceview.Camera2GLSurfaceView4PreviewActivity" />
         <activity android:name=".record.camera2.glrecord.Camera2GLSurfaceView4RecordActivity" />
+        <activity android:name=".record.camera2.glrecorddouble.Camera2GLSurfaceView4RecordActivity2" />
         <activity android:name=".record.camera2.eglsurfaceview.Camera2EGLSurfaceView4PreviewActivity" />
         <activity android:name=".record.camera2.eglrecord.EGLCamera2GLSurfaceView4RecordActivity" />
 

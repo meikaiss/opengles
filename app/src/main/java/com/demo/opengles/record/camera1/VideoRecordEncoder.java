@@ -133,11 +133,14 @@ public class VideoRecordEncoder {
                         + ", " + mediaCodecInfo.getName() + ", " + supportTypes + ", "
                 );
             }
+            Log.e(TAG, "MediaCodec编解码信息end");
             Log.e(TAG, "////////////////////////////////////////////////////////////////////////");
             Log.e(TAG, "////////////////////////////////////////////////////////////////////////");
             Log.e(TAG, "////////////////////////////////////////////////////////////////////////");
 
-            mVideoEncodec = MediaCodec.createByCodecName("OMX.qcom.video.encoder.avc"); //已知此名称必定为硬件编码器
+            String encoderName = "c2.qti.avc.encoder";
+            encoderName = "OMX.qcom.video.encoder.avc";
+            mVideoEncodec = MediaCodec.createByCodecName(encoderName); //已知此名称必定为硬件编码器
 
             MediaCodecInfo usedMediaCodecInfo = mVideoEncodec.getCodecInfo();
             String supportTypes = "";
@@ -146,6 +149,7 @@ public class VideoRecordEncoder {
             }
             Log.e(TAG, (usedMediaCodecInfo.isEncoder() ? "编码器" : "解码器")
                     + ", " + (usedMediaCodecInfo.isSoftwareOnly() ? "软件" : "硬件")
+                    + ", " + (usedMediaCodecInfo.isHardwareAccelerated() ? "有硬件加速" : "没有硬件加速")
                     + ", " + (usedMediaCodecInfo.isVendor() ? "厂商" : "安卓")
                     + ", " + usedMediaCodecInfo.getName() + ", " + supportTypes + ", "
             );
@@ -156,7 +160,7 @@ public class VideoRecordEncoder {
             videoFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
             videoFormat.setInteger(MediaFormat.KEY_FRAME_RATE, 30);//30帧
             videoFormat.setInteger(MediaFormat.KEY_BIT_RATE, width * height * 4);//RGBA
-            videoFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
+            videoFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 10);
 
             //设置压缩等级  默认是baseline
 //            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -297,7 +301,7 @@ public class VideoRecordEncoder {
                         mediaMuxer = null;
 
                         status = OnStatusChangeListener.STATUS.END;
-                        if (encoderWeakReference.get().onStatusChangeListener != null) {
+                        if (encoderWeakReference.get() != null && encoderWeakReference.get().onStatusChangeListener != null) {
                             encoderWeakReference.get().onStatusChangeListener.onStatusChange(status);
                         }
                     }
@@ -316,7 +320,7 @@ public class VideoRecordEncoder {
                         encoderWeakReference.get().encodeStart = true;
 
                         status = OnStatusChangeListener.STATUS.START;
-                        if (encoderWeakReference.get().onStatusChangeListener != null) {
+                        if (encoderWeakReference.get() != null && encoderWeakReference.get().onStatusChangeListener != null) {
                             encoderWeakReference.get().onStatusChangeListener.onStatusChange(status);
                         }
                     }
@@ -351,7 +355,7 @@ public class VideoRecordEncoder {
 
                         fpsUtil.trigger();
 
-                        TimeConsumeUtil.calc("VideoEncodecThread" + encoderWeakReference.get().tag, "videoEncodec读取数据耗时@@" + outputBufferIndex);
+//                        TimeConsumeUtil.calc("VideoEncodecThread" + encoderWeakReference.get().tag, "videoEncodec读取数据耗时@@" + outputBufferIndex);
                     }
                 }
             }
@@ -483,10 +487,11 @@ public class VideoRecordEncoder {
             eglHelper.initEgl(encoderWeakReference.get().mSurface, encoderWeakReference.get().mEGLContext);
             long drawStartTimeStamp = 0l;
 
-            FpsUtil fpsUtil = new FpsUtil("videoRecord-onDraw" + encoderWeakReference.get().tag);
+            FpsUtil fpsUtil = new FpsUtil("videoRecord-onDraw, id=" + encoderWeakReference.get().tag);
 
             while (true) {
                 fpsUtil.trigger();
+                TimeConsumeUtil.start("videoRecord-onDraw");
                 try {
                     if (isExit) {
                         release();
@@ -494,9 +499,11 @@ public class VideoRecordEncoder {
                     }
                     if (isStart) {
                         if (encoderWeakReference.get().mRenderMode == RENDERMODE_WHEN_DIRTY) {
+//                            TimeConsumeUtil.calc("videoRecord-onDraw", " 111");
                             synchronized (lock) {
                                 lock.wait();
                             }
+//                            TimeConsumeUtil.calc("videoRecord-onDraw", " 222");
                         } else if (encoderWeakReference.get().mRenderMode == RENDERMODE_CONTINUOUSLY) {
                             int fps = 60; //设置视频画面每秒帧数
                             long timePerFame = 1000 / fps;
@@ -515,7 +522,9 @@ public class VideoRecordEncoder {
                     onChange(encoderWeakReference.get().width, encoderWeakReference.get().height);
                     drawStartTimeStamp = System.currentTimeMillis();
 
+//                    TimeConsumeUtil.calc("videoRecord-onDraw", " 333");
                     onDraw();
+//                    TimeConsumeUtil.calc("videoRecord-onDraw", " 444");
                     isStart = true;
 
                 } catch (Exception e) {

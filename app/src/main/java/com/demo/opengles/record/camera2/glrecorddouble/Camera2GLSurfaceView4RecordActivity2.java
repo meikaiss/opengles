@@ -1,4 +1,4 @@
-package com.demo.opengles.record.camera2.glrecord;
+package com.demo.opengles.record.camera2.glrecorddouble;
 
 import android.content.Context;
 import android.content.Intent;
@@ -16,12 +16,12 @@ import com.demo.opengles.main.BaseActivity;
 import com.demo.opengles.util.TimeConsumeUtil;
 import com.demo.opengles.util.ToastUtil;
 
-public class Camera2GLSurfaceView4RecordActivity extends BaseActivity {
+public class Camera2GLSurfaceView4RecordActivity2 extends BaseActivity {
 
-    private Camera2GLSurfaceViewRecordManager recordManager1;
-    private Camera2GLSurfaceViewRecordManager recordManager2;
-    private Camera2GLSurfaceViewRecordManager recordManager3;
-    private Camera2GLSurfaceViewRecordManager recordManager4;
+    private Camera2GLSurfaceViewRecordManager2 recordManager1;
+    private Camera2GLSurfaceViewRecordManager2 recordManager2;
+    private Camera2GLSurfaceViewRecordManager2 recordManager3;
+    private Camera2GLSurfaceViewRecordManager2 recordManager4;
 
     private Button btnRecordStart;
     private Button btnRecordStop;
@@ -29,7 +29,7 @@ public class Camera2GLSurfaceView4RecordActivity extends BaseActivity {
 
     //是否启用四路摄像头，方便快速切换验证效果
     private boolean enable4Camera() {
-        boolean enable4 = true;
+        boolean enable4 = false;
         return enable4 && has4Camera();
     }
 
@@ -38,11 +38,11 @@ public class Camera2GLSurfaceView4RecordActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_egl_camera2_glsurfaceview_record4);
 
-        recordManager1 = new Camera2GLSurfaceViewRecordManager();
+        recordManager1 = new Camera2GLSurfaceViewRecordManager2();
         if (enable4Camera()) {
-            recordManager2 = new Camera2GLSurfaceViewRecordManager();
-            recordManager3 = new Camera2GLSurfaceViewRecordManager();
-            recordManager4 = new Camera2GLSurfaceViewRecordManager();
+            recordManager2 = new Camera2GLSurfaceViewRecordManager2();
+            recordManager3 = new Camera2GLSurfaceViewRecordManager2();
+            recordManager4 = new Camera2GLSurfaceViewRecordManager2();
         }
 
         recordManager1.create(this, findViewById(R.id.egl_surface_view_1), 0);
@@ -123,7 +123,11 @@ public class Camera2GLSurfaceView4RecordActivity extends BaseActivity {
         btnRecordPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (recordManager1.getSavePath() == null) {
+                String path = recordManager1.getSavePath1();
+                if (path == null) {
+                    path = recordManager1.getSavePath2();
+                }
+                if (path == null) {
                     ToastUtil.show("请先完成录制");
                     return;
                 }
@@ -133,7 +137,7 @@ public class Camera2GLSurfaceView4RecordActivity extends BaseActivity {
                 }
 
                 Intent intent = new Intent(v.getContext(), VideoPlayerActivity.class);
-                intent.putExtra("path", recordManager1.getSavePath());
+                intent.putExtra("path", path);
                 startActivity(intent);
             }
         });

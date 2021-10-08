@@ -30,7 +30,7 @@ public class CameraRenderObject extends BaseRenderObject {
      * 是否启用相机上方向与屏幕竖屏上方向一致性调整
      * 默认启用，因为大多数相机都需要把底层传上来的图像顺时针旋转90度，才能在屏幕竖屏上正常显示，这里暂不考虑横竖屏切换，只处理竖屏的显示
      */
-    public boolean orientationEnable = true;
+    public boolean orientationEnable = false;
 
     private float[] mViewMatrix = new float[16];
     private float[] mProjectMatrix = new float[16];
