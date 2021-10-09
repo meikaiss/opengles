@@ -45,11 +45,12 @@ import com.demo.opengles.graphic.TriangleModalActivity;
 import com.demo.opengles.pcm.PcmRecordActivity;
 import com.demo.opengles.record.camera1.EGLCamera1Record4SameTimeActivity;
 import com.demo.opengles.record.camera1.EGLCamera1RecordActivity;
+import com.demo.opengles.record.camera2.eglrecord.EGLCamera2GLSurfaceView4RecordActivity;
 import com.demo.opengles.record.camera2.eglsurfaceview.Camera2EGLSurfaceView4PreviewActivity;
 import com.demo.opengles.record.camera2.glrecord.Camera2GLSurfaceView4RecordActivity;
+import com.demo.opengles.record.camera2.glrecordconcat.Camera2GLSurfaceViewConcatRecordActivity;
 import com.demo.opengles.record.camera2.glrecorddouble.Camera2GLSurfaceViewDoubleRecordActivity;
 import com.demo.opengles.record.camera2.glsurfaceview.Camera2GLSurfaceView4PreviewActivity;
-import com.demo.opengles.record.camera2.eglrecord.EGLCamera2GLSurfaceView4RecordActivity;
 import com.demo.opengles.record.camera2.surfaceview.Camera2SurfaceView4PreviewActivity;
 import com.demo.opengles.record.github.GLSurfaceCamera2Activity;
 import com.demo.opengles.surface.GLSurfaceViewAlphaVideoActivity;
@@ -113,8 +114,8 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("Camera2-SurfaceView-4路预览", Camera2SurfaceView4PreviewActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("Camera2-GLSurfaceView-4路预览", Camera2GLSurfaceView4PreviewActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("Camera2-GLSurfaceView-4路录制", Camera2GLSurfaceView4RecordActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
-            add(new MainItemBean("Camera2-GLSurfaceView-一拖二录制", Camera2GLSurfaceViewDoubleRecordActivity.class, Manifest.permission.CAMERA,
-                    Manifest.permission.RECORD_AUDIO));
+            add(new MainItemBean("Camera2-GLSurfaceView-一拖二录制", Camera2GLSurfaceViewDoubleRecordActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
+            add(new MainItemBean("Camera2-GLSurfaceView-四合一录制", Camera2GLSurfaceViewConcatRecordActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("Camera2-EglSurfaceView-4路预览", Camera2EGLSurfaceView4PreviewActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("Camera2-EglSurfaceView-4路录制", EGLCamera2GLSurfaceView4RecordActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("github-camera2_glSurfaceView", GLSurfaceCamera2Activity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));

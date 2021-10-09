@@ -129,14 +129,14 @@ public class WaterMarkRenderObject extends DefaultRenderObject {
     public void onDraw(int textureId) {
         super.onDraw(textureId);
 
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-        GLES20.glUseProgram(renderGLInfo.program);
-
         if (isBindFbo) {
             GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fboId);
             GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0,
                     GLES20.GL_TEXTURE_2D, fboTextureId, 0);
             GLES20.glViewport(0, 0, width, height);
+        } else {
+            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+            GLES20.glUseProgram(renderGLInfo.program);
         }
 
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, renderGLInfo.vboId);
