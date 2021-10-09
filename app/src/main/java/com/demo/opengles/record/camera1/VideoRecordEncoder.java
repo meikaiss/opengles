@@ -143,6 +143,31 @@ public class VideoRecordEncoder {
             mVideoEncodec = MediaCodec.createByCodecName(encoderName); //已知此名称必定为硬件编码器
 
             MediaCodecInfo usedMediaCodecInfo = mVideoEncodec.getCodecInfo();
+
+            ////////////////////////START
+            for (String mimeType : usedMediaCodecInfo.getSupportedTypes()) {
+                String codecInfo = "";
+                codecInfo += mimeType + ",";
+                MediaCodecInfo.CodecCapabilities capabilities;
+                try {
+                    capabilities = usedMediaCodecInfo.getCapabilitiesForType(mimeType);
+                } catch (IllegalArgumentException e) {
+                    Log.e(TAG, "Cannot retrieve decoder capabilities", e);
+                    continue;
+                }
+
+                codecInfo += " max inst:" + capabilities.getMaxSupportedInstances() + ",";
+
+                String strColorFormatList = "";
+                for (int colorFormat : capabilities.colorFormats) {
+                    strColorFormatList += " 0x" + Integer.toHexString(colorFormat);
+                }
+                codecInfo += strColorFormatList + "] [";
+
+                Log.e(TAG, "====codecInfo ===" + codecInfo);
+            }
+            ////////////////////////END
+
             String supportTypes = "";
             for (int j = 0; j < usedMediaCodecInfo.getSupportedTypes().length; j++) {
                 supportTypes += usedMediaCodecInfo.getSupportedTypes()[j] + ";";
@@ -346,14 +371,13 @@ public class VideoRecordEncoder {
                         videoBufferinfo.presentationTimeUs = videoBufferinfo.presentationTimeUs - pts;
                         //写入数据
                         mediaMuxer.writeSampleData(videoTrackIndex, outputBuffer, videoBufferinfo);
+                        fpsUtil.trigger();
 //                        Log.e("zzz", "VideoTime = " + videoBufferinfo.presentationTimeUs / 1000000.0f);
                         if (encoderWeakReference.get().onMediaInfoListener != null) {
                             encoderWeakReference.get().onMediaInfoListener.onMediaTime((int) (videoBufferinfo.presentationTimeUs / 1000000));
                         }
                         videoEncodec.releaseOutputBuffer(outputBufferIndex, false);
                         outputBufferIndex = videoEncodec.dequeueOutputBuffer(videoBufferinfo, 0);
-
-                        fpsUtil.trigger();
 
 //                        TimeConsumeUtil.calc("VideoEncodecThread" + encoderWeakReference.get().tag, "videoEncodec读取数据耗时@@" + outputBufferIndex);
                     }
@@ -490,7 +514,7 @@ public class VideoRecordEncoder {
             FpsUtil fpsUtil = new FpsUtil("videoRecord-onDraw, id=" + encoderWeakReference.get().tag);
 
             while (true) {
-                fpsUtil.trigger();
+//                fpsUtil.trigger();
                 TimeConsumeUtil.start("videoRecord-onDraw");
                 try {
                     if (isExit) {

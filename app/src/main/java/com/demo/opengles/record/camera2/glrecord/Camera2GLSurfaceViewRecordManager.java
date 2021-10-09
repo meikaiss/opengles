@@ -135,7 +135,7 @@ public class Camera2GLSurfaceViewRecordManager {
                 cameraSurfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
                     @Override
                     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-                        fpsUtil.trigger();
+//                        fpsUtil.trigger();
                         glSurfaceView.requestRender();
 
                         if (videoEncodeRecode != null && videoEncodeRecode.isEncodeStart()) {
