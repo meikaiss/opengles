@@ -57,6 +57,8 @@ public abstract class BaseRenderObject implements IRenderAble {
     public boolean isBindFbo;
     //标记输入的纹理是否为外部纹理，例如相机输入; 启用此标记时，需要设置对应的fragShader language的标记位为samplerExternalOES
     public boolean isOES;
+    //标记每次Draw之前是否需要清除画面背景色
+    public boolean clearFlag = true;
 
     public boolean isCreate = false;
     public boolean isChange = false;
@@ -113,7 +115,6 @@ public abstract class BaseRenderObject implements IRenderAble {
     public void onChange(int width, int height) {
         this.width = width;
         this.height = height;
-        GLES20.glViewport(viewportX, viewportY, width, height);
 
         if (isBindFbo) {
             int[] fboData = OpenGLESUtil.getFbo(width, height);
@@ -139,32 +140,13 @@ public abstract class BaseRenderObject implements IRenderAble {
 
         if (isBindFbo) {
             GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fboId);
-            //切换到离屏屏幕时，需要重新clear颜色，因为上一句clear清除的是正式屏幕的颜色
-            GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0,
-                    GLES20.GL_TEXTURE_2D, fboTextureId, 0);
-            GLES20.glViewport(viewportX, viewportY, width, height);
-            if (tag == null) {
-                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-            } else {
-                if (tag instanceof Integer && (Integer) tag == 0) {
-                    //0号相机才需要清空
-                    GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-                } else {
-                    //1、2、3号相机不需要清空，否则会把前面相机的画面清空
-                }
-            }
-        } else {
-            GLES20.glViewport(viewportX, viewportY, width, height);
-            if (tag == null) {
-                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-            } else {
-                if (tag instanceof Integer && (Integer) tag == 0) {
-                    //0号相机才需要清空
-                    GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-                } else {
-                    //1、2、3号相机不需要清空，否则会把前面相机的画面清空
-                }
-            }
+            GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0, GLES20.GL_TEXTURE_2D, fboTextureId, 0);
+        }
+
+        GLES20.glViewport(viewportX, viewportY, width, height);
+
+        if (clearFlag) {
+            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
         }
 
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboId);

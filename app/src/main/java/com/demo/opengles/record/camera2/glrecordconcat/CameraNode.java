@@ -26,9 +26,6 @@ public class CameraNode {
 
     private float[] vertexCoordinate;
 
-    public int viewportX;
-    public int viewportY;
-
     public boolean frameAvailable;
 
     public Surface getSurface() {
@@ -76,30 +73,22 @@ public class CameraNode {
         cameraRenderObject.inputHeight = previewSize.getHeight();
     }
 
-    public void onSurfaceChanged(GL10 gl, int width, int height, int x, int y) {
+    public void onSurfaceChanged(GL10 gl, int width, int height) {
         cameraRenderObject.onChange(cameraRenderObject.inputWidth, cameraRenderObject.inputHeight);
         waterMarkRenderObject.onChange(cameraRenderObject.inputWidth, cameraRenderObject.inputHeight);
 
         defaultFitRenderObject.inputWidth = waterMarkRenderObject.width;
         defaultFitRenderObject.inputHeight = waterMarkRenderObject.height;
-        defaultFitRenderObject.viewportX = viewportX = x;
-        defaultFitRenderObject.viewportY = viewportY = y;
         defaultFitRenderObject.onChange(width, height);
     }
 
-    public void updateCoords(DefaultRenderObject defaultRenderObject,
-                             int width, int height, int x, int y) {
-        defaultRenderObject.width = width;
-        defaultRenderObject.height = height;
-        defaultRenderObject.viewportX = x;
-        defaultRenderObject.viewportY = y;
-    }
+    public void onDrawFrame(GL10 gl, int id, DefaultRenderObject offScreen,
+                            int width, int height, int x, int y) {
 
-    public void onDrawFrame(GL10 gl, int id, DefaultRenderObject offScreen) {
-//        if (!frameAvailable) {
-//            return;
-//        }
-//        frameAvailable = false;
+        if (!frameAvailable) {
+            return;
+        }
+        frameAvailable = false;
         cameraSurfaceTexture.updateTexImage();
 
         cameraRenderObject.onDraw(cameraTextureId);
@@ -109,6 +98,10 @@ public class CameraNode {
         defaultFitRenderObject.onDraw(waterMarkRenderObject.fboTextureId);
 
         offScreen.tag = id;
+        offScreen.width = width;
+        offScreen.height = height;
+        offScreen.viewportX = x;
+        offScreen.viewportY = y;
         offScreen.onDraw(defaultFitRenderObject.fboTextureId);
     }
 }

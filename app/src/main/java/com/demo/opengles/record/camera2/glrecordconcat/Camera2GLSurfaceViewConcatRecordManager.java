@@ -56,10 +56,15 @@ public class Camera2GLSurfaceViewConcatRecordManager {
     private CameraCaptureSession session;
     private HandlerThread cameraHandlerThread;
     private Handler cameraThreadHandler;
+    public boolean cameraOpenFlag[] = new boolean[4];
+
+    private CameraNode[] cameraNodeArr = new CameraNode[4];
+    private DefaultRenderObject offScreenRenderObject;
+    private DefaultRenderObject screenRenderObject;
 
     private String savePath;
-
-    public boolean cameraOpenFlag[] = new boolean[4];
+    private VideoRecordEncoder videoEncodeRecode;
+    private AudioRecorder audioRecorder;
 
     public String getSavePath() {
         return savePath;
@@ -78,10 +83,10 @@ public class Camera2GLSurfaceViewConcatRecordManager {
 
         cameraManager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
         try {
-            openCamera2(cameraIdArr[0]);
-            openCamera2(cameraIdArr[1]);
-            openCamera2(cameraIdArr[2]);
-            openCamera2(cameraIdArr[3]);
+            openCamera2(this.cameraIdArr[0]);
+            openCamera2(this.cameraIdArr[1]);
+            openCamera2(this.cameraIdArr[2]);
+            openCamera2(this.cameraIdArr[3]);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -127,10 +132,6 @@ public class Camera2GLSurfaceViewConcatRecordManager {
         }
     }
 
-    private CameraNode[] cameraNodeArr = new CameraNode[4];
-    private DefaultRenderObject defaultRenderObject;
-    private DefaultRenderObject defaultRenderObject2;
-
     private void initGlSurfaceView() {
         parent.addView(glSurfaceView);
         glSurfaceView.setEGLContextClientVersion(2);
@@ -165,13 +166,13 @@ public class Camera2GLSurfaceViewConcatRecordManager {
             }
         });
 
-        defaultRenderObject = new DefaultRenderObject(activity);
-        defaultRenderObject.isBindFbo = true;
-        defaultRenderObject.isOES = false;
+        offScreenRenderObject = new DefaultRenderObject(activity);
+        offScreenRenderObject.isBindFbo = true;
+        offScreenRenderObject.isOES = false;
 
-        defaultRenderObject2 = new DefaultRenderObject(activity);
-        defaultRenderObject2.isBindFbo = false;
-        defaultRenderObject2.isOES = false;
+        screenRenderObject = new DefaultRenderObject(activity);
+        screenRenderObject.isBindFbo = false;
+        screenRenderObject.isOES = false;
 
         glSurfaceView.setRenderer(new GLSurfaceView.Renderer() {
 
@@ -179,8 +180,9 @@ public class Camera2GLSurfaceViewConcatRecordManager {
 
             @Override
             public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-                defaultRenderObject.onCreate();
-                defaultRenderObject2.onCreate();
+                offScreenRenderObject.onCreate();
+                offScreenRenderObject.clearFlag = false;
+                screenRenderObject.onCreate();
                 cameraNodeArr[0].onSurfaceCreate(glSurfaceView, mPreviewSize);
                 cameraNodeArr[1].onSurfaceCreate(glSurfaceView, mPreviewSize);
                 cameraNodeArr[2].onSurfaceCreate(glSurfaceView, mPreviewSize);
@@ -200,29 +202,22 @@ public class Camera2GLSurfaceViewConcatRecordManager {
             public void onSurfaceChanged(GL10 gl, int width, int height) {
                 this.width = width;
                 this.height = height;
-                defaultRenderObject.onChange(width, height);
-                defaultRenderObject2.onChange(width, height);
-                cameraNodeArr[0].onSurfaceChanged(gl, width / 2, height / 2, 0, 0);
-                cameraNodeArr[1].onSurfaceChanged(gl, width / 2, height / 2, 0, 0);
-                cameraNodeArr[2].onSurfaceChanged(gl, width / 2, height / 2, 0, 0);
-                cameraNodeArr[3].onSurfaceChanged(gl, width / 2, height / 2, 0, 0);
+                offScreenRenderObject.onChange(width, height);
+                screenRenderObject.onChange(width, height);
+                cameraNodeArr[0].onSurfaceChanged(gl, width / 2, height / 2);
+                cameraNodeArr[1].onSurfaceChanged(gl, width / 2, height / 2);
+                cameraNodeArr[2].onSurfaceChanged(gl, width / 2, height / 2);
+                cameraNodeArr[3].onSurfaceChanged(gl, width / 2, height / 2);
             }
 
             @Override
             public void onDrawFrame(GL10 gl) {
-                cameraNodeArr[0].updateCoords(defaultRenderObject, width / 2, height / 2, 0, 0);
-                cameraNodeArr[0].onDrawFrame(gl, 0, defaultRenderObject);
+                cameraNodeArr[0].onDrawFrame(gl, 0, offScreenRenderObject, width / 2, height / 2, 0, 0);
+                cameraNodeArr[1].onDrawFrame(gl, 1, offScreenRenderObject, width / 2, height / 2, 0, height / 2);
+                cameraNodeArr[2].onDrawFrame(gl, 2, offScreenRenderObject, width / 2, height / 2, width / 2, 0);
+                cameraNodeArr[3].onDrawFrame(gl, 3, offScreenRenderObject, width / 2, height / 2, width / 2, height / 2);
 
-                cameraNodeArr[1].updateCoords(defaultRenderObject, width / 2, height / 2, 0, height / 2);
-                cameraNodeArr[1].onDrawFrame(gl, 1, defaultRenderObject);
-
-                cameraNodeArr[2].updateCoords(defaultRenderObject, width / 2, height / 2, width / 2, 0);
-                cameraNodeArr[2].onDrawFrame(gl, 2, defaultRenderObject);
-
-                cameraNodeArr[3].updateCoords(defaultRenderObject, width / 2, height / 2, width / 2, height / 2);
-                cameraNodeArr[3].onDrawFrame(gl, 3, defaultRenderObject);
-
-                defaultRenderObject2.onDraw(defaultRenderObject.fboTextureId);
+                screenRenderObject.onDraw(offScreenRenderObject.fboTextureId);
 
                 if (videoEncodeRecode != null && videoEncodeRecode.isEncodeStart()) {
                     videoEncodeRecode.requestRender();
@@ -285,10 +280,6 @@ public class Camera2GLSurfaceViewConcatRecordManager {
         return false;
     }
 
-
-    private VideoRecordEncoder videoEncodeRecode;
-    private AudioRecorder audioRecorder;
-
     public void startRecord() {
         if (videoEncodeRecode != null) {
             ToastUtil.show("正在录制中");
@@ -300,13 +291,13 @@ public class Camera2GLSurfaceViewConcatRecordManager {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
         String dateTime = dateFormat.format(new Date());
-        String fileName = "cameraId" + cameraId + "_" + dateTime + ".mp4";
+        String fileName = "cameraId_" + cameraId + "_" + dateTime + ".mp4";
         savePath = activity.getExternalCacheDir().getAbsolutePath() + File.separator + fileName;
         ToastUtil.show("开始录制:" + cameraId);
 
         int videoOutputWidth, videoOutputHeight; //生成的视频文件的宽高
-        videoOutputWidth = mPreviewSize.getWidth();
-        videoOutputHeight = mPreviewSize.getHeight();
+        videoOutputWidth = mPreviewSize.getWidth() * 2;
+        videoOutputHeight = mPreviewSize.getHeight() * 2;
 
         videoEncodeRecode.initEncoder((EGLContext) glSurfaceView.getTag(), savePath,
                 videoOutputWidth, videoOutputHeight, 44100, 2, 16);
@@ -329,13 +320,13 @@ public class Camera2GLSurfaceViewConcatRecordManager {
 
             @Override
             public void onDrawFrame() {
-                record_DefaultRenderObject.onDraw(defaultRenderObject.fboTextureId);
+                record_DefaultRenderObject.onDraw(offScreenRenderObject.fboTextureId);
             }
         });
         videoEncodeRecode.setRenderMode(VideoRecordEncoder.RENDERMODE_WHEN_DIRTY);
         videoEncodeRecode.startRecode();
 
-        /////// 开始录音
+        //////////////    开始录音    //////////////
         audioRecorder = new AudioRecorder();
         audioRecorder.setOnAudioDataArrivedListener(new AudioRecorder.OnAudioDataArrivedListener() {
             @Override

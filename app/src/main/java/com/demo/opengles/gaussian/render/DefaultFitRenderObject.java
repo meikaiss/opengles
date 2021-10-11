@@ -68,14 +68,7 @@ public class DefaultFitRenderObject extends BaseRenderObject {
         Matrix.setLookAtM(mViewMatrix, 0, 0.0f, 0.0f, 1f,
                 0f, 0f, 0f, 0f, 1f, 0f);
         //计算变换矩阵
-        Matrix.multiplyMM(mMVPMatrix, 0,
-                mProjectMatrix, 0, mViewMatrix, 0);
-
-
-//        float[] transLate = new float[16];
-//        Matrix.setIdentityM(transLate, 0);
-//        Matrix.translateM(transLate, 0, 0f, -0.3f, 0f);
-//        Matrix.multiplyMM(mMVPMatrix, 0, mMVPMatrix, 0, transLate, 0);
+        Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0);
     }
 
     @Override
