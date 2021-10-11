@@ -7,7 +7,6 @@ import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.Surface;
 
@@ -139,7 +138,8 @@ public class VideoRecordEncoder {
             Log.e(TAG, "////////////////////////////////////////////////////////////////////////");
             Log.e(TAG, "////////////////////////////////////////////////////////////////////////");
 
-            String encoderName = "OMX.qcom.video.encoder.avc";
+            String encoderName = "c2.qti.avc.encoder";
+            encoderName = "OMX.qcom.video.encoder.avc";
             mVideoEncodec = MediaCodec.createByCodecName(encoderName); //已知此名称必定为硬件编码器
 
             MediaCodecInfo usedMediaCodecInfo = mVideoEncodec.getCodecInfo();
@@ -270,7 +270,7 @@ public class VideoRecordEncoder {
                 byteBuffer.clear();
                 byteBuffer.put(buffer);
                 long pts = getAudioPts(size, sampleRate, channel, sampleBit);
-//                Log.e(TAG, "AudioTime = " + pts / 1000000.0f);
+//                Log.e("zzz", "AudioTime = " + pts / 1000000.0f);
                 mAudioEncodec.queueInputBuffer(inputBufferIndex, 0, size, pts, 0);
             }
         }
@@ -357,7 +357,7 @@ public class VideoRecordEncoder {
                         }
 
                         if (!encoderWeakReference.get().encodeStart) {
-                            SystemClock.sleep(10);
+//                            SystemClock.sleep(10);
                             continue;
                         }
                         ByteBuffer outputBuffer = videoEncodec.getOutputBuffers()[outputBufferIndex];
@@ -372,7 +372,7 @@ public class VideoRecordEncoder {
                         //写入数据
                         mediaMuxer.writeSampleData(videoTrackIndex, outputBuffer, videoBufferinfo);
                         fpsUtil.trigger();
-//                        Log.e(TAG, "VideoTime = " + videoBufferinfo.presentationTimeUs / 1000000.0f);
+//                        Log.e("zzz", "VideoTime = " + videoBufferinfo.presentationTimeUs / 1000000.0f);
                         if (encoderWeakReference.get().onMediaInfoListener != null) {
                             encoderWeakReference.get().onMediaInfoListener.onMediaTime((int) (videoBufferinfo.presentationTimeUs / 1000000));
                         }
@@ -457,7 +457,7 @@ public class VideoRecordEncoder {
                 } else {
                     while (outputBufferIndex >= 0) {
                         if (!encoderWeakReference.get().encodeStart) {
-                            SystemClock.sleep(10);
+//                            SystemClock.sleep(10);
                             continue;
                         }
 

@@ -2,11 +2,9 @@ package com.demo.opengles.gaussian.render;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 
-import com.demo.opengles.R;
 import com.demo.opengles.util.OpenGLESUtil;
 
 /**
@@ -14,7 +12,7 @@ import com.demo.opengles.util.OpenGLESUtil;
  * Created by meikai on 2021/08/29.
  */
 public class WaterMarkRenderObject extends DefaultRenderObject {
-    public String waterMarkText = "水印测试";
+    public String waterMarkText = "水印";
     public Bitmap waterMarkBmp;
 
     public RenderGLInfo renderGLInfo;
@@ -24,6 +22,9 @@ public class WaterMarkRenderObject extends DefaultRenderObject {
     public int aPosLocation2;
     public int aCoordinateLocation2;
     public int uSamplerLocation2;
+
+    //绘制次数，添加到水印中，用于判断帧率
+    private int drawCount;
 
     public WaterMarkRenderObject(Context context) {
         super(context);
@@ -50,10 +51,7 @@ public class WaterMarkRenderObject extends DefaultRenderObject {
     @Override
     public void onChange(int width, int height) {
         super.onChange(width, height);
-        waterMarkBmp = OpenGLESUtil.createTextImage(waterMarkText, 28, "#ffff00", "#00000000", 0);
-        waterMarkBmp = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher);
-        renderGLInfo.textureId = OpenGLESUtil.createWaterTextureId(waterMarkBmp);
-
+        waterMarkBmp = OpenGLESUtil.createTextImage(waterMarkText, 20, "#ffff00", "#00000000", 0);
         /////////////////////////////////////////////
         //创建正交投影矩阵
         /////////////////////////////////////////////
@@ -125,9 +123,25 @@ public class WaterMarkRenderObject extends DefaultRenderObject {
         renderGLInfo.vboId = OpenGLESUtil.getVbo(renderGLInfo.vertexBuffer, renderGLInfo.coordinateBuffer);
     }
 
+    private long lastFpsTimeStamp = 0l;
+    private int lastFpsCount = 0;
+    int fps = 0;
+
     @Override
     public void onDraw(int textureId) {
         super.onDraw(textureId);
+
+        //////////////////////////////帧率统计START//////////////////////////////
+        if (lastFpsTimeStamp == 0) {
+            lastFpsTimeStamp = System.currentTimeMillis();
+        }
+        long now = System.currentTimeMillis();
+        if (now - lastFpsTimeStamp >= 1000) {
+            fps = drawCount - lastFpsCount;
+            lastFpsCount = drawCount;
+            lastFpsTimeStamp = now;
+        }
+        /////////////////////////////帧率统计END/////////////////////////////////
 
         if (isBindFbo) {
             GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fboId);
@@ -140,6 +154,12 @@ public class WaterMarkRenderObject extends DefaultRenderObject {
         }
 
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, renderGLInfo.vboId);
+
+        waterMarkBmp = OpenGLESUtil.createTextImage(waterMarkText + drawCount++ + ", FPS=" + fps, 20, "#ffff00", "#00000000", 0);
+        if (renderGLInfo.textureId > 0) {
+            GLES20.glDeleteTextures(1, new int[]{renderGLInfo.textureId}, 0);
+        }
+        renderGLInfo.textureId = OpenGLESUtil.createWaterTextureId(waterMarkBmp);
 
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, renderGLInfo.textureId);

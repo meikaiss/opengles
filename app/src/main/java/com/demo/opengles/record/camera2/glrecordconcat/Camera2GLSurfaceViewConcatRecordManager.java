@@ -26,6 +26,7 @@ import com.demo.opengles.gaussian.render.DefaultRenderObject;
 import com.demo.opengles.record.camera1.AudioRecorder;
 import com.demo.opengles.record.camera1.VideoRecordEncoder;
 import com.demo.opengles.sdk.EglSurfaceView;
+import com.demo.opengles.util.FpsUtil;
 import com.demo.opengles.util.IOUtil;
 import com.demo.opengles.util.ToastUtil;
 
@@ -176,7 +177,8 @@ public class Camera2GLSurfaceViewConcatRecordManager {
 
         glSurfaceView.setRenderer(new GLSurfaceView.Renderer() {
 
-            int width, height;
+            int viewWidth, viewHeight;
+            FpsUtil fpsUtil = new FpsUtil("4in1.draw");
 
             @Override
             public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -200,33 +202,38 @@ public class Camera2GLSurfaceViewConcatRecordManager {
 
             @Override
             public void onSurfaceChanged(GL10 gl, int width, int height) {
-                this.width = width;
-                this.height = height;
-                offScreenRenderObject.onChange(width, height);
+                this.viewWidth = width;
+                this.viewHeight = height;
+                offScreenRenderObject.onChange(mPreviewSize.getWidth() * 2, mPreviewSize.getHeight() * 2);
                 screenRenderObject.onChange(width, height);
-                cameraNodeArr[0].onSurfaceChanged(gl, width / 2, height / 2);
-                cameraNodeArr[1].onSurfaceChanged(gl, width / 2, height / 2);
-                cameraNodeArr[2].onSurfaceChanged(gl, width / 2, height / 2);
-                cameraNodeArr[3].onSurfaceChanged(gl, width / 2, height / 2);
+                cameraNodeArr[0].onSurfaceChanged(gl, mPreviewSize.getWidth(), mPreviewSize.getHeight());
+                cameraNodeArr[1].onSurfaceChanged(gl, mPreviewSize.getWidth(), mPreviewSize.getHeight());
+                cameraNodeArr[2].onSurfaceChanged(gl, mPreviewSize.getWidth(), mPreviewSize.getHeight());
+                cameraNodeArr[3].onSurfaceChanged(gl, mPreviewSize.getWidth(), mPreviewSize.getHeight());
             }
 
             @Override
             public void onDrawFrame(GL10 gl) {
-                cameraNodeArr[0].onDrawFrame(gl, 0, offScreenRenderObject, width / 2, height / 2, 0, 0);
-                cameraNodeArr[1].onDrawFrame(gl, 1, offScreenRenderObject, width / 2, height / 2, 0, height / 2);
-                cameraNodeArr[2].onDrawFrame(gl, 2, offScreenRenderObject, width / 2, height / 2, width / 2, 0);
-                cameraNodeArr[3].onDrawFrame(gl, 3, offScreenRenderObject, width / 2, height / 2, width / 2, height / 2);
+                fpsUtil.trigger();
+                cameraNodeArr[0].onDrawFrame(gl, 0, offScreenRenderObject, mPreviewSize.getWidth(), mPreviewSize.getHeight(), 0, 0);
+                cameraNodeArr[1].onDrawFrame(gl, 1, offScreenRenderObject, mPreviewSize.getWidth(), mPreviewSize.getHeight(), 0, mPreviewSize.getHeight());
+                cameraNodeArr[2].onDrawFrame(gl, 2, offScreenRenderObject, mPreviewSize.getWidth(), mPreviewSize.getHeight(), mPreviewSize.getWidth(), 0);
+                cameraNodeArr[3].onDrawFrame(gl, 3, offScreenRenderObject, mPreviewSize.getWidth(), mPreviewSize.getHeight(), mPreviewSize.getWidth(), mPreviewSize.getHeight());
 
                 screenRenderObject.onDraw(offScreenRenderObject.fboTextureId);
 
                 if (videoEncodeRecode != null && videoEncodeRecode.isEncodeStart()) {
-                    videoEncodeRecode.requestRender();
-                }
+                    boolean hasAvailable = cameraNodeArr[0].frameAvailable || cameraNodeArr[1].frameAvailable
+                            || cameraNodeArr[2].frameAvailable || cameraNodeArr[3].frameAvailable;
 
+                    if (hasAvailable) {
+                        videoEncodeRecode.requestRender();
+                    }
+                }
             }
         });
 
-        glSurfaceView.setRenderMode(EglSurfaceView.RENDERMODE_WHEN_DIRTY);
+        glSurfaceView.setRenderMode(EglSurfaceView.RENDERMODE_CONTINUOUSLY);
     }
 
     private void createCameraSession(CameraDevice cameraDevice, Surface surface) throws CameraAccessException {
@@ -299,6 +306,8 @@ public class Camera2GLSurfaceViewConcatRecordManager {
         videoOutputWidth = mPreviewSize.getWidth() * 2;
         videoOutputHeight = mPreviewSize.getHeight() * 2;
 
+        FpsUtil fpsUtil = new FpsUtil("record.onDrawFrame()");
+
         videoEncodeRecode.initEncoder((EGLContext) glSurfaceView.getTag(), savePath,
                 videoOutputWidth, videoOutputHeight, 44100, 2, 16);
         videoEncodeRecode.setRender(new EglSurfaceView.Renderer() {
@@ -320,6 +329,7 @@ public class Camera2GLSurfaceViewConcatRecordManager {
 
             @Override
             public void onDrawFrame() {
+                fpsUtil.trigger();
                 record_DefaultRenderObject.onDraw(offScreenRenderObject.fboTextureId);
             }
         });
