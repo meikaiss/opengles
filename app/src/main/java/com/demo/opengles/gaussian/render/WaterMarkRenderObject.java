@@ -159,7 +159,7 @@ public class WaterMarkRenderObject extends DefaultRenderObject {
         if (renderGLInfo.textureId > 0) {
             GLES20.glDeleteTextures(1, new int[]{renderGLInfo.textureId}, 0);
         }
-        renderGLInfo.textureId = OpenGLESUtil.createWaterTextureId(waterMarkBmp);
+        renderGLInfo.textureId = OpenGLESUtil.createBitmapTextureId(waterMarkBmp, GLES20.GL_TEXTURE0);
 
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, renderGLInfo.textureId);

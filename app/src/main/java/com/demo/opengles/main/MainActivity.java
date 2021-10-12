@@ -25,6 +25,7 @@ import com.demo.opengles.gaussian.GaussianHorVerActivity;
 import com.demo.opengles.gaussian.GaussianHorVerMultiActivity;
 import com.demo.opengles.gaussian.GaussianVerActivity;
 import com.demo.opengles.gaussian.GaussianVideoPlayerActivity;
+import com.demo.opengles.gaussian.GaussianViewActivity;
 import com.demo.opengles.graphic.BallActivity;
 import com.demo.opengles.graphic.CircleActivity;
 import com.demo.opengles.graphic.ConeActivity;
@@ -92,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("高斯模糊-水平垂直同时-多层", GaussianHorVerMultiActivity.class));
             add(new MainItemBean("高斯模糊-多层不规则形状", GaussianComplexActivity.class));
             add(new MainItemBean("高斯模糊-视频播放高斯模糊", GaussianVideoPlayerActivity.class));
+            add(new MainItemBean("高斯模糊-自定义GaussianGlSurfaceView", GaussianViewActivity.class));
             add(new MainItemBean("位置变换-平移-旋转-缩放", TransformActivity.class));
             add(new MainItemBean("Surface绘图表面-SurfaceView", SurfaceViewActivity.class));
             add(new MainItemBean("Surface绘图表面-SurfaceView播放视频", SurfaceViewVideoActivity.class));

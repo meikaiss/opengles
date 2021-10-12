@@ -138,13 +138,13 @@ public class Camera2GLSurfaceViewConcatRecordManager {
         glSurfaceView.setEGLContextClientVersion(2);
 
         cameraNodeArr[0] = new CameraNode();
-        cameraNodeArr[0].init(activity, new float[]{-1.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f});
+        cameraNodeArr[0].init(activity);
         cameraNodeArr[1] = new CameraNode();
-        cameraNodeArr[1].init(activity, new float[]{-1.0f, 0.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f});
+        cameraNodeArr[1].init(activity);
         cameraNodeArr[2] = new CameraNode();
-        cameraNodeArr[2].init(activity, new float[]{0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f});
+        cameraNodeArr[2].init(activity);
         cameraNodeArr[3] = new CameraNode();
-        cameraNodeArr[3].init(activity, new float[]{0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 1.0f, -1.0f});
+        cameraNodeArr[3].init(activity);
 
         glSurfaceView.setEGLContextFactory(new GLSurfaceView.EGLContextFactory() {
             @Override

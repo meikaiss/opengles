@@ -3,6 +3,7 @@ package com.demo.opengles.gaussian.render;
 import android.content.Context;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
+import android.opengl.GLES31;
 import android.util.Log;
 
 import com.demo.opengles.util.OpenGLESUtil;
@@ -79,7 +80,9 @@ public abstract class BaseRenderObject implements IRenderAble {
         Log.e(TAG, "onCreate, thread.name=" + Thread.currentThread().getName()
                 + " , " + this.getClass().getSimpleName());
 
-        GLES20.glClearColor(0, 0, 0, 1.0f);
+        GLES20.glEnable(GLES20.GL_BLEND);
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+        GLES20.glClearColor(0, 0, 0, 0);
 
         vertexShaderCode = OpenGLESUtil.getShaderCode(context, vertexFilename);
         fragShaderCode = OpenGLESUtil.getShaderCode(context, fragFilename);
@@ -146,7 +149,7 @@ public abstract class BaseRenderObject implements IRenderAble {
         GLES20.glViewport(viewportX, viewportY, width, height);
 
         if (clearFlag) {
-            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+            GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
         }
 
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboId);

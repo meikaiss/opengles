@@ -24,15 +24,13 @@ public class CameraNode {
     private WaterMarkRenderObject waterMarkRenderObject;
     private DefaultFitRenderObject defaultFitRenderObject;
 
-    private float[] vertexCoordinate;
-
     public boolean frameAvailable;
 
     public Surface getSurface() {
         return surface;
     }
 
-    public void init(Activity activity, float[] vertexCoordinate) {
+    public void init(Activity activity) {
         cameraRenderObject = new CameraRenderObject(activity);
         cameraRenderObject.isBindFbo = true;
         cameraRenderObject.isOES = true;
@@ -42,8 +40,6 @@ public class CameraNode {
         defaultFitRenderObject = new DefaultFitRenderObject(activity);
         defaultFitRenderObject.isBindFbo = true;
         defaultFitRenderObject.isOES = false;
-
-//        this.vertexCoordinate = vertexCoordinate;
     }
 
     public void onSurfaceCreate(GLSurfaceView glSurfaceView, Size previewSize) {
@@ -55,14 +51,13 @@ public class CameraNode {
         cameraSurfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
             @Override
             public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-//                        fpsUtil.trigger();
+                //fpsUtil.trigger();
                 frameAvailable = true;
 
                 glSurfaceView.requestRender();
             }
         });
 
-        cameraRenderObject.vertexCoordinate = vertexCoordinate;
         cameraRenderObject.onCreate();
         waterMarkRenderObject.onCreate();
         defaultFitRenderObject.onCreate();

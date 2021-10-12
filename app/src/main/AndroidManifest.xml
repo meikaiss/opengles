@@ -55,6 +55,7 @@
         <activity android:name=".gaussian.GaussianHorVerActivity" />
         <activity android:name=".gaussian.GaussianHorVerMultiActivity" />
         <activity android:name=".gaussian.GaussianVideoPlayerActivity" />
+        <activity android:name=".gaussian.GaussianViewActivity" />
         <activity android:name=".egl.EGLActivity" />
         <activity android:name=".egl.EGLCamera1PreviewActivity" />
         <activity android:name=".egl.EGLCamera1FBOPreviewActivity" />

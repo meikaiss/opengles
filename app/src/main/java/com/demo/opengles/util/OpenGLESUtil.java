@@ -165,33 +165,31 @@ public class OpenGLESUtil {
         return textureIds[0];
     }
 
-    public static int createWaterTextureId(Bitmap bitmap) {
+    //在显卡纹理硬件组的指定引脚上挂载一个纹理，并将Bitmap填充到此纹理中
+    public static int createBitmapTextureId(Bitmap bitmap, int glTextureIndex) {
+        int[] texture = new int[1];
 
-        int[] textureIds = new int[1];
-        //创建纹理
-        GLES20.glGenTextures(1, textureIds, 0);
-        //绑定纹理
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureIds[0]);
-        //环绕（超出纹理坐标范围）  （s==x t==y GL_REPEAT 重复）
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT);
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT);
-        //过滤（纹理像素映射到坐标点）  （缩小、放大：GL_LINEAR线性）
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+        ////////////////////////////////////////////////////////////////////////////////
+        //在显卡的纹理硬件组上选择当前活跃的纹理单元为：第0号纹理单元，默认为0
+        GLES20.glActiveTexture(glTextureIndex);
+        //从offset=0号纹理单元开始生成n=1个纹理，并将纹理id保存到int[]=texture数组中
+        GLES20.glGenTextures(1, texture, 0);
+        //将生成的纹理与gpu关联为2d纹理类型，传入纹理id作为参数，每次bing之后，后续操作的纹理都是该纹理
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture[0]);
+        //设置缩小过滤为使用纹理中坐标最接近的一个像素的颜色作为需要绘制的像素颜色
+        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+        //设置放大过滤为使用纹理中坐标最接近的若干个颜色，通过加权平均算法得到需要绘制的像素颜色
+        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+        //设置环绕方向S，截取纹理坐标到[1/2n,1-1/2n]。将导致永远不会与border融合
+        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT);
+        //设置环绕方向T，截取纹理坐标到[1/2n,1-1/2n]。将导致永远不会与border融合
+        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT);
 
-        ByteBuffer bitmapBuffer = ByteBuffer.allocate(bitmap.getHeight() * bitmap.getWidth() * 4);//RGBA
-        bitmap.copyPixelsToBuffer(bitmapBuffer);
-        //将bitmapBuffer位置移动到初始位置
-        bitmapBuffer.flip();
+        //给纹理传入图像数据，至此，此纹理相关设置已经结束。后续想使用或者操作这个纹理，只要再glBindTexture这个纹理的id即可
+        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
 
-        //设置内存大小绑定内存地址
-        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, bitmap.getWidth(), bitmap.getHeight(),
-                0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, bitmapBuffer);
-
-        //解绑纹理
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
-
-        return textureIds[0];
+        //返回生成的纹理的句柄
+        return texture[0];
     }
 
     /**
