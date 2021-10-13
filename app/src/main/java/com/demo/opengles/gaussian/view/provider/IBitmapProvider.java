@@ -1,4 +1,4 @@
-package com.demo.opengles.gaussian.view;
+package com.demo.opengles.gaussian.view.provider;
 
 import android.graphics.Bitmap;
 

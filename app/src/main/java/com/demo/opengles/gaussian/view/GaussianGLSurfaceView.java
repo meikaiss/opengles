@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
-import android.opengl.GLUtils;
 import android.util.AttributeSet;
 
 import com.demo.opengles.gaussian.render.HVBlurRenderObject;
@@ -24,6 +23,12 @@ public class GaussianGLSurfaceView extends GLSurfaceView {
     private GaussianConfig config;
     private Bitmap bgBitmap;
 
+    private OnGlDrawFinishListener onGlDrawFinishListener;
+
+    public void setOnGlDrawFinishListener(OnGlDrawFinishListener onGlDrawFinishListener) {
+        this.onGlDrawFinishListener = onGlDrawFinishListener;
+    }
+
     public GaussianGLSurfaceView(Context context) {
         super(context);
     }
@@ -37,19 +42,15 @@ public class GaussianGLSurfaceView extends GLSurfaceView {
     }
 
     public void init() {
-        //支持背景透明-start
-//        setZOrderOnTop(true);
-//        setZOrderMediaOverlay(true);
-//        getHolder().setFormat(PixelFormat.TRANSLUCENT);
-//        setEGLConfigChooser(8, 8, 8, 8, 16, 0);
-        //支持背景透明-end
+        setEGLContextClientVersion(2);
 
+        //支持背景透明 - start
         getHolder().setFormat(PixelFormat.TRANSLUCENT);
-        setZOrderOnTop(false);
         setEGLConfigChooser(8, 8, 8, 8, 16, 0);
-        setEGLContextClientVersion(3);
+        setZOrderOnTop(false);
+        //支持背景透明 - end
 
-        if (config.bitmapCreateMode == GaussianConfig.BitmapCreateMode.ViewInit) {
+        if (config.getBitmapCreateMode() == GaussianConfig.BitmapCreateMode.ViewInit) {
             bgBitmap = config.bitmapProvider.getOriginBitmap();
         }
 
@@ -69,13 +70,19 @@ public class GaussianGLSurfaceView extends GLSurfaceView {
         setRenderer(renderer);
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 
-
         post(new Runnable() {
             @Override
             public void run() {
                 requestRender();
             }
         });
+    }
+
+    public interface OnGlDrawFinishListener {
+        /**
+         * note: call on GlThread, not main thread
+         */
+        void onGlDrawFinish();
     }
 
     private GLSurfaceView.Renderer renderer = new GLSurfaceView.Renderer() {
@@ -98,16 +105,30 @@ public class GaussianGLSurfaceView extends GLSurfaceView {
 
         @Override
         public void onDrawFrame(GL10 gl) {
-            if (config.bitmapCreateMode == GaussianConfig.BitmapCreateMode.GlDraw) {
+            if (config.getBitmapCreateMode() == GaussianConfig.BitmapCreateMode.GlFirstDraw) {
+                if (bgBitmap == null) {
+                    bgBitmap = config.bitmapProvider.getOriginBitmap();
+                }
+            } else if (config.getBitmapCreateMode() == GaussianConfig.BitmapCreateMode.GlEveryDraw) {
                 bgBitmap = config.bitmapProvider.getOriginBitmap();
             }
 
+            OpenGLESUtil.deleteTextureId(textureId);
             textureId = OpenGLESUtil.createBitmapTextureId(bgBitmap, GLES20.GL_TEXTURE0);
 
             renderObjectH.onDraw(textureId);
             renderObjectV.onDraw(renderObjectH.fboTextureId);
-            oneTexFilterRenderObject.onDraw(renderObjectV.fboTextureId);
-        }
 
+            for (int i = 0; i < config.repeatCount; i++) {
+                renderObjectH.onDraw(renderObjectV.fboTextureId);
+                renderObjectV.onDraw(renderObjectH.fboTextureId);
+            }
+
+            oneTexFilterRenderObject.onDraw(renderObjectV.fboTextureId);
+
+            if (onGlDrawFinishListener != null) {
+                onGlDrawFinishListener.onGlDrawFinish();
+            }
+        }
     };
 }

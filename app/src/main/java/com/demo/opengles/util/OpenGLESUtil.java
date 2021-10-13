@@ -133,38 +133,6 @@ public class OpenGLESUtil {
         return program;
     }
 
-    /**
-     * 加载Bitmap纹理
-     */
-    public static int getBitmapTexture(Bitmap bitmap) {
-        int[] textureIds = new int[1];
-        GLES20.glGenTextures(1, textureIds, 0);
-        if (textureIds[0] == 0) {
-            return 0;
-        }
-        if (bitmap == null || bitmap.isRecycled()) {
-            GLES20.glDeleteTextures(1, textureIds, 0);
-            return 0;
-        }
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureIds[0]);
-
-        //环绕（超出纹理坐标范围）  （s==x t==y GL_REPEAT 重复）
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_MIRRORED_REPEAT);
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_MIRRORED_REPEAT);
-        //过滤（纹理像素映射到坐标点）  （缩小、放大：GL_LINEAR线性）
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
-
-        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
-
-        bitmap.recycle();
-
-        GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D);
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
-
-        return textureIds[0];
-    }
-
     //在显卡纹理硬件组的指定引脚上挂载一个纹理，并将Bitmap填充到此纹理中
     public static int createBitmapTextureId(Bitmap bitmap, int glTextureIndex) {
         int[] texture = new int[1];
@@ -639,13 +607,6 @@ public class OpenGLESUtil {
     }
 
     /**
-     * 获取文字水印纹理
-     */
-    public static int getWatermarkTextureId(String watermark) {
-        return getBitmapTexture(getWatermarkBitmap(watermark));
-    }
-
-    /**
      * 保存Bitmap（png方式保存）
      */
     public static boolean saveBitmapForPng(String path, Bitmap bitmap) {
@@ -672,5 +633,13 @@ public class OpenGLESUtil {
             Log.e(TAG, "saveBitmap: ", e);
         }
         return false;
+    }
+
+    public static boolean deleteTextureId(int textureId) {
+        if (textureId <= 0) {
+            return false;
+        }
+        GLES20.glDeleteTextures(1, new int[]{textureId}, 0);
+        return true;
     }
 }

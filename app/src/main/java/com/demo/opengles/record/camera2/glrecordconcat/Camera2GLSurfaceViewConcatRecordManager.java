@@ -303,8 +303,8 @@ public class Camera2GLSurfaceViewConcatRecordManager {
         ToastUtil.show("开始录制:" + cameraId);
 
         int videoOutputWidth, videoOutputHeight; //生成的视频文件的宽高
-        videoOutputWidth = mPreviewSize.getWidth() * 2;
-        videoOutputHeight = mPreviewSize.getHeight() * 2;
+        videoOutputWidth = mPreviewSize.getWidth() * 1;
+        videoOutputHeight = mPreviewSize.getHeight() * 1;
 
         FpsUtil fpsUtil = new FpsUtil("record.onDrawFrame()");
 
