@@ -6,6 +6,9 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.SYSTEM_OVERLAY_WINDOW" />
 
+    <!--高德地图-->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".main.OpenGlApplication"
         android:allowBackup="true"
@@ -70,6 +73,7 @@
         <activity android:name=".record.camera2.glrecordconcat.Camera2GLSurfaceViewConcatRecordActivity" />
         <activity android:name=".record.camera2.eglsurfaceview.Camera2EGLSurfaceView4PreviewActivity" />
         <activity android:name=".record.camera2.eglrecord.EGLCamera2GLSurfaceView4RecordActivity" />
+        <activity android:name=".map.MapViewGaussianActivity" />
 
         <activity android:name=".helper.VideoPlayerActivity" />
         <activity android:name=".pcm.PcmRecordActivity" />
