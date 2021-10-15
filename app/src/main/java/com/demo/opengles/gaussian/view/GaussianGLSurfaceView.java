@@ -123,6 +123,7 @@ public class GaussianGLSurfaceView extends GLSurfaceView {
 
             OpenGLESUtil.deleteTextureId(textureId);
             textureId = OpenGLESUtil.createBitmapTextureId(bgBitmap, GLES20.GL_TEXTURE0);
+            bgBitmap.recycle();
 
             renderObjectH.onDraw(textureId);
             renderObjectV.onDraw(renderObjectH.fboTextureId);

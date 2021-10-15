@@ -84,33 +84,50 @@ public abstract class BaseRenderObject implements IRenderAble {
         GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
         GLES20.glClearColor(0, 0, 0, 0);
 
+
+        Log.e(TAG, "onCreate, thread.name=" + Thread.currentThread().getName()
+                + " , " + 1);
+
         vertexShaderCode = OpenGLESUtil.getShaderCode(context, vertexFilename);
         fragShaderCode = OpenGLESUtil.getShaderCode(context, fragFilename);
 
+        Log.e(TAG, "onCreate, thread.name=" + Thread.currentThread().getName()
+                + " , " + 2);
         if (vertexCoordinate == null) {
             vertexBuffer = OpenGLESUtil.getSquareVertexBuffer();
         } else {
             vertexBuffer = OpenGLESUtil.createFloatBuffer(vertexCoordinate);
         }
 
+        Log.e(TAG, "onCreate, thread.name=" + Thread.currentThread().getName()
+                + " , " + 3);
         if (isBindFbo) {
             coordinateBuffer = OpenGLESUtil.getSquareCoordinateReverseBuffer();
         } else {
             coordinateBuffer = OpenGLESUtil.getSquareCoordinateBuffer();
         }
+
+        Log.e(TAG, "onCreate, thread.name=" + Thread.currentThread().getName()
+                + " , " + 4);
         vboId = OpenGLESUtil.getVbo(vertexBuffer, coordinateBuffer);
 
+        Log.e(TAG, "onCreate, thread.name=" + Thread.currentThread().getName()
+                + " , " + 5 + vertexShaderCode + fragShaderCode);
         vertexShader = OpenGLESUtil.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
         fragShader = OpenGLESUtil.loadShader(GLES20.GL_FRAGMENT_SHADER, fragShaderCode);
 
         program = OpenGLESUtil.linkProgram(vertexShader, fragShader);
 
+        Log.e(TAG, "onCreate, thread.name=" + Thread.currentThread().getName()
+                + " , " + 6);
         aPosLocation = GLES20.glGetAttribLocation(program, "aPos");
         aCoordinateLocation = GLES20.glGetAttribLocation(program, "aCoordinate");
         if (!isOES) {
             uSamplerLocation = GLES20.glGetUniformLocation(program, "uSampler");
         }
 
+        Log.e(TAG, "onCreate, thread.name=" + Thread.currentThread().getName()
+                + " , " + 7);
         isCreate = true;
     }
 

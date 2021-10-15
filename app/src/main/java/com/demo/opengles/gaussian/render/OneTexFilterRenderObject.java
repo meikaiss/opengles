@@ -44,6 +44,7 @@ public class OneTexFilterRenderObject extends BaseRenderObject {
 
         //默认的0号纹理引脚已经绑定作为输入源，所以这里内部额外的纹理使用1号引脚
         textureIdDrawable = OpenGLESUtil.createBitmapTextureId(clipBmp, GLES20.GL_TEXTURE1);
+        clipBmp.recycle();
     }
 
     @Override

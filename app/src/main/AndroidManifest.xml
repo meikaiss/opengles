@@ -74,10 +74,9 @@
         <activity android:name=".record.camera2.eglsurfaceview.Camera2EGLSurfaceView4PreviewActivity" />
         <activity android:name=".record.camera2.eglrecord.EGLCamera2GLSurfaceView4RecordActivity" />
         <activity android:name=".map.MapViewGaussianActivity" />
-
         <activity android:name=".helper.VideoPlayerActivity" />
         <activity android:name=".pcm.PcmRecordActivity" />
-        <activity android:name=".record.github.GLSurfaceCamera2Activity" />
+        <activity android:name=".leak.LeakGlSurfaceViewActivity" />
 
     </application>
 
