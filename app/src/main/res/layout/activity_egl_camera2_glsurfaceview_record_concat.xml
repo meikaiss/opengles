@@ -20,10 +20,19 @@
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="60dp">
 
+        <TextView
+            android:id="@+id/tv_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="OFF"
+            android:textColor="#fff"
+            android:textSize="24sp" />
+
         <Button
             android:id="@+id/btn_start_record"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
             android:text="开始" />
 
         <Button

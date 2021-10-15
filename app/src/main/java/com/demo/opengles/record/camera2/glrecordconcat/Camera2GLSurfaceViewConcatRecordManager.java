@@ -284,7 +284,7 @@ public class Camera2GLSurfaceViewConcatRecordManager {
     }
 
     public boolean isStart() {
-        return false;
+        return videoEncodeRecode!= null && videoEncodeRecode.isEncodeStart();
     }
 
     public void startRecord() {
@@ -341,7 +341,7 @@ public class Camera2GLSurfaceViewConcatRecordManager {
         audioRecorder.setOnAudioDataArrivedListener(new AudioRecorder.OnAudioDataArrivedListener() {
             @Override
             public void onAudioDataArrived(byte[] audioData, int length) {
-                if (videoEncodeRecode.isEncodeStart()) {
+                if (videoEncodeRecode!= null && videoEncodeRecode.isEncodeStart()) {
                     videoEncodeRecode.putPcmData(audioData, length);
                 }
             }

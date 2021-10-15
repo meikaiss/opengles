@@ -35,6 +35,7 @@ public class GaussianConfig {
 
     /**
      * 重复模糊的次数；0或负数表示不重复，即只模糊一次；1表示重复1次，即模糊两次；2类推
+     * 建议值域范围:0-5；通常0或1即可满足要求
      */
     public int repeatCount;
 
