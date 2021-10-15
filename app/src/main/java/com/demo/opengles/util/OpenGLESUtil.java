@@ -6,14 +6,12 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.media.ExifInterface;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.os.Build;
-import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -323,39 +321,6 @@ public class OpenGLESUtil {
     }
 
     /**
-     * 从文件中获取Bitmap，并校正旋转角度
-     */
-    public static Bitmap getBitmapFromPath(String path) {
-        if (TextUtils.isEmpty(path)) {
-            return null;
-        }
-        Bitmap sourceBitmap = BitmapFactory.decodeFile(path);
-        int degree = getImageOrientation(getExifInterfaceFromPath(path));
-        android.graphics.Matrix matrix = new android.graphics.Matrix();
-        matrix.postRotate(degree);
-        return Bitmap.createBitmap(sourceBitmap, 0, 0, sourceBitmap.getWidth(), sourceBitmap.getHeight(), matrix, true);
-    }
-
-    public static Bitmap getBitmapFromAssets(Context context, String fileName) {
-        if (TextUtils.isEmpty(fileName)) {
-            return null;
-        }
-        Bitmap bitmap = null;
-        try {
-            InputStream is = context.getAssets().open(fileName);
-            Bitmap sourceBitmap = BitmapFactory.decodeStream(is);
-            int degree = getImageOrientation(getExifInterfaceFromIs(is));
-            android.graphics.Matrix matrix = new android.graphics.Matrix();
-            matrix.postRotate(degree);
-            bitmap = Bitmap.createBitmap(sourceBitmap, 0, 0, sourceBitmap.getWidth(), sourceBitmap.getHeight(), matrix, true);
-            is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return bitmap;
-    }
-
-    /**
      * 是否是单位矩阵
      */
     public static boolean isIdentityM(float[] matrix) {
@@ -536,27 +501,6 @@ public class OpenGLESUtil {
 
     private static double radian(float angle) {
         return Math.toRadians(angle);
-    }
-
-    /**
-     * 获取水印Bitmap
-     */
-    public static Bitmap getWatermarkBitmap(String watermark) {
-        TextPaint textPaint = new TextPaint();
-        textPaint.setColor(Color.WHITE);
-        textPaint.setTextSize(128);
-        textPaint.setAntiAlias(true);
-
-        Rect rect = new Rect();
-        textPaint.getTextBounds(watermark, 0, watermark.length(), rect);
-
-        Bitmap bitmap = Bitmap.createBitmap(rect.width(), rect.height(), Bitmap.Config.ARGB_8888);
-
-        Canvas canvas = new Canvas(bitmap);
-        canvas.drawText(watermark, 0, rect.height(), textPaint);
-        canvas.save();
-
-        return bitmap;
     }
 
     public static Bitmap createTextImage(String text, int textSize, String textColor, String bgColor, int padding) {

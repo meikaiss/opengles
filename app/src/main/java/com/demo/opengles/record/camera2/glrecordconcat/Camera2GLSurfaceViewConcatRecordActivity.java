@@ -57,6 +57,7 @@ public class Camera2GLSurfaceViewConcatRecordActivity extends BaseActivity {
                         return;
                     }
                     SystemClock.sleep(1000);
+                    autoTestLog.logRunningMemory();
                     tvStatus.post(new Runnable() {
                         @Override
                         public void run() {

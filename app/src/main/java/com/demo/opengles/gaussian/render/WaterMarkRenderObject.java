@@ -57,6 +57,7 @@ public class WaterMarkRenderObject extends DefaultRenderObject {
         /////////////////////////////////////////////
         int w = waterMarkBmp.getWidth();
         int h = waterMarkBmp.getHeight();
+        waterMarkBmp.recycle();
         float scaleWHBmp = w / (float) h;
         float scaleWHView = width / (float) height;
         if (width > height) {
@@ -155,11 +156,12 @@ public class WaterMarkRenderObject extends DefaultRenderObject {
 
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, renderGLInfo.vboId);
 
-        waterMarkBmp = OpenGLESUtil.createTextImage(waterMarkText + drawCount++ + ", FPS=" + fps, 20, "#ffff00", "#00000000", 0);
         if (renderGLInfo.textureId > 0) {
             GLES20.glDeleteTextures(1, new int[]{renderGLInfo.textureId}, 0);
         }
+        waterMarkBmp = OpenGLESUtil.createTextImage(waterMarkText + drawCount++ + ", FPS=" + fps, 20, "#ffff00", "#00000000", 0);
         renderGLInfo.textureId = OpenGLESUtil.createBitmapTextureId(waterMarkBmp, GLES20.GL_TEXTURE0);
+        waterMarkBmp.recycle();
 
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, renderGLInfo.textureId);

@@ -318,16 +318,20 @@ public class VideoRecordEncoder {
                     videoEncodec.stop();
                     videoEncodec.release();
                     videoEncodec = null;
-                    encoderWeakReference.get().videoExit = true;
 
-                    if (encoderWeakReference.get().audioExit) {
-                        mediaMuxer.stop();
-                        mediaMuxer.release();
-                        mediaMuxer = null;
+                    VideoRecordEncoder videoRecordEncoder = encoderWeakReference.get();
+                    if (videoRecordEncoder != null) {
+                        videoRecordEncoder.videoExit = true;
 
-                        status = OnStatusChangeListener.STATUS.END;
-                        if (encoderWeakReference.get() != null && encoderWeakReference.get().onStatusChangeListener != null) {
-                            encoderWeakReference.get().onStatusChangeListener.onStatusChange(status);
+                        if (videoRecordEncoder.audioExit) {
+                            mediaMuxer.stop();
+                            mediaMuxer.release();
+                            mediaMuxer = null;
+
+                            status = OnStatusChangeListener.STATUS.END;
+                            if (encoderWeakReference.get() != null && encoderWeakReference.get().onStatusChangeListener != null) {
+                                encoderWeakReference.get().onStatusChangeListener.onStatusChange(status);
+                            }
                         }
                     }
 
@@ -395,18 +399,16 @@ public class VideoRecordEncoder {
         private WeakReference<VideoRecordEncoder> encoderWeakReference;
         private boolean isExit;
 
-
-        private MediaCodec audioEncodec;
+        private MediaCodec audioEnCodec;
         private MediaCodec.BufferInfo audioBufferinfo;
         private MediaMuxer mediaMuxer;
 
         private int audioTrackIndex;
         private long pts;
 
-
         public AudioEncodecThread(WeakReference<VideoRecordEncoder> encoderWeakReference) {
             this.encoderWeakReference = encoderWeakReference;
-            audioEncodec = encoderWeakReference.get().mAudioEncodec;
+            audioEnCodec = encoderWeakReference.get().mAudioEncodec;
             audioBufferinfo = encoderWeakReference.get().mAudioBuffInfo;
             mediaMuxer = encoderWeakReference.get().mMediaMuxer;
             pts = 0;
@@ -418,17 +420,19 @@ public class VideoRecordEncoder {
         public void run() {
             super.run();
             isExit = false;
-            audioEncodec.start();
+            audioEnCodec.start();
 
             while (true) {
                 if (isExit) {
-                    audioEncodec.stop();
-                    audioEncodec.release();
-                    audioEncodec = null;
+                    audioEnCodec.stop();
+                    audioEnCodec.release();
+                    audioEnCodec = null;
                     encoderWeakReference.get().audioExit = true;
 
+                    VideoRecordEncoder videoRecordEncoder = encoderWeakReference.get();
+
                     //如果video退出了
-                    if (encoderWeakReference.get().videoExit) {
+                    if (videoRecordEncoder != null && videoRecordEncoder.videoExit) {
                         mediaMuxer.stop();
                         mediaMuxer.release();
                         mediaMuxer = null;
@@ -442,9 +446,9 @@ public class VideoRecordEncoder {
                     break;
                 }
 
-                int outputBufferIndex = audioEncodec.dequeueOutputBuffer(audioBufferinfo, 0);
+                int outputBufferIndex = audioEnCodec.dequeueOutputBuffer(audioBufferinfo, 0);
                 if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-                    audioTrackIndex = mediaMuxer.addTrack(audioEncodec.getOutputFormat());
+                    audioTrackIndex = mediaMuxer.addTrack(audioEnCodec.getOutputFormat());
                     if (encoderWeakReference.get().mVideoEncodecThread.videoTrackIndex != -1) {
                         mediaMuxer.start();
                         encoderWeakReference.get().encodeStart = true;
@@ -461,7 +465,7 @@ public class VideoRecordEncoder {
                             continue;
                         }
 
-                        ByteBuffer outputBuffer = audioEncodec.getOutputBuffers()[outputBufferIndex];
+                        ByteBuffer outputBuffer = audioEnCodec.getOutputBuffers()[outputBufferIndex];
                         outputBuffer.position(audioBufferinfo.offset);
                         outputBuffer.limit(audioBufferinfo.offset + audioBufferinfo.size);
 
@@ -473,8 +477,8 @@ public class VideoRecordEncoder {
                         //写入数据
                         mediaMuxer.writeSampleData(audioTrackIndex, outputBuffer, audioBufferinfo);
 
-                        audioEncodec.releaseOutputBuffer(outputBufferIndex, false);
-                        outputBufferIndex = audioEncodec.dequeueOutputBuffer(audioBufferinfo, 0);
+                        audioEnCodec.releaseOutputBuffer(outputBufferIndex, false);
+                        outputBufferIndex = audioEnCodec.dequeueOutputBuffer(audioBufferinfo, 0);
                     }
                 }
 
