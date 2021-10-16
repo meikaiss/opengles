@@ -260,7 +260,7 @@ public class TransformActivity extends BaseActivity {
         public void createProgram() {
             //rgb=0.4表示背景为灰色
             GLES20.glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
-            //启用2d纹理功能，包含2d采样; 开启深度测试
+            //启用2d纹理功能，包含2d采样;
             GLES20.glEnable(GLES20.GL_TEXTURE_2D);
             //开启深度测试
             GLES20.glEnable(GLES20.GL_DEPTH_TEST);
@@ -349,7 +349,7 @@ public class TransformActivity extends BaseActivity {
             GLES20.glVertexAttribPointer(mColorHandle, COORDS_PER_COLOR,
                     GLES20.GL_FLOAT, false, colorStride, colorBuffer);
 
-            //用索引法来绘制三角形，最张这些三角形就会组合成一个正方体
+            //用索引法来绘制三角形，最后这些三角形就会组合成一个正方体
             GLES20.glDrawElements(GLES20.GL_TRIANGLES, index.length, GLES20.GL_UNSIGNED_SHORT
                     , indexBuffer);
             //禁止顶点数组的句柄

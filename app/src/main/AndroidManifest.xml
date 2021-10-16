@@ -77,6 +77,7 @@
         <activity android:name=".helper.VideoPlayerActivity" />
         <activity android:name=".pcm.PcmRecordActivity" />
         <activity android:name=".leak.LeakGlSurfaceViewActivity" />
+        <activity android:name=".world.WorldActivity" />
 
     </application>
 

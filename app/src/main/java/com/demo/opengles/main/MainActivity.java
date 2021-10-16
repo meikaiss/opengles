@@ -43,7 +43,6 @@ import com.demo.opengles.graphic.TriangleActivity;
 import com.demo.opengles.graphic.TriangleColorActivity;
 import com.demo.opengles.graphic.TriangleMatrixActivity;
 import com.demo.opengles.graphic.TriangleModalActivity;
-import com.demo.opengles.leak.LeakGlSurfaceViewActivity;
 import com.demo.opengles.map.MapViewGaussianActivity;
 import com.demo.opengles.pcm.PcmRecordActivity;
 import com.demo.opengles.record.camera1.EGLCamera1Record4SameTimeActivity;
@@ -61,6 +60,7 @@ import com.demo.opengles.surface.GLTextureViewAlphaVideoActivity;
 import com.demo.opengles.surface.SurfaceViewActivity;
 import com.demo.opengles.surface.SurfaceViewVideoActivity;
 import com.demo.opengles.surface.TextureViewVideoActivity;
+import com.demo.opengles.world.WorldActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("Camera2-GLSurfaceView-四合一录制", Camera2GLSurfaceViewConcatRecordActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("Camera2-EglSurfaceView-4路预览", Camera2EGLSurfaceView4PreviewActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("Camera2-EglSurfaceView-4路录制", EGLCamera2GLSurfaceView4RecordActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
-            add(new MainItemBean("GlSurfaceView-内存泄漏监测", LeakGlSurfaceViewActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
+            add(new MainItemBean("GlSurfaceView-三维世界", WorldActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
         }
     };
 
