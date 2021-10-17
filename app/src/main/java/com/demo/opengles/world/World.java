@@ -2,7 +2,7 @@ package com.demo.opengles.world;
 
 import android.opengl.GLES20;
 import android.opengl.Matrix;
-import android.util.Log;
+import android.view.MotionEvent;
 
 import javax.microedition.khronos.opengles.GL10;
 
@@ -10,6 +10,7 @@ import javax.microedition.khronos.opengles.GL10;
  * Created by meikai on 2021/10/16.
  */
 public class World {
+    private static final String TAG = "World";
 
     private int width;
     private int height;
@@ -47,18 +48,29 @@ public class World {
     void change(GL10 gl, int width, int height) {
         this.width = width;
         this.height = height;
-        setMatrix();
+        resetMatrix();
     }
 
     void draw() {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
-        if (inTouch) {
-            setMatrix();
+        if (resetMatrixFlag) {
+            resetMatrix();
+            resetMatrixFlag = false;
         }
     }
 
-    void setMatrix() {
+
+    public boolean resetMatrixFlag;
+
+    float angleXDelta = 0;
+    float angleX = 45; //半径在xz面的投影线段与x轴的夹角
+    float angleYDelta = 0;
+    float angleY = 45; //半径与xz面的夹角
+    public float eyeRadius = 15f; //眼睛与世界坐标原点的距离
+
+
+    void resetMatrix() {
         //计算宽高比
         float ratio = (float) width / height;
         /**
@@ -75,22 +87,61 @@ public class World {
          * 设置相机位置
          *
          * 当用视图矩阵确定了照相机的位置时，要确保物体距离视点的位置在 near 和 far 的区间范围内，否则就会看不到物体。
+         *
          */
+        float realAngleY = (angleY + angleYDelta) % 360; // 值域=[-360, 360]
+        realAngleY = (realAngleY + 360) % 360; // 值域=[0, 360]
+        float realAngleX = (angleX + angleXDelta * ((realAngleY > 90 && realAngleY < 270) ? -1 : 1)) % 360; // 值域=[-360, 360]
+        realAngleX = (realAngleX + 360) % 360; // 值域=[0, 360]
 
-        float eyeX = (float) (Math.sin((angle - angleDelta) * Math.PI / 180) * 10f);
-        float eyeZ = (float) Math.cos((angle - angleDelta) * Math.PI / 180) * 10f;
+//        Log.e(TAG, "ax = " + realAngleX + ", ay = " + realAngleY);
 
-        Matrix.setLookAtM(mViewMatrix, 0, eyeX, 10f, eyeZ, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+        float eyeX = (float) (eyeRadius * Math.cos(realAngleY * Math.PI / 180) * Math.cos(realAngleX * Math.PI / 180));
+        float eyeY = (float) (eyeRadius * Math.sin(realAngleY * Math.PI / 180));
+        float eyeZ = (float) (eyeRadius * Math.cos(realAngleY * Math.PI / 180) * Math.sin(realAngleX * Math.PI / 180));
+
+//        Log.e(TAG, "eyeX = " + eyeX + ", eyeY = " + eyeY + ", eyeZ = " + eyeZ);
+
+        float upY = 1.0f;
+        if (realAngleY > 90 && realAngleY < 270) {
+            upY = -1f;
+        }
+        Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, 0f, 0f, 0f, 0f, upY, 0.0f);
         //计算变换矩阵
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0);
     }
 
 
-    boolean inTouch;
+    float downX;
+    float downY;
 
-    float angleDelta = 0;
-    float angle = 45;
+    public boolean onTouch(MotionEvent event) {
+        this.resetMatrixFlag = true;
 
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            downX = event.getX();
+            downY = event.getY();
+
+        } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+
+            float deltaX = event.getX() - downX;
+            float deltaY = event.getY() - downY;
+
+            int factor = 180; //滑动满屏宽度时，表示旋转180度
+            angleXDelta = deltaX / getWidth() * factor;
+            angleYDelta = deltaY / getWidth() * factor;
+
+
+        } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
+            angleY = (angleY + angleYDelta) % 360; // 值域=[-360, 360]
+            angleY = (angleY + 360) % 360; // 值域=[0, 360]
+            angleYDelta = 0;
+
+            angleX = (angleX + angleXDelta * ((angleY > 90 && angleY < 270) ? -1 : 1)) % 360; // 值域=[-360, 360]
+            angleX = (angleX + 360) % 360; // 值域=[0, 360]
+            angleXDelta = 0;
+        }
+        return true;
+    }
 
 }
-
