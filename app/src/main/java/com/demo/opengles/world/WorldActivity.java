@@ -3,11 +3,9 @@ package com.demo.opengles.world;
 import android.annotation.SuppressLint;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
@@ -29,12 +27,10 @@ public class WorldActivity extends BaseActivity {
     private static final String TAG = "WorldActivity";
 
     private GLSurfaceView glSurfaceView;
-    private TextView tvEyeRadius;
 
     private World world = new World();
     private Cube cube = new Cube();
 
-    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,41 +39,6 @@ public class WorldActivity extends BaseActivity {
         glSurfaceView = findViewById(R.id.gl_surface_view);
         glSurfaceView.setEGLContextClientVersion(2);
         glSurfaceView.setEGLConfigChooser(new AntiConfigChooser());
-
-        tvEyeRadius = findViewById(R.id.tv_eye_radius);
-
-
-        ScaleGestureDetector scaleGestureDetector = new ScaleGestureDetector(this, new ScaleGestureDetector.OnScaleGestureListener() {
-            @Override
-            public boolean onScale(ScaleGestureDetector detector) {
-                float scaleFactor = detector.getScaleFactor();
-                Log.e(TAG, "scaleFactor = " + scaleFactor);
-                world.eyeRadius /= scaleFactor;
-                world.resetMatrixFlag = true;
-
-                tvEyeRadius.setText(world.eyeRadius + "");
-
-                return true;
-            }
-
-            @Override
-            public boolean onScaleBegin(ScaleGestureDetector detector) {
-                return true;
-            }
-
-            @Override
-            public void onScaleEnd(ScaleGestureDetector detector) {
-            }
-        });
-
-        glSurfaceView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                scaleGestureDetector.onTouchEvent(event);
-
-                return world.onTouch(event);
-            }
-        });
 
         glSurfaceView.setRenderer(new GLSurfaceView.Renderer() {
 
@@ -101,6 +62,8 @@ public class WorldActivity extends BaseActivity {
         });
 
         glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+
+        initTouchListener();
     }
 
     private class AntiConfigChooser implements GLSurfaceView.EGLConfigChooser {
@@ -129,6 +92,38 @@ public class WorldActivity extends BaseActivity {
                 return configs[0];
             }
         }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private void initTouchListener() {
+        ScaleGestureDetector scaleGestureDetector = new ScaleGestureDetector(this, new ScaleGestureDetector.OnScaleGestureListener() {
+            @Override
+            public boolean onScale(ScaleGestureDetector detector) {
+                /**
+                 * 每一次Move所计算出的scale是针对上一次消费掉的Move事件的触摸位置，此方法返回true表示已消费，返回false表示未消费
+                 */
+                float scaleFactor = detector.getScaleFactor();
+                world.onScale(scaleFactor);
+                return true;
+            }
+
+            @Override
+            public boolean onScaleBegin(ScaleGestureDetector detector) {
+                return true;
+            }
+
+            @Override
+            public void onScaleEnd(ScaleGestureDetector detector) {
+            }
+        });
+
+        glSurfaceView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                scaleGestureDetector.onTouchEvent(event);
+                return world.onTouch(event);
+            }
+        });
     }
 
 }

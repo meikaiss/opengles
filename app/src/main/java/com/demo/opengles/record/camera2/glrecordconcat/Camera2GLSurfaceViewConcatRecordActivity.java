@@ -94,6 +94,10 @@ public class Camera2GLSurfaceViewConcatRecordActivity extends BaseActivity {
         super.onDestroy();
         autoTestLog.writeAppend("onDestroy");
 
+        if (recordManager != null && recordManager.isStart()) {
+            recordManager.stopRecord();
+        }
+
         for (int i = 0; i < 20; i++) {
             autoTestHandler.removeMessages(i);
         }

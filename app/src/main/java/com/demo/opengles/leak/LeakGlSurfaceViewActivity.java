@@ -32,10 +32,13 @@ public class LeakGlSurfaceViewActivity extends BaseActivity {
         glSurfaceView.setEGLContextClientVersion(2);
 
         glSurfaceView.setRenderer(new GLSurfaceView.Renderer() {
+            Bitmap textureBmp;
             @Override
             public void onSurfaceCreated(GL10 gl, EGLConfig config) {
                 defaultRenderObject = new DefaultRenderObject(LeakGlSurfaceViewActivity.this);
                 defaultRenderObject.onCreate();
+
+                textureBmp = BitmapFactory.decodeResource(getResources(), R.mipmap.texture_image_markpolo);
             }
 
             @Override
@@ -53,14 +56,13 @@ public class LeakGlSurfaceViewActivity extends BaseActivity {
 
                 OpenGLESUtil.deleteTextureId(textureId);
 
-                Bitmap textureBmp = BitmapFactory.decodeResource(getResources(), R.mipmap.texture_image_markpolo);
                 textureId = OpenGLESUtil.createBitmapTextureId(textureBmp, GLES20.GL_TEXTURE0);
 
                 /**
                  * Bitmap的内存由java堆和native堆组成，极大部分在native中。当用Bitmap创建完纹理后必须recycle()回收掉，避免内存抖动。
                  * 抖动频率超出GC负载能力时，会引发界面卡顿直至崩溃
                  */
-                textureBmp.recycle();
+//                textureBmp.recycle();
 
                 defaultRenderObject.onDraw(textureId);
             }
