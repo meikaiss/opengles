@@ -12,6 +12,9 @@ import androidx.annotation.Nullable;
 import com.demo.opengles.R;
 import com.demo.opengles.main.BaseActivity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLDisplay;
@@ -30,6 +33,7 @@ public class WorldActivity extends BaseActivity {
 
     private World world = new World();
     private Cube cube = new Cube();
+    private List<Cube> cubeList = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,18 +50,36 @@ public class WorldActivity extends BaseActivity {
             public void onSurfaceCreated(GL10 gl, EGLConfig config) {
                 world.create();
                 cube.create();
+
+                for (int i = 0; i < 4; i++) {
+                    Cube cube = new Cube();
+                    cube.create();
+                    cubeList.add(cube);
+                }
             }
 
             @Override
             public void onSurfaceChanged(GL10 gl, int width, int height) {
                 world.change(gl, width, height);
                 cube.change(gl, width, height);
+                for (int i = 0; i < 4; i++) {
+                    cubeList.get(i).change(gl, width, height);
+                }
+
+                //正方体的边长是2，因为横坐标范围从-1到1的长度是2
+                cubeList.get(0).setTranslate(4f, 0, 0);
+                cubeList.get(1).setTranslate(-4f, 0, 0);
+                cubeList.get(2).setTranslate(0, 4f, 0);
+                cubeList.get(3).setTranslate(0, -4f, 0);
             }
 
             @Override
             public void onDrawFrame(GL10 gl) {
                 world.draw();
                 cube.draw(world.getMVPMatrix());
+                for (int i = 0; i < 4; i++) {
+                    cubeList.get(i).draw(world.getMVPMatrix());
+                }
             }
         });
 

@@ -15,7 +15,7 @@ import javax.microedition.khronos.opengles.GL10;
 /**
  * Created by meikai on 2021/10/16.
  */
-public class Cube {
+public class Cube extends WorldObject {
 
     private final String vertexShaderCode =
             "uniform mat4 vMatrix;" +
@@ -140,11 +140,12 @@ public class Cube {
     void change(GL10 gl, int width, int height) {
     }
 
-    void draw(float[] worldMVPMatrix) {
+    void draw(float[] MVPMatrix) {
         GLES20.glUseProgram(mProgram);
 
         //指定vMatrix的值
-        GLES20.glUniformMatrix4fv(mMatrixHandler, 1, false, worldMVPMatrix, 0);
+        float[] effectMatrix = MatrixHelper.multiplyMM(MVPMatrix, getWorldMatrix());
+        GLES20.glUniformMatrix4fv(mMatrixHandler, 1, false, effectMatrix, 0);
 
         //启用三角形顶点的句柄
         GLES20.glEnableVertexAttribArray(mPositionHandle);
