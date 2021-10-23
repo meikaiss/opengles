@@ -88,7 +88,7 @@ public class World {
          * 注意：针对相机矩阵，视觉效果为近大远小
          */
 
-        Matrix.setLookAtM(mViewMatrix, 0, 10f, 10f, 10f, 0f, 0f, 0f, 0f, 1f, 0.0f);
+        Matrix.setLookAtM(mViewMatrix, 0, 0f, -20f, 20f, 0f, 0f, 0f, 0f, 1f, 0.0f);
         //计算变换矩阵
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0);
 
@@ -124,6 +124,8 @@ public class World {
 
     private float downX;
     private float downY;
+    private int downActionIndex;
+    private int downPointId;
 
     public boolean onTouch(MotionEvent event) {
         this.resetMatrixFlag = true;
@@ -131,7 +133,15 @@ public class World {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             downX = event.getX();
             downY = event.getY();
+            downActionIndex = event.getActionIndex();
+            downPointId = event.getPointerId(downActionIndex);
         } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+            if (event.getPointerId(event.getActionIndex()) != downPointId) {
+                downActionIndex = event.getActionIndex();
+                downPointId = event.getPointerId(downActionIndex);
+                downX = event.getX();
+                downY = event.getY();
+            }
             float deltaX = event.getX() - downX;
             float deltaY = event.getY() - downY;
 
@@ -139,6 +149,7 @@ public class World {
             angleXDelta = deltaX / getWidth() * unit;
             angleYDelta = deltaY / getWidth() * unit;
         } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
+
             angleX = angleX + angleXDelta;
             angleXDelta = 0;
 

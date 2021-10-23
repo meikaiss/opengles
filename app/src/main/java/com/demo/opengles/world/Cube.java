@@ -1,5 +1,6 @@
 package com.demo.opengles.world;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
 
@@ -82,8 +83,6 @@ public class Cube extends WorldObject {
     private int mPositionHandle;
     private int mColorHandle;
 
-    private int textureId;
-
     private int vertexShaderIns;
     private int fragmentShaderIns;
 
@@ -96,6 +95,9 @@ public class Cube extends WorldObject {
     private int vertexStride = COORDS_PER_VERTEX * 4; //每个顶点的坐标有3个数值，数值都是float类型，每个float
     private int colorStride = COORDS_PER_COLOR * 4; // 每个float四个字节
 
+    public Cube(Context context) {
+        super(context);
+    }
 
     void create() {
         //将内存中的顶点坐标数组，转换为字节缓冲区，因为opengl只能接受整块的字节缓冲区的数据
@@ -120,20 +122,13 @@ public class Cube extends WorldObject {
         vertexShaderIns = OpenGLESUtil.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
         fragmentShaderIns = OpenGLESUtil.loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
 
-        //创建一个空的OpenGLES程序
         mProgram = GLES20.glCreateProgram();
-        //将顶点着色器加入到程序
         GLES20.glAttachShader(mProgram, vertexShaderIns);
-        //将片元着色器加入到程序中
         GLES20.glAttachShader(mProgram, fragmentShaderIns);
-        //连接到着色器程序
         GLES20.glLinkProgram(mProgram);
 
-        //获取变换矩阵vMatrix成员句柄
         mMatrixHandler = GLES20.glGetUniformLocation(mProgram, "vMatrix");
-        //获取顶点着色器的vPosition成员句柄
         mPositionHandle = GLES20.glGetAttribLocation(mProgram, "aPosition");
-        //获取片元着色器的vColor成员的句柄
         mColorHandle = GLES20.glGetAttribLocation(mProgram, "aColor");
     }
 
@@ -143,13 +138,10 @@ public class Cube extends WorldObject {
     void draw(float[] MVPMatrix) {
         GLES20.glUseProgram(mProgram);
 
-        //指定vMatrix的值
         float[] effectMatrix = MatrixHelper.multiplyMM(MVPMatrix, getWorldMatrix());
         GLES20.glUniformMatrix4fv(mMatrixHandler, 1, false, effectMatrix, 0);
 
-        //启用三角形顶点的句柄
         GLES20.glEnableVertexAttribArray(mPositionHandle);
-        //准备三角形的坐标数据
         GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX,
                 GLES20.GL_FLOAT, false, vertexStride, vertexBuffer);
 

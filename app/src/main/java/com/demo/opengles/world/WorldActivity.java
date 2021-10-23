@@ -1,5 +1,7 @@
 package com.demo.opengles.world;
 
+import static android.opengl.GLES20.GL_TRUE;
+
 import android.annotation.SuppressLint;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
@@ -20,8 +22,6 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.opengles.GL10;
 
-import static android.opengl.GLES20.GL_TRUE;
-
 /**
  * Created by meikai on 2021/10/16.
  */
@@ -32,7 +32,8 @@ public class WorldActivity extends BaseActivity {
     private GLSurfaceView glSurfaceView;
 
     private World world = new World();
-    private Cube cube = new Cube();
+    private Flat flat = new Flat(activity);
+    private Cube cube = new Cube(activity);
     private List<Cube> cubeList = new ArrayList<>();
 
     @Override
@@ -49,10 +50,11 @@ public class WorldActivity extends BaseActivity {
             @Override
             public void onSurfaceCreated(GL10 gl, EGLConfig config) {
                 world.create();
+                flat.create();
                 cube.create();
 
                 for (int i = 0; i < 4; i++) {
-                    Cube cube = new Cube();
+                    Cube cube = new Cube(activity);
                     cube.create();
                     cubeList.add(cube);
                 }
@@ -61,21 +63,27 @@ public class WorldActivity extends BaseActivity {
             @Override
             public void onSurfaceChanged(GL10 gl, int width, int height) {
                 world.change(gl, width, height);
+                flat.change(gl, width, height);
                 cube.change(gl, width, height);
                 for (int i = 0; i < 4; i++) {
                     cubeList.get(i).change(gl, width, height);
                 }
+
+                flat.setScale(100, 100,100);
+                flat.setTranslate(0, 0, -1);
 
                 //正方体的边长是2，因为横坐标范围从-1到1的长度是2
                 cubeList.get(0).setTranslate(4f, 0, 0);
                 cubeList.get(1).setTranslate(-4f, 0, 0);
                 cubeList.get(2).setTranslate(0, 4f, 0);
                 cubeList.get(3).setTranslate(0, -4f, 0);
+
             }
 
             @Override
             public void onDrawFrame(GL10 gl) {
                 world.draw();
+                flat.draw(world.getMVPMatrix());
                 cube.draw(world.getMVPMatrix());
                 for (int i = 0; i < 4; i++) {
                     cubeList.get(i).draw(world.getMVPMatrix());

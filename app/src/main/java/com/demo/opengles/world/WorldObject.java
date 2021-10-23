@@ -1,12 +1,19 @@
 package com.demo.opengles.world;
 
+import android.content.Context;
 import android.opengl.Matrix;
 
-public class WorldObject {
+public abstract class WorldObject {
+
+    protected Context context;
 
     public float[] translateMatrix;
     public float[] scaleMatrix;
     public float[] rotateMatrix;
+
+    public WorldObject(Context context) {
+        this.context = context;
+    }
 
     public void setTranslate(float x, float y, float z) {
         translateMatrix = new float[16];
