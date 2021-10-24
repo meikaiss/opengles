@@ -2,7 +2,6 @@ package com.demo.opengles.world;
 
 import android.opengl.GLES20;
 import android.opengl.Matrix;
-import android.util.Log;
 import android.view.MotionEvent;
 
 import javax.microedition.khronos.opengles.GL10;
@@ -81,7 +80,7 @@ public class World {
         Matrix.frustumM(mProjectMatrix, 0,
                 -ratio * worldSizeScale, ratio * worldSizeScale,
                 -1 * worldSizeScale, 1 * worldSizeScale,
-                1f * worldSizeScale, 50 * worldSizeScale);
+                1f * worldSizeScale, 500 * worldSizeScale);
         /**
          * 设置相机位置
          * 当用视图矩阵确定了照相机的位置时，要确保物体距离视点的位置在 near 和 far 的区间范围内，否则就会看不到物体。
@@ -115,40 +114,58 @@ public class World {
     }
 
     public void onScale(float scaleFactorParam) {
-        Log.e(TAG, "scaleFactor = " + scaleFactorParam);
         resetMatrixFlag = true;
 
         scaleFactor *= scaleFactorParam;
         scaleFactor = Math.max(scaleFactor, 0);
     }
 
-    private float downX;
-    private float downY;
-    private int downActionIndex;
-    private int downPointId;
+    private float singleFingerStartX;
+    private float singleFingerStartY;
+    private int fingerCount = 0;
+    private boolean singleFingerFlag = false;
 
     public boolean onTouch(MotionEvent event) {
         this.resetMatrixFlag = true;
 
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            downX = event.getX();
-            downY = event.getY();
-            downActionIndex = event.getActionIndex();
-            downPointId = event.getPointerId(downActionIndex);
-        } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-            if (event.getPointerId(event.getActionIndex()) != downPointId) {
-                downActionIndex = event.getActionIndex();
-                downPointId = event.getPointerId(downActionIndex);
-                downX = event.getX();
-                downY = event.getY();
+        if (event.getAction() == MotionEvent.ACTION_POINTER_2_DOWN
+                || event.getAction() == MotionEvent.ACTION_POINTER_3_DOWN) {
+            fingerCount++;
+        } else if (event.getAction() == MotionEvent.ACTION_POINTER_1_UP
+                || event.getAction() == MotionEvent.ACTION_POINTER_2_UP
+                || event.getAction() == MotionEvent.ACTION_POINTER_3_UP) {
+            fingerCount--;
+            if (fingerCount == 1) {
+                singleFingerFlag = true;
             }
-            float deltaX = event.getX() - downX;
-            float deltaY = event.getY() - downY;
+        } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            fingerCount++;
+            singleFingerStartX = event.getX();
+            singleFingerStartY = event.getY();
+        } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+            if (singleFingerFlag) {
+                //从多指触摸切换回到单指触摸，需要重新计算单指的起点
+                singleFingerFlag = false;
+                singleFingerStartX = event.getX();
+                singleFingerStartY = event.getY();
 
-            int unit = 180; //滑动满屏宽度时，表示旋转180度
-            angleXDelta = deltaX / getWidth() * unit;
-            angleYDelta = deltaY / getWidth() * unit;
+                angleX = angleX + angleXDelta;
+                angleXDelta = 0;
+
+                angleY = angleY + angleYDelta;
+                angleYDelta = 0;
+                return true;
+            }
+            if (fingerCount == 1) {
+                float deltaX = event.getX() - singleFingerStartX;
+                float deltaY = event.getY() - singleFingerStartY;
+
+                int unit = 180; //滑动满屏宽度时，表示旋转180度
+                angleXDelta = deltaX / getWidth() * unit;
+                angleYDelta = deltaY / getWidth() * unit;
+            }
         } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
+            fingerCount = 0;
 
             angleX = angleX + angleXDelta;
             angleXDelta = 0;
