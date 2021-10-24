@@ -1,10 +1,7 @@
 package com.demo.opengles.world.game;
 
-import android.content.res.Resources;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
-import android.util.Log;
-import android.view.MotionEvent;
 
 import javax.microedition.khronos.opengles.GL10;
 
@@ -25,14 +22,9 @@ public class World {
 
     public boolean resetMatrixFlag; //重新计算透视矩阵的标记
 
-    public float eyeX = 20f;
-    public float eyeY = 20f;
-    public float eyeZ = 20f;
-
-    private float angleXDelta = 0;
-    private float angleX = 0; //半径在xz面的投影线段与x轴的夹角
-    private float angleYDelta = 0;
-    private float angleY = 0; //半径与xz面的夹角
+    public float eyeX = 0f;
+    public float eyeY = -20f;
+    public float eyeZ = 2f;
 
     public float scaleFactor = 1.0f;
 
@@ -92,31 +84,25 @@ public class World {
          * 当用视图矩阵确定了照相机的位置时，要确保物体距离视点的位置在 near 和 far 的区间范围内，否则就会看不到物体。
          * 注意：针对相机矩阵，视觉效果为近大远小
          */
-        Log.e("mk", "" + eyeX + ", " + eyeY + ", " + eyeZ);
-        Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, 0f, 0f, 0f, 0f, 1f, 0.0f);
+        Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, eyeX, eyeY + 20, eyeZ, 0f, 0f, 1f);
         //计算变换矩阵
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0);
 
-        {
-            float[] scaleMatrix = new float[16];
-            Matrix.setIdentityM(scaleMatrix, 0);
-            Matrix.scaleM(scaleMatrix, 0, scaleFactor, scaleFactor, scaleFactor);
-            Matrix.multiplyMM(mMVPMatrix, 0, mMVPMatrix, 0, scaleMatrix, 0);
-        }
+        //放大缩小世界
+        float[] scaleMatrix = new float[16];
+        Matrix.setIdentityM(scaleMatrix, 0);
+        Matrix.scaleM(scaleMatrix, 0, scaleFactor, scaleFactor, scaleFactor);
+        Matrix.multiplyMM(mMVPMatrix, 0, mMVPMatrix, 0, scaleMatrix, 0);
+    }
 
-        {
-            float[] rotateMatrix = new float[16];
-            Matrix.setIdentityM(rotateMatrix, 0);
-            Matrix.rotateM(rotateMatrix, 0, angleX + angleXDelta, 0, 1, 0);
-            Matrix.multiplyMM(mMVPMatrix, 0, mMVPMatrix, 0, rotateMatrix, 0);
-        }
+    public void move(int deltaX, int deltaY) {
+        float radius = (float) Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+        float speed = 0.05f; //移动控制器满半径时的世界坐标系移动速度为0.05
 
-        {
-            float[] rotateXMatrix = new float[16];
-            Matrix.setIdentityM(rotateXMatrix, 0);
-            Matrix.rotateM(rotateXMatrix, 0, angleY + angleYDelta, 1, 0, 0);
-            Matrix.multiplyMM(mMVPMatrix, 0, mMVPMatrix, 0, rotateXMatrix, 0);
-        }
+        eyeX += (speed * deltaX / radius);
+        eyeY += (speed * deltaY / radius);
+
+        resetMatrixFlag = true;
     }
 
     public void onScale(float scaleFactorParam) {
@@ -124,95 +110,6 @@ public class World {
 
         scaleFactor *= scaleFactorParam;
         scaleFactor = Math.max(scaleFactor, 0);
-    }
-
-    private float singleFingerStartX;
-    private float singleFingerStartY;
-    private int fingerCount = 0;
-    private boolean singleFingerFlag = false;
-
-    public boolean onTouch(MotionEvent event) {
-        this.resetMatrixFlag = true;
-
-        if (event.getX() <= Resources.getSystem().getDisplayMetrics().widthPixels / 2) {
-            onTouchEyePos(event);
-        } else {
-            onTouchEyeDir(event);
-        }
-
-        return true;
-    }
-
-    private boolean onTouchEyePos(MotionEvent event) {
-        float eventX = event.getX();
-        float eventY = event.getY();
-
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            singleFingerStartX = eventX;
-            singleFingerStartY = eventY;
-        } else if (event.getAction() == MotionEvent.ACTION_MOVE
-                || event.getAction() == MotionEvent.ACTION_UP) {
-            if (Math.abs(event.getX() - singleFingerStartX) >= 30) {
-                eyeX += 0.1f * (event.getX() > singleFingerStartX ? 1 : -1);
-            }
-            if (Math.abs(event.getY() - singleFingerStartY) >= 30) {
-                eyeY += 0.1f * (event.getY() > singleFingerStartY ? 1 : -1);
-            }
-        }
-        return true;
-    }
-
-    private boolean onTouchEyeDir(MotionEvent event) {
-        float eventX = event.getX();
-        float eventY = event.getY();
-
-        if (event.getAction() == MotionEvent.ACTION_POINTER_2_DOWN
-                || event.getAction() == MotionEvent.ACTION_POINTER_3_DOWN) {
-            fingerCount++;
-        } else if (event.getAction() == MotionEvent.ACTION_POINTER_1_UP
-                || event.getAction() == MotionEvent.ACTION_POINTER_2_UP
-                || event.getAction() == MotionEvent.ACTION_POINTER_3_UP) {
-            fingerCount--;
-            if (fingerCount == 1) {
-                singleFingerFlag = true;
-            }
-        } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            fingerCount++;
-            singleFingerStartX = eventX;
-            singleFingerStartY = eventY;
-        } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-            if (singleFingerFlag) {
-                //从多指触摸切换回到单指触摸，需要重新计算单指的起点
-                singleFingerFlag = false;
-                singleFingerStartX = eventX;
-                singleFingerStartY = eventY;
-
-                angleX = angleX + angleXDelta;
-                angleXDelta = 0;
-
-                angleY = angleY + angleYDelta;
-                angleYDelta = 0;
-                return true;
-            }
-            if (fingerCount == 1) {
-                float deltaX = eventX - singleFingerStartX;
-                float deltaY = eventY - singleFingerStartY;
-
-                int unit = 180; //滑动满屏宽度时，表示旋转180度
-                angleXDelta = deltaX / getWidth() * unit;
-                angleYDelta = deltaY / getWidth() * unit;
-            }
-        } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
-            fingerCount = 0;
-
-            angleX = angleX + angleXDelta;
-            angleXDelta = 0;
-
-            angleY = angleY + angleYDelta;
-            angleYDelta = 0;
-        }
-
-        return true;
     }
 
 }

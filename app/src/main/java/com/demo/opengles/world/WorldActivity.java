@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import com.demo.opengles.R;
 import com.demo.opengles.main.BaseActivity;
 import com.demo.opengles.world.common.Volume;
+import com.demo.opengles.world.control.MoveControlView;
 import com.demo.opengles.world.game.Axis;
 import com.demo.opengles.world.game.Ground;
 import com.demo.opengles.world.game.World;
@@ -34,6 +35,7 @@ public class WorldActivity extends BaseActivity {
     private static final String TAG = "WorldActivity";
 
     private GLSurfaceView glSurfaceView;
+    private MoveControlView moveControlView;
 
     private World world = new World();
     private Volume cube = new Volume(activity);
@@ -45,6 +47,14 @@ public class WorldActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_world);
+
+        moveControlView = findViewById(R.id.move_control_view);
+        moveControlView.setOnMoveListener(new MoveControlView.OnMoveListener() {
+            @Override
+            public void onMove(int deltaX, int deltaY) {
+                world.move(deltaX, deltaY);
+            }
+        });
 
         glSurfaceView = findViewById(R.id.gl_surface_view);
         glSurfaceView.setEGLContextClientVersion(2);
@@ -130,8 +140,7 @@ public class WorldActivity extends BaseActivity {
         glSurfaceView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                scaleGestureDetector.onTouchEvent(event);
-                return world.onTouch(event);
+                return scaleGestureDetector.onTouchEvent(event);
             }
         });
     }
