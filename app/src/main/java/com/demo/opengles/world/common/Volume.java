@@ -1,10 +1,12 @@
-package com.demo.opengles.world;
+package com.demo.opengles.world.common;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
 
 import com.demo.opengles.util.OpenGLESUtil;
+import com.demo.opengles.world.MatrixHelper;
+import com.demo.opengles.world.base.WorldObject;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -13,18 +15,15 @@ import java.nio.ShortBuffer;
 
 import javax.microedition.khronos.opengles.GL10;
 
-/**
- * Created by meikai on 2021/10/16.
- */
-public class Cube extends WorldObject {
+public class Volume extends WorldObject {
 
     private final String vertexShaderCode =
-            "uniform mat4 vMatrix;" +
+            "uniform mat4 uMatrix;" +
                     "attribute vec4 aPosition;" +
                     "attribute vec4 aColor;" +
                     "varying  vec4 vColor;" +
                     "void main() {" +
-                    "  gl_Position = vMatrix*aPosition;" +
+                    "  gl_Position = uMatrix*aPosition;" +
                     "  vColor=aColor;" +
                     "}";
 
@@ -88,19 +87,17 @@ public class Cube extends WorldObject {
 
     public Bitmap textureBmp;
 
-    public boolean isEffective;
 
     private int COORDS_PER_VERTEX = 3;  //每个顶点有3个数字来表示它的坐标
     private int COORDS_PER_COLOR = 4;  //每个颜色值有4个数字来表示它的内容
     private int vertexStride = COORDS_PER_VERTEX * 4; //每个顶点的坐标有3个数值，数值都是float类型，每个float
     private int colorStride = COORDS_PER_COLOR * 4; // 每个float四个字节
 
-    public Cube(Context context) {
+    public Volume(Context context) {
         super(context);
     }
 
-    void create() {
-        //将内存中的顶点坐标数组，转换为字节缓冲区，因为opengl只能接受整块的字节缓冲区的数据
+    public void create() {
         ByteBuffer bb = ByteBuffer.allocateDirect(vertexCoords.length * 4);
         bb.order(ByteOrder.nativeOrder());
         vertexBuffer = bb.asFloatBuffer();
@@ -127,15 +124,15 @@ public class Cube extends WorldObject {
         GLES20.glAttachShader(mProgram, fragmentShaderIns);
         GLES20.glLinkProgram(mProgram);
 
-        mMatrixHandler = GLES20.glGetUniformLocation(mProgram, "vMatrix");
+        mMatrixHandler = GLES20.glGetUniformLocation(mProgram, "uMatrix");
         mPositionHandle = GLES20.glGetAttribLocation(mProgram, "aPosition");
         mColorHandle = GLES20.glGetAttribLocation(mProgram, "aColor");
     }
 
-    void change(GL10 gl, int width, int height) {
+    public void change(GL10 gl, int width, int height) {
     }
 
-    void draw(float[] MVPMatrix) {
+    public void draw(float[] MVPMatrix) {
         GLES20.glUseProgram(mProgram);
 
         float[] effectMatrix = MatrixHelper.multiplyMM(MVPMatrix, getWorldMatrix());
@@ -153,7 +150,7 @@ public class Cube extends WorldObject {
         GLES20.glDrawElements(GLES20.GL_TRIANGLES, index.length, GLES20.GL_UNSIGNED_SHORT
                 , indexBuffer);
 
-        //禁止顶点数组的句柄
         GLES20.glDisableVertexAttribArray(mPositionHandle);
+        GLES20.glDisableVertexAttribArray(mColorHandle);
     }
 }

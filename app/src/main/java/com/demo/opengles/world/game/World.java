@@ -1,7 +1,9 @@
-package com.demo.opengles.world;
+package com.demo.opengles.world.game;
 
+import android.content.res.Resources;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
+import android.util.Log;
 import android.view.MotionEvent;
 
 import javax.microedition.khronos.opengles.GL10;
@@ -22,6 +24,10 @@ public class World {
     private float[] mMVPMatrix = new float[16];
 
     public boolean resetMatrixFlag; //重新计算透视矩阵的标记
+
+    public float eyeX = 20f;
+    public float eyeY = 20f;
+    public float eyeZ = 20f;
 
     private float angleXDelta = 0;
     private float angleX = 0; //半径在xz面的投影线段与x轴的夹角
@@ -86,8 +92,8 @@ public class World {
          * 当用视图矩阵确定了照相机的位置时，要确保物体距离视点的位置在 near 和 far 的区间范围内，否则就会看不到物体。
          * 注意：针对相机矩阵，视觉效果为近大远小
          */
-
-        Matrix.setLookAtM(mViewMatrix, 0, 0f, -20f, 20f, 0f, 0f, 0f, 0f, 1f, 0.0f);
+        Log.e("mk", "" + eyeX + ", " + eyeY + ", " + eyeZ);
+        Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, 0f, 0f, 0f, 0f, 1f, 0.0f);
         //计算变换矩阵
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0);
 
@@ -128,6 +134,38 @@ public class World {
     public boolean onTouch(MotionEvent event) {
         this.resetMatrixFlag = true;
 
+        if (event.getX() <= Resources.getSystem().getDisplayMetrics().widthPixels / 2) {
+            onTouchEyePos(event);
+        } else {
+            onTouchEyeDir(event);
+        }
+
+        return true;
+    }
+
+    private boolean onTouchEyePos(MotionEvent event) {
+        float eventX = event.getX();
+        float eventY = event.getY();
+
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            singleFingerStartX = eventX;
+            singleFingerStartY = eventY;
+        } else if (event.getAction() == MotionEvent.ACTION_MOVE
+                || event.getAction() == MotionEvent.ACTION_UP) {
+            if (Math.abs(event.getX() - singleFingerStartX) >= 30) {
+                eyeX += 0.1f * (event.getX() > singleFingerStartX ? 1 : -1);
+            }
+            if (Math.abs(event.getY() - singleFingerStartY) >= 30) {
+                eyeY += 0.1f * (event.getY() > singleFingerStartY ? 1 : -1);
+            }
+        }
+        return true;
+    }
+
+    private boolean onTouchEyeDir(MotionEvent event) {
+        float eventX = event.getX();
+        float eventY = event.getY();
+
         if (event.getAction() == MotionEvent.ACTION_POINTER_2_DOWN
                 || event.getAction() == MotionEvent.ACTION_POINTER_3_DOWN) {
             fingerCount++;
@@ -140,14 +178,14 @@ public class World {
             }
         } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
             fingerCount++;
-            singleFingerStartX = event.getX();
-            singleFingerStartY = event.getY();
+            singleFingerStartX = eventX;
+            singleFingerStartY = eventY;
         } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
             if (singleFingerFlag) {
                 //从多指触摸切换回到单指触摸，需要重新计算单指的起点
                 singleFingerFlag = false;
-                singleFingerStartX = event.getX();
-                singleFingerStartY = event.getY();
+                singleFingerStartX = eventX;
+                singleFingerStartY = eventY;
 
                 angleX = angleX + angleXDelta;
                 angleXDelta = 0;
@@ -157,8 +195,8 @@ public class World {
                 return true;
             }
             if (fingerCount == 1) {
-                float deltaX = event.getX() - singleFingerStartX;
-                float deltaY = event.getY() - singleFingerStartY;
+                float deltaX = eventX - singleFingerStartX;
+                float deltaY = eventY - singleFingerStartY;
 
                 int unit = 180; //滑动满屏宽度时，表示旋转180度
                 angleXDelta = deltaX / getWidth() * unit;
@@ -173,6 +211,7 @@ public class World {
             angleY = angleY + angleYDelta;
             angleYDelta = 0;
         }
+
         return true;
     }
 

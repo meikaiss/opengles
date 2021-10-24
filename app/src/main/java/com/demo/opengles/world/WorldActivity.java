@@ -13,6 +13,10 @@ import androidx.annotation.Nullable;
 
 import com.demo.opengles.R;
 import com.demo.opengles.main.BaseActivity;
+import com.demo.opengles.world.common.Volume;
+import com.demo.opengles.world.game.Axis;
+import com.demo.opengles.world.game.Ground;
+import com.demo.opengles.world.game.World;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,9 +36,10 @@ public class WorldActivity extends BaseActivity {
     private GLSurfaceView glSurfaceView;
 
     private World world = new World();
-    private Flat flat = new Flat(activity);
-    private Cube cube = new Cube(activity);
-    private List<Cube> cubeList = new ArrayList<>();
+    private Volume cube = new Volume(activity);
+    private List<Volume> cubeList = new ArrayList<>();
+    private Ground ground = new Ground(activity);
+    private Axis axis = new Axis(activity);
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -50,11 +55,13 @@ public class WorldActivity extends BaseActivity {
             @Override
             public void onSurfaceCreated(GL10 gl, EGLConfig config) {
                 world.create();
-                flat.create();
                 cube.create();
+                ground.create();
+                axis.create();
+
 
                 for (int i = 0; i < 4; i++) {
-                    Cube cube = new Cube(activity);
+                    Volume cube = new Volume(activity);
                     cube.create();
                     cubeList.add(cube);
                 }
@@ -63,14 +70,12 @@ public class WorldActivity extends BaseActivity {
             @Override
             public void onSurfaceChanged(GL10 gl, int width, int height) {
                 world.change(gl, width, height);
-                flat.change(gl, width, height);
                 cube.change(gl, width, height);
+                ground.change(gl, width, height);
+                axis.change(gl, width, height);
                 for (int i = 0; i < 4; i++) {
                     cubeList.get(i).change(gl, width, height);
                 }
-
-                flat.setScale(100, 100,100);
-                flat.setTranslate(0, 0, -1);
 
                 //正方体的边长是2，因为横坐标范围从-1到1的长度是2
                 cubeList.get(0).setTranslate(4f, 0, 0);
@@ -83,7 +88,9 @@ public class WorldActivity extends BaseActivity {
             @Override
             public void onDrawFrame(GL10 gl) {
                 world.draw();
-                flat.draw(world.getMVPMatrix());
+
+                axis.draw(world.getMVPMatrix());
+                ground.draw(world.getMVPMatrix());
                 cube.draw(world.getMVPMatrix());
                 for (int i = 0; i < 4; i++) {
                     cubeList.get(i).draw(world.getMVPMatrix());
@@ -94,6 +101,39 @@ public class WorldActivity extends BaseActivity {
         glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
         initTouchListener();
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private void initTouchListener() {
+        ScaleGestureDetector scaleGestureDetector = new ScaleGestureDetector(this, new ScaleGestureDetector.OnScaleGestureListener() {
+            @Override
+            public boolean onScale(ScaleGestureDetector detector) {
+                /**
+                 * 每一次Move所计算出的scale是针对上一次消费掉的Move事件的触摸位置，此方法返回true表示已消费，返回false表示未消费
+                 */
+                float scaleFactor = detector.getScaleFactor();
+                world.onScale(scaleFactor);
+                return true;
+            }
+
+            @Override
+            public boolean onScaleBegin(ScaleGestureDetector detector) {
+                return true;
+            }
+
+            @Override
+            public void onScaleEnd(ScaleGestureDetector detector) {
+            }
+        });
+        scaleGestureDetector.setQuickScaleEnabled(true);
+
+        glSurfaceView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                scaleGestureDetector.onTouchEvent(event);
+                return world.onTouch(event);
+            }
+        });
     }
 
     private class AntiConfigChooser implements GLSurfaceView.EGLConfigChooser {
@@ -122,38 +162,6 @@ public class WorldActivity extends BaseActivity {
                 return configs[0];
             }
         }
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    private void initTouchListener() {
-        ScaleGestureDetector scaleGestureDetector = new ScaleGestureDetector(this, new ScaleGestureDetector.OnScaleGestureListener() {
-            @Override
-            public boolean onScale(ScaleGestureDetector detector) {
-                /**
-                 * 每一次Move所计算出的scale是针对上一次消费掉的Move事件的触摸位置，此方法返回true表示已消费，返回false表示未消费
-                 */
-                float scaleFactor = detector.getScaleFactor();
-                world.onScale(scaleFactor);
-                return true;
-            }
-
-            @Override
-            public boolean onScaleBegin(ScaleGestureDetector detector) {
-                return true;
-            }
-
-            @Override
-            public void onScaleEnd(ScaleGestureDetector detector) {
-            }
-        });
-
-        glSurfaceView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                scaleGestureDetector.onTouchEvent(event);
-                return world.onTouch(event);
-            }
-        });
     }
 
 }

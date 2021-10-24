@@ -4,6 +4,8 @@ import android.opengl.Matrix;
 
 public class MatrixHelper {
 
+    public static final int FLOAT_SIZE = 4;
+
     public static float[] multiplyMM(float[] m1, float[] m2, float[] m3) {
         return multiplyMM(multiplyMM(m1, m2), m3);
     }

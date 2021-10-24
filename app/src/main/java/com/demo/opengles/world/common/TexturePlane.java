@@ -1,4 +1,4 @@
-package com.demo.opengles.world;
+package com.demo.opengles.world.common;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -7,6 +7,8 @@ import android.opengl.GLES20;
 
 import com.demo.opengles.R;
 import com.demo.opengles.util.OpenGLESUtil;
+import com.demo.opengles.world.MatrixHelper;
+import com.demo.opengles.world.base.WorldObject;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -14,7 +16,7 @@ import java.nio.FloatBuffer;
 
 import javax.microedition.khronos.opengles.GL10;
 
-public class Flat extends WorldObject {
+public class TexturePlane extends WorldObject {
 
     private final String vertexShaderCode =
             "uniform mat4 uMatrix;\n" +
@@ -43,6 +45,7 @@ public class Flat extends WorldObject {
             1.0f, -1.0f     //右下角
     };
 
+    //纹理坐标
     private final float[] textureCoord = {
             0.0f, 0.0f, //左上、原点
             0.0f, 1.0f, //左下
@@ -63,19 +66,18 @@ public class Flat extends WorldObject {
     private int glACoordinate;
     private int glUTexture;
 
-    private Bitmap textureBmp;
+    private static Bitmap textureBmp;
     private int textureId;
 
     private static int COORDS_PER_VERTEX = 2; //每个顶点有2个float数字表示其坐标
     private final int vertexCount = vertexCoords.length / COORDS_PER_VERTEX; //顶点个数
     private final int vertexStride = COORDS_PER_VERTEX * 4; //每个顶点的步长， 每个float四个字节
 
-    public Flat(Context context) {
+    public TexturePlane(Context context) {
         super(context);
     }
 
-
-    void create() {
+    public void create() {
         ByteBuffer bb = ByteBuffer.allocateDirect(vertexCoords.length * 4);
         bb.order(ByteOrder.nativeOrder());
         vertexBuffer = bb.asFloatBuffer();
@@ -101,16 +103,17 @@ public class Flat extends WorldObject {
         glACoordinate = GLES20.glGetAttribLocation(mProgram, "aCoordinate");
         glUTexture = GLES20.glGetUniformLocation(mProgram, "uTexture");
 
-        textureBmp = BitmapFactory.decodeResource(context.getResources(), R.mipmap.flat);
+        if (textureBmp == null) {
+            textureBmp = BitmapFactory.decodeResource(context.getResources(), R.mipmap.flat);
+        }
         textureId = OpenGLESUtil.createBitmapTextureId(textureBmp, GLES20.GL_TEXTURE0);
-        textureBmp.recycle();
     }
 
-    void change(GL10 gl, int width, int height) {
+    public void change(GL10 gl, int width, int height) {
 
     }
 
-    void draw(float[] MVPMatrix) {
+    public void draw(float[] MVPMatrix) {
         GLES20.glUseProgram(mProgram);
 
         float[] effectMatrix = MatrixHelper.multiplyMM(MVPMatrix, getWorldMatrix());
