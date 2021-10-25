@@ -2,6 +2,7 @@ package com.demo.opengles.world.game;
 
 import android.opengl.GLES20;
 import android.opengl.Matrix;
+import android.util.Log;
 
 import javax.microedition.khronos.opengles.GL10;
 
@@ -25,7 +26,7 @@ public class World {
     public float eyeX = 0f;
     public float eyeY = -20f;
     public float eyeZ = 2f;
-    private float speed = 0.05f; //移动控制器满半径时的世界坐标系移动速度为0.05/帧
+    private float speed = 0.08f; //移动控制器满半径时的世界坐标系移动速度为0.05/帧
 
     private float directionRadius = 20f;
     public float[] direction = {0f, directionRadius, 0f};
@@ -102,30 +103,43 @@ public class World {
         Matrix.multiplyMM(mMVPMatrix, 0, mMVPMatrix, 0, scaleMatrix, 0);
     }
 
-    public void moveChange(int deltaX, int deltaY) {
-        float radius = (float) Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+    public void moveChange(int viewTouchDeltaX, int viewTouchDeltaY) {
+        float radius = (float) Math.sqrt(Math.pow(viewTouchDeltaX, 2) + Math.pow(viewTouchDeltaY, 2));
 
-        eyeX += (speed * deltaX / radius);
-        eyeY += (speed * deltaY / radius);
+
+        float moveDeltaX = (speed * viewTouchDeltaX / radius);
+        float moveDeltaY = (speed * viewTouchDeltaY / radius);
+
+        eyeX += moveDeltaX;
+        eyeY += moveDeltaY;
+
+        eyeZ += speed * direction[2] / directionRadius;
 
         resetMatrixFlag = true;
     }
 
-    private int horizontalAngle = 0;
+    private float horizontalAngle = 0; //视线方向与XY平面的夹角
+    private float verticalAngle = 90; //视线方向与Z轴的夹角
+    private float directionDelta = 0.5f;
 
-    public void directionChange(int deltaX, int deltaY) {
+    public void directionChange(int viewTouchDeltaX, int viewTouchDeltaY) {
         resetMatrixFlag = true;
+        float radius = (float) Math.sqrt(Math.pow(viewTouchDeltaX, 2) + Math.pow(viewTouchDeltaY, 2));
+        float directionDeltaHor = (directionDelta * Math.abs(viewTouchDeltaX) / radius);
+        float directionDeltaVer = (directionDelta * Math.abs(viewTouchDeltaY) / radius);
 
-        if (deltaX >= 0) {
-            horizontalAngle++;
-        } else {
-            horizontalAngle--;
-        }
 
-        horizontalAngle = (horizontalAngle + 360) % 360;
+        horizontalAngle += (directionDeltaHor * (viewTouchDeltaX >= 0 ? 1 : -1));
+        horizontalAngle = (horizontalAngle + 360) % 360;//水平方向可以循环观察
+        direction[0] = (float) (directionRadius * Math.sin(horizontalAngle / 180 * Math.PI));
+        direction[1] = (float) (directionRadius * Math.cos(horizontalAngle / 180 * Math.PI));
 
-        direction[0] = (float) (directionRadius * Math.sin((float) horizontalAngle / 180 * Math.PI));
-        direction[1] = (float) (directionRadius * Math.cos((float) horizontalAngle / 180 * Math.PI));
+        verticalAngle += (directionDeltaVer * (viewTouchDeltaY > 0 ? -1 : 1));
+        verticalAngle = Math.min(180, verticalAngle);
+        verticalAngle = Math.max(0, verticalAngle); //简直方向禁止循环观察
+        direction[2] = (float) (directionRadius * Math.cos(verticalAngle / 180 * Math.PI));
+
+        Log.e("mk", "viewTouchDeltaY=" + viewTouchDeltaY + ", direction[2]=" + direction[2] + ", verticalAngle=" + verticalAngle);
     }
 
     public void onScale(float scaleFactorParam) {
