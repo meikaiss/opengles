@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import com.demo.opengles.R;
 import com.demo.opengles.main.BaseActivity;
 import com.demo.opengles.world.common.Volume;
+import com.demo.opengles.world.control.DirectionControlView;
 import com.demo.opengles.world.control.MoveControlView;
 import com.demo.opengles.world.game.Axis;
 import com.demo.opengles.world.game.Ground;
@@ -36,6 +37,7 @@ public class WorldActivity extends BaseActivity {
 
     private GLSurfaceView glSurfaceView;
     private MoveControlView moveControlView;
+    private DirectionControlView directionControlView;
 
     private World world = new World();
     private Volume cube = new Volume(activity);
@@ -52,7 +54,15 @@ public class WorldActivity extends BaseActivity {
         moveControlView.setOnMoveListener(new MoveControlView.OnMoveListener() {
             @Override
             public void onMove(int deltaX, int deltaY) {
-                world.move(deltaX, deltaY);
+                world.moveChange(deltaX, deltaY);
+            }
+        });
+
+        directionControlView = findViewById(R.id.direction_control_view);
+        directionControlView.setOnDirectionListener(new DirectionControlView.OnDirectionListener() {
+            @Override
+            public void onDirection(int deltaX, int deltaY) {
+                world.directionChange(deltaX, deltaY);
             }
         });
 

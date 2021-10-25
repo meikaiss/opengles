@@ -25,6 +25,10 @@ public class World {
     public float eyeX = 0f;
     public float eyeY = -20f;
     public float eyeZ = 2f;
+    private float speed = 0.05f; //移动控制器满半径时的世界坐标系移动速度为0.05/帧
+
+    private float directionRadius = 20f;
+    public float[] direction = {0f, directionRadius, 0f};
 
     public float scaleFactor = 1.0f;
 
@@ -84,7 +88,10 @@ public class World {
          * 当用视图矩阵确定了照相机的位置时，要确保物体距离视点的位置在 near 和 far 的区间范围内，否则就会看不到物体。
          * 注意：针对相机矩阵，视觉效果为近大远小
          */
-        Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, eyeX, eyeY + 20, eyeZ, 0f, 0f, 1f);
+        Matrix.setLookAtM(mViewMatrix, 0,
+                eyeX, eyeY, eyeZ,
+                eyeX + direction[0], eyeY + direction[1], eyeZ + direction[2],
+                0f, 0f, 1f);
         //计算变换矩阵
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0);
 
@@ -95,14 +102,30 @@ public class World {
         Matrix.multiplyMM(mMVPMatrix, 0, mMVPMatrix, 0, scaleMatrix, 0);
     }
 
-    public void move(int deltaX, int deltaY) {
+    public void moveChange(int deltaX, int deltaY) {
         float radius = (float) Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
-        float speed = 0.05f; //移动控制器满半径时的世界坐标系移动速度为0.05
 
         eyeX += (speed * deltaX / radius);
         eyeY += (speed * deltaY / radius);
 
         resetMatrixFlag = true;
+    }
+
+    private int horizontalAngle = 0;
+
+    public void directionChange(int deltaX, int deltaY) {
+        resetMatrixFlag = true;
+
+        if (deltaX >= 0) {
+            horizontalAngle++;
+        } else {
+            horizontalAngle--;
+        }
+
+        horizontalAngle = (horizontalAngle + 360) % 360;
+
+        direction[0] = (float) (directionRadius * Math.sin((float) horizontalAngle / 180 * Math.PI));
+        direction[1] = (float) (directionRadius * Math.cos((float) horizontalAngle / 180 * Math.PI));
     }
 
     public void onScale(float scaleFactorParam) {
