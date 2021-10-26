@@ -103,45 +103,27 @@ public class World {
         Matrix.multiplyMM(mMVPMatrix, 0, mMVPMatrix, 0, scaleMatrix, 0);
     }
 
-    public void moveChange(int viewTouchDeltaX, int viewTouchDeltaY) {
+    public void moveXYChange(int viewTouchDeltaX, int viewTouchDeltaY) {
         float radius = (float) Math.sqrt(Math.pow(viewTouchDeltaX, 2) + Math.pow(viewTouchDeltaY, 2));
 
-        Log.e("mk", "========================");
-        //方向键盘的方向向量
-        float[] moveVector = new float[2];
-        moveVector[0] = viewTouchDeltaX / radius;
-        moveVector[1] = viewTouchDeltaY / radius;
-        Log.e("mk", "moveVector="+moveVector[0] + ", " + moveVector[1]);
-
-        //视角方向向量
-        float[] directionVector = new float[2];
-        directionVector[0] = (float) Math.sin(horizontalAngle / 180 * Math.PI);
-        directionVector[1] = (float) Math.cos(horizontalAngle / 180 * Math.PI);
-        Log.e("mk", "directionVector="+directionVector[0] + ", " + directionVector[1]);
-
-        float[] realVector = new float[2];
-        realVector[0] = moveVector[0] + directionVector[0];
-        realVector[1] = moveVector[1] + directionVector[1];
-        if (realVector[0] == 0 && realVector[1] == 0){
-            realVector[0] = directionVector[0];
-            realVector[1] = directionVector[1];
-        }
-        float radiusReal = (float) Math.sqrt(Math.pow(realVector[0], 2) + Math.pow(realVector[1], 2));
-        Log.e("mk", "realVector="+realVector[0] + ", " + realVector[1]);
+        float moveDeltaX = (speed * viewTouchDeltaX / radius);
+        float moveDeltaY = (speed * viewTouchDeltaY / radius);
 
 
-        float moveDeltaX = (speed * realVector[0] / radiusReal);
-        float moveDeltaY = (speed * realVector[1] / radiusReal);
-        Log.e("mk", "moveDelta="+moveDeltaX + ", " + moveDeltaY);
+        float realDealX = (float) (moveDeltaY * Math.sin(Math.toRadians(horizontalAngle)) + moveDeltaX * Math.cos(Math.toRadians(horizontalAngle)));
+        float realDealY = (float) (moveDeltaY * Math.cos(Math.toRadians(horizontalAngle)) - moveDeltaX * Math.sin(Math.toRadians(horizontalAngle)));
+        eyeX += realDealX;
+        eyeY += realDealY;
 
-        eyeX += moveDeltaX;
-        eyeY += moveDeltaY;
+        resetMatrixFlag = true;
+    }
 
-        Log.e("mk", "eye=" + eyeX + ", " + eyeX);
+    public void moveZChange(int viewTouchZ) {
 
-        Log.e("mk", "//////////////////////");
+        eyeZ = viewTouchZ;
 
-//        eyeZ += speed * direction[2] / directionRadius;
+        eyeZ = Math.max(1, eyeZ);
+        eyeZ = Math.min(100, eyeZ);
 
         resetMatrixFlag = true;
     }
@@ -167,7 +149,7 @@ public class World {
         verticalAngle = Math.max(0, verticalAngle); //简直方向禁止循环观察
         direction[2] = (float) (directionRadius * Math.cos(verticalAngle / 180 * Math.PI));
 
-        Log.e("mk", "viewTouchDeltaY=" + viewTouchDeltaY + ", direction[2]=" + direction[2] + ", verticalAngle=" + verticalAngle);
+        Log.e("mk", "viewTouchDeltaY=" + viewTouchDeltaY + ", direction[2]=" + direction[2] + ", horizontalAngle=" + horizontalAngle);
     }
 
     public void onScale(float scaleFactorParam) {

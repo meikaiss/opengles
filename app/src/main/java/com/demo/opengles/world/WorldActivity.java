@@ -15,6 +15,7 @@ import com.demo.opengles.R;
 import com.demo.opengles.main.BaseActivity;
 import com.demo.opengles.world.common.Volume;
 import com.demo.opengles.world.control.DirectionControlView;
+import com.demo.opengles.world.control.JumpControlView;
 import com.demo.opengles.world.control.MoveControlView;
 import com.demo.opengles.world.game.Axis;
 import com.demo.opengles.world.game.Ground;
@@ -38,6 +39,7 @@ public class WorldActivity extends BaseActivity {
     private GLSurfaceView glSurfaceView;
     private MoveControlView moveControlView;
     private DirectionControlView directionControlView;
+    private JumpControlView jumpControlView;
 
     private World world = new World();
     private Volume cube = new Volume(activity);
@@ -54,7 +56,7 @@ public class WorldActivity extends BaseActivity {
         moveControlView.setOnMoveListener(new MoveControlView.OnMoveListener() {
             @Override
             public void onMove(int deltaX, int deltaY) {
-                world.moveChange(deltaX, deltaY);
+                world.moveXYChange(deltaX, deltaY);
             }
         });
 
@@ -63,6 +65,14 @@ public class WorldActivity extends BaseActivity {
             @Override
             public void onDirection(int deltaX, int deltaY) {
                 world.directionChange(deltaX, deltaY);
+            }
+        });
+
+        jumpControlView = findViewById(R.id.jump_control_view);
+        jumpControlView.setOnJumpListener(new JumpControlView.OnJumpListener() {
+            @Override
+            public void onJump(float progress) {
+                world.moveZChange((int) (progress * 100));
             }
         });
 
