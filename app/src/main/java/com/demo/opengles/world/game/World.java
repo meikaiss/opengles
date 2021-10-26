@@ -106,19 +106,47 @@ public class World {
     public void moveChange(int viewTouchDeltaX, int viewTouchDeltaY) {
         float radius = (float) Math.sqrt(Math.pow(viewTouchDeltaX, 2) + Math.pow(viewTouchDeltaY, 2));
 
+        Log.e("mk", "========================");
+        //方向键盘的方向向量
+        float[] moveVector = new float[2];
+        moveVector[0] = viewTouchDeltaX / radius;
+        moveVector[1] = viewTouchDeltaY / radius;
+        Log.e("mk", "moveVector="+moveVector[0] + ", " + moveVector[1]);
 
-        float moveDeltaX = (speed * viewTouchDeltaX / radius);
-        float moveDeltaY = (speed * viewTouchDeltaY / radius);
+        //视角方向向量
+        float[] directionVector = new float[2];
+        directionVector[0] = (float) Math.sin(horizontalAngle / 180 * Math.PI);
+        directionVector[1] = (float) Math.cos(horizontalAngle / 180 * Math.PI);
+        Log.e("mk", "directionVector="+directionVector[0] + ", " + directionVector[1]);
+
+        float[] realVector = new float[2];
+        realVector[0] = moveVector[0] + directionVector[0];
+        realVector[1] = moveVector[1] + directionVector[1];
+        if (realVector[0] == 0 && realVector[1] == 0){
+            realVector[0] = directionVector[0];
+            realVector[1] = directionVector[1];
+        }
+        float radiusReal = (float) Math.sqrt(Math.pow(realVector[0], 2) + Math.pow(realVector[1], 2));
+        Log.e("mk", "realVector="+realVector[0] + ", " + realVector[1]);
+
+
+        float moveDeltaX = (speed * realVector[0] / radiusReal);
+        float moveDeltaY = (speed * realVector[1] / radiusReal);
+        Log.e("mk", "moveDelta="+moveDeltaX + ", " + moveDeltaY);
 
         eyeX += moveDeltaX;
         eyeY += moveDeltaY;
 
-        eyeZ += speed * direction[2] / directionRadius;
+        Log.e("mk", "eye=" + eyeX + ", " + eyeX);
+
+        Log.e("mk", "//////////////////////");
+
+//        eyeZ += speed * direction[2] / directionRadius;
 
         resetMatrixFlag = true;
     }
 
-    private float horizontalAngle = 0; //视线方向与XY平面的夹角
+    private float horizontalAngle = 0; //视线方向在XY平面投影与Y轴的夹角
     private float verticalAngle = 90; //视线方向与Z轴的夹角
     private float directionDelta = 0.5f;
 
