@@ -13,6 +13,8 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.demo.opengles.util.MathUtil;
+
 
 /**
  * 眼睛位置控制器
@@ -26,6 +28,7 @@ public class MoveControlView extends View {
     private int smallCY;
     private float bigRadius;
     private float smallRadius = 30f;
+    private float strokeWidth = 5f;
 
     public OnMoveListener onMoveListener;
 
@@ -53,7 +56,7 @@ public class MoveControlView extends View {
         paint.setDither(true);
         paint.setColor(0xFFA00000);
         paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(5);
+        paint.setStrokeWidth(strokeWidth);
     }
 
     @Override
@@ -66,7 +69,7 @@ public class MoveControlView extends View {
         smallCX = getMeasuredWidth() / 2;
         smallCY = getMeasuredHeight() / 2;
 
-        bigRadius = getMeasuredWidth() / 2 - 5;
+        bigRadius = getMeasuredWidth() / 4 - strokeWidth / 2;
     }
 
     @Override
@@ -80,9 +83,18 @@ public class MoveControlView extends View {
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
-            invalidate();
             triggerMoveListener();
-            handler.sendEmptyMessage(0);
+
+            /**
+             * 利用同步消息屏障，保证后续 sendEmptyMessage(0) 排列在 invalidate 消息之后
+             * 缺点：在没有触发Move事件时仍然会 invalidate，损耗了绘制性能
+             * 优点：手指拉到某一方向后不动，仍然表示朝此方向移动，仍需要触发 triggerMoveListener
+             */
+            invalidate();
+
+            if (msg.what == 0) {
+                handler.sendEmptyMessage(0);
+            }
         }
     };
 
@@ -90,10 +102,15 @@ public class MoveControlView extends View {
     public boolean onTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             handler.sendEmptyMessage(0);
-        }
+            bigCX = (int) event.getX();
+            bigCY = (int) event.getY();
 
-        if (event.getAction() == MotionEvent.ACTION_DOWN
-                || event.getAction() == MotionEvent.ACTION_MOVE) {
+            bigCX = MathUtil.clamp(bigCX, getWidth() / 4, getWidth() * 3 / 4);
+            bigCY = MathUtil.clamp(bigCY, getHeight() / 4, getHeight() * 3 / 4);
+
+            smallCX = (int) event.getX();
+            smallCY = (int) event.getY();
+        } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
             float deltaX = bigCX - event.getX();
             float deltaY = bigCY - event.getY();
             float distance = (float) Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
@@ -104,13 +121,16 @@ public class MoveControlView extends View {
                 smallCX = (int) event.getX();
                 smallCY = (int) event.getY();
             }
-
         } else if (event.getAction() == MotionEvent.ACTION_UP
                 || event.getAction() == MotionEvent.ACTION_CANCEL) {
+
+            bigCX = getMeasuredWidth() / 2;
+            bigCY = getMeasuredHeight() / 2;
+
             smallCX = getMeasuredWidth() / 2;
             smallCY = getMeasuredHeight() / 2;
-            invalidate();
             handler.removeMessages(0);
+            handler.sendEmptyMessage(1);
         }
 
         return true;
@@ -118,7 +138,14 @@ public class MoveControlView extends View {
 
     private void triggerMoveListener() {
         if (onMoveListener != null) {
-            onMoveListener.onMove(smallCX - bigCX, -1 * (smallCY - bigCY));
+            int deltaX = smallCX - bigCX;
+            int deltaY = -1 * (smallCY - bigCY);
+
+            if (deltaX != 0 || deltaY != 0) {
+                onMoveListener.onMove(deltaX, deltaY);
+            }
         }
     }
+
 }
+

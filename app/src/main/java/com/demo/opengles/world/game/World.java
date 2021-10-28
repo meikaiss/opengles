@@ -2,7 +2,6 @@ package com.demo.opengles.world.game;
 
 import android.opengl.GLES20;
 import android.opengl.Matrix;
-import android.util.Log;
 
 import javax.microedition.khronos.opengles.GL10;
 
@@ -119,10 +118,9 @@ public class World {
     }
 
     public void moveZChange(int viewTouchZ) {
-
         eyeZ = viewTouchZ;
 
-        eyeZ = Math.max(1, eyeZ);
+        eyeZ = Math.max(0, eyeZ);
         eyeZ = Math.min(100, eyeZ);
 
         resetMatrixFlag = true;
@@ -130,7 +128,7 @@ public class World {
 
     private float horizontalAngle = 0; //视线方向在XY平面投影与Y轴的夹角
     private float verticalAngle = 90; //视线方向与Z轴的夹角
-    private float directionDelta = 0.5f;
+    private float directionDelta = 1f; //每一帧移动的角度
 
     public void directionChange(int viewTouchDeltaX, int viewTouchDeltaY) {
         resetMatrixFlag = true;
@@ -148,8 +146,6 @@ public class World {
         verticalAngle = Math.min(180, verticalAngle);
         verticalAngle = Math.max(0, verticalAngle); //简直方向禁止循环观察
         direction[2] = (float) (directionRadius * Math.cos(verticalAngle / 180 * Math.PI));
-
-        Log.e("mk", "viewTouchDeltaY=" + viewTouchDeltaY + ", direction[2]=" + direction[2] + ", horizontalAngle=" + horizontalAngle);
     }
 
     public void onScale(float scaleFactorParam) {
