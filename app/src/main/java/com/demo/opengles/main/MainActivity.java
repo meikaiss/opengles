@@ -45,6 +45,7 @@ import com.demo.opengles.graphic.TriangleMatrixActivity;
 import com.demo.opengles.graphic.TriangleModalActivity;
 import com.demo.opengles.leak.LeakGlSurfaceViewActivity;
 import com.demo.opengles.map.MapViewGaussianActivity;
+import com.demo.opengles.map.MapViewGaussianActivity2;
 import com.demo.opengles.pcm.PcmRecordActivity;
 import com.demo.opengles.record.camera1.EGLCamera1Record4SameTimeActivity;
 import com.demo.opengles.record.camera1.EGLCamera1RecordActivity;
@@ -97,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("高斯模糊-视频播放高斯模糊", GaussianVideoPlayerActivity.class));
             add(new MainItemBean("高斯模糊-自定义GaussianGlSurfaceView", GaussianViewActivity.class));
             add(new MainItemBean("高斯模糊-高德地图", MapViewGaussianActivity.class));
+            add(new MainItemBean("高斯模糊-高德地图2", MapViewGaussianActivity2.class));
             add(new MainItemBean("位置变换-平移-旋转-缩放", TransformActivity.class));
             add(new MainItemBean("Surface绘图表面-SurfaceView", SurfaceViewActivity.class));
             add(new MainItemBean("Surface绘图表面-SurfaceView播放视频", SurfaceViewVideoActivity.class));

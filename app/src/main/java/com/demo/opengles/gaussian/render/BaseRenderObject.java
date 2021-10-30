@@ -3,7 +3,6 @@ package com.demo.opengles.gaussian.render;
 import android.content.Context;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
-import android.opengl.GLES31;
 import android.util.Log;
 
 import com.demo.opengles.util.OpenGLESUtil;
@@ -154,6 +153,9 @@ public abstract class BaseRenderObject implements IRenderAble {
 
     @Override
     public void onDraw(int textureId) {
+        if (!isCreate || !isChange) {
+            throw new IllegalStateException("you must call onCreate and onChange before onDraw");
+        }
         this.textureId = textureId;
 
         GLES20.glUseProgram(program);
