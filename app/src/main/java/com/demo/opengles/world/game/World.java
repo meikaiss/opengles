@@ -25,10 +25,13 @@ public class World {
     public float eyeX = 0f;
     public float eyeY = -20f;
     public float eyeZ = 2f;
-    private float speed = 0.08f; //移动控制器满半径时的世界坐标系移动速度为0.05/帧
+    private float speed = 0.12f; //移动控制器满半径时的世界坐标系移动速度
 
+    private float horizontalAngle = 0; //视线方向在XY平面投影与Y轴的夹角
+    private float verticalAngle = 90; //视线方向与Z轴的夹角
+    private float directionDelta = 0.5f; //方向控制器每一帧移动的角度
     private float directionRadius = 20f;
-    public float[] direction = {0f, directionRadius, 0f};
+    public float[] direction = {0f, directionRadius, 0f}; //方向向量
 
     public float scaleFactor = 1.0f;
 
@@ -125,10 +128,6 @@ public class World {
 
         resetMatrixFlag = true;
     }
-
-    private float horizontalAngle = 0; //视线方向在XY平面投影与Y轴的夹角
-    private float verticalAngle = 90; //视线方向与Z轴的夹角
-    private float directionDelta = 1f; //每一帧移动的角度
 
     public void directionChange(int viewTouchDeltaX, int viewTouchDeltaY) {
         resetMatrixFlag = true;

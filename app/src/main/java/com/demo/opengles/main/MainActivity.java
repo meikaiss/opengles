@@ -125,8 +125,8 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("Camera2-GLSurfaceView-四合一录制", Camera2GLSurfaceViewConcatRecordActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("Camera2-EglSurfaceView-4路预览", Camera2EGLSurfaceView4PreviewActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("Camera2-EglSurfaceView-4路录制", EGLCamera2GLSurfaceView4RecordActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
-            add(new MainItemBean("GlSurfaceView-opengl资源释放", LeakGlSurfaceViewActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
-            add(new MainItemBean("GlSurfaceView-三维世界", WorldActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
+            add(new MainItemBean("GlSurfaceView-opengl资源释放", LeakGlSurfaceViewActivity.class));
+            add(new MainItemBean("GlSurfaceView-三维世界", WorldActivity.class));
         }
     };
 

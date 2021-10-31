@@ -67,13 +67,10 @@ public class MapViewGaussianActivity extends BaseActivity {
             });
 
             glSurfaceView.requestRender();
-
-            Log.e("mkmk", "111," + System.currentTimeMillis());
         }
 
         @Override
         public void onMapScreenShot(Bitmap bitmap, int i) {
-            Log.e("mkmk", "222," + System.currentTimeMillis());
         }
     };
 
