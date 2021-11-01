@@ -3,6 +3,7 @@ package com.demo.opengles.map;
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -42,6 +43,7 @@ public class MapViewGaussianActivity2 extends BaseActivity {
         mapView.getMap().setCustomRenderer(new CustomRenderer() {
             int width;
             int height;
+            int textureId;
 
             @Override
             public void OnMapReferencechanged() {
@@ -82,13 +84,13 @@ public class MapViewGaussianActivity2 extends BaseActivity {
             @Override
             public void onDrawFrame(GL10 gl) {
                 int screenshotSize = width * height;
+
                 ByteBuffer bb = ByteBuffer.allocateDirect(screenshotSize * 4);
                 bb.order(ByteOrder.nativeOrder());
                 GLES20.glReadPixels(0, 0, width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE,
                         bb);
                 int pixelsBuffer[] = new int[screenshotSize];
                 bb.asIntBuffer().get(pixelsBuffer);
-                bb = null;
 
                 for (int i = 0; i < screenshotSize; ++i) {
                     // The alpha and green channels' positions are preserved while the      red
@@ -100,7 +102,8 @@ public class MapViewGaussianActivity2 extends BaseActivity {
                 Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
                 bitmap.setPixels(pixelsBuffer, screenshotSize - width, -width, 0, 0, width, height);
 
-                int textureId = OpenGLESUtil.createBitmapTextureId(bitmap, GLES20.GL_TEXTURE0);
+                OpenGLESUtil.deleteTextureId(textureId);
+                textureId = OpenGLESUtil.createBitmapTextureId(bitmap, GLES20.GL_TEXTURE0);
                 bitmap.recycle();
 
                 renderObjectH.onDraw(textureId);
@@ -110,6 +113,5 @@ public class MapViewGaussianActivity2 extends BaseActivity {
         });
 
     }
-
 
 }

@@ -110,14 +110,13 @@ public class GaussianGLSurfaceView extends GLSurfaceView {
                     bgBitmap = config.bitmapProvider.getOriginBitmap();
                 }
             } else if (config.getBitmapCreateMode() == GaussianConfig.BitmapCreateMode.GlEveryDraw) {
-                if (bgBitmap != null){
+                if (bgBitmap != null) {
                     bgBitmap.recycle();
                 }
                 bgBitmap = config.bitmapProvider.getOriginBitmap();
             }
 
-            if (bgBitmap == null) {
-                GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
+            if (bgBitmap == null || bgBitmap.isRecycled()) {
                 return;
             }
 
