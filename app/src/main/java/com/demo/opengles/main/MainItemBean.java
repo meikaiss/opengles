@@ -29,4 +29,13 @@ public class MainItemBean {
         this.permissionList.add(permission1);
         this.permissionList.add(permission2);
     }
+
+    public MainItemBean(String name, Class<? extends AppCompatActivity> clz,
+                        String permission1, String permission2, String permission3) {
+        this.name = name;
+        this.clz = clz;
+        this.permissionList.add(permission1);
+        this.permissionList.add(permission2);
+        this.permissionList.add(permission3);
+    }
 }
