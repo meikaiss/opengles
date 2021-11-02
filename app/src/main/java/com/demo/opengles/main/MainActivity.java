@@ -55,7 +55,8 @@ import com.demo.opengles.record.camera2.glrecord.Camera2GLSurfaceView4RecordActi
 import com.demo.opengles.record.camera2.glrecordconcat.Camera2GLSurfaceViewConcatRecordActivity;
 import com.demo.opengles.record.camera2.glrecorddouble.Camera2GLSurfaceViewDoubleRecordActivity;
 import com.demo.opengles.record.camera2.glsurfaceview.Camera2GLSurfaceView4PreviewActivity;
-import com.demo.opengles.record.camera2.mediarecorder.MediaRecorderActivity;
+import com.demo.opengles.record.camera2.mediarecorder.surfaceview.MediaRecorderSurfaceActivity;
+import com.demo.opengles.record.camera2.mediarecorder.textureview.MediaRecorderTextureActivity;
 import com.demo.opengles.record.camera2.surfaceview.Camera2SurfaceView4PreviewActivity;
 import com.demo.opengles.surface.GLSurfaceViewAlphaVideoActivity;
 import com.demo.opengles.surface.GLSurfaceViewVideoActivity;
@@ -128,7 +129,8 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("Camera2-EglSurfaceView-4路录制", EGLCamera2GLSurfaceView4RecordActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("GlSurfaceView-opengl资源释放", LeakGlSurfaceViewActivity.class));
             add(new MainItemBean("GlSurfaceView-三维世界", WorldActivity.class));
-            add(new MainItemBean("MediaRecorder录制", MediaRecorderActivity.class, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
+            add(new MainItemBean("MediaRecorder-SurfaceView", MediaRecorderSurfaceActivity.class, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
+            add(new MainItemBean("MediaRecorder-Texture", MediaRecorderTextureActivity.class, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
         }
     };
 

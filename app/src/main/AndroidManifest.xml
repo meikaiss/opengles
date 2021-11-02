@@ -81,7 +81,8 @@
         <activity android:name=".pcm.PcmRecordActivity" />
         <activity android:name=".leak.LeakGlSurfaceViewActivity" />
         <activity android:name=".world.WorldActivity" />
-        <activity android:name=".record.camera2.mediarecorder.MediaRecorderActivity" />
+        <activity android:name=".record.camera2.mediarecorder.textureview.MediaRecorderTextureActivity" />
+        <activity android:name=".record.camera2.mediarecorder.surfaceview.MediaRecorderSurfaceActivity" />
 
     </application>
 
