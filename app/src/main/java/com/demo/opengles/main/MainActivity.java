@@ -49,15 +49,14 @@ import com.demo.opengles.map.MapViewGaussianActivity2;
 import com.demo.opengles.pcm.PcmRecordActivity;
 import com.demo.opengles.record.camera1.EGLCamera1Record4SameTimeActivity;
 import com.demo.opengles.record.camera1.EGLCamera1RecordActivity;
+import com.demo.opengles.record.camera1.mediarecorder.surfaceview.Camera1MediaRecorderSurfaceActivity;
+import com.demo.opengles.record.camera1.mediarecorder.textureview.Camera1MediaRecorderTextureActivity;
 import com.demo.opengles.record.camera2.eglrecord.EGLCamera2GLSurfaceView4RecordActivity;
 import com.demo.opengles.record.camera2.eglsurfaceview.Camera2EGLSurfaceView4PreviewActivity;
 import com.demo.opengles.record.camera2.glrecord.Camera2GLSurfaceView4RecordActivity;
 import com.demo.opengles.record.camera2.glrecordconcat.Camera2GLSurfaceViewConcatRecordActivity;
 import com.demo.opengles.record.camera2.glrecorddouble.Camera2GLSurfaceViewDoubleRecordActivity;
 import com.demo.opengles.record.camera2.glsurfaceview.Camera2GLSurfaceView4PreviewActivity;
-import com.demo.opengles.record.camera1.mediarecorder.surfaceview.Camera1MediaRecorderSurfaceActivity;
-import com.demo.opengles.record.camera1.mediarecorder.textureview.Camera1MediaRecorderTextureActivity;
-import com.demo.opengles.record.camera2.mediarecorder.MedioRecorderCamera2Activity;
 import com.demo.opengles.record.camera2.mediarecorder.surfaceview.Camera2MediaRecorderSurfaceActivity;
 import com.demo.opengles.record.camera2.surfaceview.Camera2SurfaceView4PreviewActivity;
 import com.demo.opengles.surface.GLSurfaceViewAlphaVideoActivity;
@@ -134,7 +133,6 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("Camera1-MediaRecorder-SurfaceView", Camera1MediaRecorderSurfaceActivity.class, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("Camera1-MediaRecorder-Texture", Camera1MediaRecorderTextureActivity.class, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("Camera2-MediaRecorder-SurfaceView", Camera2MediaRecorderSurfaceActivity.class, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
-            add(new MainItemBean("aaaaaaaaaaaaaaaaaaaaaaaa", MedioRecorderCamera2Activity.class, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
         }
     };
 

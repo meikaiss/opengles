@@ -84,7 +84,6 @@
         <activity android:name=".record.camera1.mediarecorder.textureview.Camera1MediaRecorderTextureActivity" />
         <activity android:name=".record.camera1.mediarecorder.surfaceview.Camera1MediaRecorderSurfaceActivity" />
         <activity android:name=".record.camera2.mediarecorder.surfaceview.Camera2MediaRecorderSurfaceActivity" />
-        <activity android:name=".record.camera2.mediarecorder.MedioRecorderCamera2Activity" />
 
     </application>
 
