@@ -1,4 +1,4 @@
-package com.demo.opengles.record.camera2.mediarecorder.textureview;
+package com.demo.opengles.record.camera1.mediarecorder.textureview;
 
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
@@ -17,8 +17,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public class MediaRecorderTextureActivity extends BaseActivity implements View.OnClickListener {
-    private static final String TAG = MediaRecorderTextureActivity.class.getSimpleName();
+public class Camera1MediaRecorderTextureActivity extends BaseActivity implements View.OnClickListener {
+    private static final String TAG = Camera1MediaRecorderTextureActivity.class.getSimpleName();
     private TextureView mTextureview;
     private Button mBtnStart, mBtnFinish;
     private MediaRecorder mMediaRecorder;

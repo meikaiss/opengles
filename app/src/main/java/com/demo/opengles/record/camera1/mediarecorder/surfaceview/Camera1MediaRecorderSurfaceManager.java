@@ -1,4 +1,4 @@
-package com.demo.opengles.record.camera2.mediarecorder.surfaceview;
+package com.demo.opengles.record.camera1.mediarecorder.surfaceview;
 
 import android.app.Activity;
 import android.hardware.Camera;
@@ -13,7 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public class MediaRecorderSurfaceManager {
+public class Camera1MediaRecorderSurfaceManager {
     private static final String TAG = "MRSM";
 
     private Activity activity;
@@ -25,7 +25,7 @@ public class MediaRecorderSurfaceManager {
     private Camera.Size mSelectSize;//记录当前选择的分辨率
     private boolean isRecorder = false;//用于判断当前是否在录制视频
 
-    public MediaRecorderSurfaceManager(Activity activity, int cameraId, SurfaceView surfaceView) {
+    public Camera1MediaRecorderSurfaceManager(Activity activity, int cameraId, SurfaceView surfaceView) {
         this.activity = activity;
         this.cameraId = cameraId;
         this.surfaceView = surfaceView;

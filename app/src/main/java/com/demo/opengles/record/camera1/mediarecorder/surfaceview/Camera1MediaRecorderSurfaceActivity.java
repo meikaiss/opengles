@@ -1,4 +1,4 @@
-package com.demo.opengles.record.camera2.mediarecorder.surfaceview;
+package com.demo.opengles.record.camera1.mediarecorder.surfaceview;
 
 import android.os.Bundle;
 import android.view.View;
@@ -8,13 +8,13 @@ import com.demo.opengles.R;
 import com.demo.opengles.main.BaseActivity;
 import com.demo.opengles.util.TimeConsumeUtil;
 
-public class MediaRecorderSurfaceActivity extends BaseActivity implements View.OnClickListener {
+public class Camera1MediaRecorderSurfaceActivity extends BaseActivity implements View.OnClickListener {
     private Button mBtnStart, mBtnFinish;
 
-    private MediaRecorderSurfaceManager manager1;
-    private MediaRecorderSurfaceManager manager2;
-    private MediaRecorderSurfaceManager manager3;
-    private MediaRecorderSurfaceManager manager4;
+    private Camera1MediaRecorderSurfaceManager manager1;
+    private Camera1MediaRecorderSurfaceManager manager2;
+    private Camera1MediaRecorderSurfaceManager manager3;
+    private Camera1MediaRecorderSurfaceManager manager4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,7 +23,7 @@ public class MediaRecorderSurfaceActivity extends BaseActivity implements View.O
         mBtnStart = findViewById(R.id.btn_start_record);
         mBtnFinish = findViewById(R.id.btn_stop_record);
 
-        manager1 = new MediaRecorderSurfaceManager(activity, 0, findViewById(R.id.surface_view_1));
+        manager1 = new Camera1MediaRecorderSurfaceManager(activity, 0, findViewById(R.id.surface_view_1));
 //        manager2 = new MediaRecorderSurfaceManager(activity, 1, findViewById(R.id.surface_view_2));
 //        manager3 = new MediaRecorderSurfaceManager(activity, 2, findViewById(R.id.surface_view_3));
 //        manager4 = new MediaRecorderSurfaceManager(activity, 3, findViewById(R.id.surface_view_4));
