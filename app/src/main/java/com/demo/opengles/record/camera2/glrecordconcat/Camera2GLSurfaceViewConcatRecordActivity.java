@@ -20,6 +20,15 @@ import com.demo.opengles.main.BaseActivity;
 import com.demo.opengles.util.TimeConsumeUtil;
 import com.demo.opengles.util.ToastUtil;
 
+/**
+ * 本测试用例在长时间测试的情况下，容易出现：
+ * 1、Manager内部 开始录制标记 错乱，导致无法启动录制
+ * 2、 定期弹出toast，显示“请先开始录制”
+ *    思考方向：
+ *      a、在Manager内部通过AutoTestLog输出更多细节的日志，排查原因
+ *      b、重新整理Manager内部的代码结结构
+ *
+ */
 public class Camera2GLSurfaceViewConcatRecordActivity extends BaseActivity {
 
     private Camera2GLSurfaceViewConcatRecordManager recordManager;

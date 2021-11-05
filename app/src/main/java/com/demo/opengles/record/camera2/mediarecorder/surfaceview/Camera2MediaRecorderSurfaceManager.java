@@ -7,7 +7,6 @@ import android.view.SurfaceView;
 import androidx.annotation.NonNull;
 
 public class Camera2MediaRecorderSurfaceManager {
-    private static final String TAG = "Camera2MediaRecorderMng";
 
     private Camera2PreviewHelper previewHelper;
     private Camera2RecordHelper recordHelper;
@@ -19,7 +18,7 @@ public class Camera2MediaRecorderSurfaceManager {
         surfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(@NonNull SurfaceHolder holder) {
-                recordHelper.startRecord();
+                previewHelper.startPreview();
             }
 
             @Override

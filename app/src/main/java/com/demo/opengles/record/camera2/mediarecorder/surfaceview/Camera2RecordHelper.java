@@ -45,6 +45,7 @@ public class Camera2RecordHelper {
     private Handler cameraThreadHandler;
 
     private MediaRecorder mediaRecorder;
+    private boolean isStartRecord;
 
     public Camera2RecordHelper(Context context, int cameraId, SurfaceView surfaceView) {
         this.context = context;
@@ -125,6 +126,10 @@ public class Camera2RecordHelper {
                     }
 
                     session.setRepeatingRequest(builder.build(), null, cameraThreadHandler);
+
+                    mediaRecorder.start();
+                    isStartRecord = true;
+
                 } catch (CameraAccessException e) {
                     e.printStackTrace();
                 }
@@ -137,15 +142,17 @@ public class Camera2RecordHelper {
         }, cameraThreadHandler);
     }
 
-    public void stop(){
+    public void stop() {
         try {
             doStop();
+            isStartRecord = false;
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
     }
 
     public void doStop() throws CameraAccessException {
+        mediaRecorder.stop();
         if (cameraCaptureSession != null) {
             cameraCaptureSession.stopRepeating();
         }
@@ -168,11 +175,11 @@ public class Camera2RecordHelper {
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);//设置输出格式
         mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);//设置音频编码格式，请注意这里使用默认，实际app项目需要考虑兼容问题，应该选择AAC
         mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT);//设置视频编码格式，请注意这里使用默认，实际app项目需要考虑兼容问题，应该选择H264
-        mediaRecorder.setVideoEncodingBitRate(1000000);//设置比特率 一般是 1*分辨率 到 10*分辨率 之间波动。比特率越大视频越清晰但是视频文件也越大。
-        mediaRecorder.setVideoFrameRate(25);//设置帧数， 过大帧数也会让视频文件更大当然也会更流畅，但是没有多少实际提升。人眼极限也就30帧了。
+        mediaRecorder.setVideoEncodingBitRate(1 * mPreviewSize.getWidth() * mPreviewSize.getHeight());//设置比特率 一般是 1*分辨率 到 10*分辨率 之间波动。比特率越大视频越清晰但是视频文件也越大。
+        mediaRecorder.setVideoFrameRate(25);//设置帧数 选择 30即可， 过大帧数也会让视频文件更大当然也会更流畅，但是没有多少实际提升。人眼极限也就30帧了。
         mediaRecorder.setVideoSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
-        //mMediaRecorder.setOrientationHint(90);
-        //mediaRecorder.setPreviewDisplay(surfaceView.getHolder().getSurface());
+//        mMediaRecorder.setOrientationHint(90);
+//        mMediaRecorder.setPreviewDisplay(surfaceView.getHolder().getSurface());
         mediaRecorder.setOutputFile(file.getAbsolutePath());
         try {
             mediaRecorder.prepare();
