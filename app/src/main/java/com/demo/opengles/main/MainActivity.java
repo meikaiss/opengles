@@ -66,6 +66,7 @@ import com.demo.opengles.surface.SurfaceViewActivity;
 import com.demo.opengles.surface.SurfaceViewVideoActivity;
 import com.demo.opengles.surface.TextureViewVideoActivity;
 import com.demo.opengles.world.WorldActivity;
+import com.demo.opengles.yuv.YuvDisplayActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -133,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("Camera1-MediaRecorder-SurfaceView", Camera1MediaRecorderSurfaceActivity.class, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("Camera1-MediaRecorder-Texture", Camera1MediaRecorderTextureActivity.class, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("Camera2-MediaRecorder-SurfaceView", Camera2MediaRecorderSurfaceActivity.class, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
+            add(new MainItemBean("YUV图像显示", YuvDisplayActivity.class, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
         }
     };
 

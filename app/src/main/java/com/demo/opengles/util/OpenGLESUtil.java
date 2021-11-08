@@ -20,6 +20,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -129,6 +130,42 @@ public class OpenGLESUtil {
             return GLES20.GL_NONE;
         }
         return program;
+    }
+
+    public static int createTextureId(Buffer buffer, int width, int height) {
+        int[] textures = new int[1];
+        GLES20.glGenTextures(1, textures, 0);
+        int textureId = textures[0];
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
+
+        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_LUMINANCE, width, height, 0,
+                GLES20.GL_LUMINANCE, GLES20.GL_UNSIGNED_BYTE, buffer);
+
+        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
+        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
+
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+        return textureId;
+    }
+
+    public static int createTextureId2(Buffer buffer, int width, int height) {
+        int[] textures = new int[1];
+        GLES20.glGenTextures(1, textures, 0);
+        int textureId = textures[0];
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
+
+        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_LUMINANCE_ALPHA, width, height, 0,
+                GLES20.GL_LUMINANCE_ALPHA, GLES20.GL_UNSIGNED_BYTE, buffer);
+
+        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
+        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
+
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+        return textureId;
     }
 
     //在显卡纹理硬件组的指定引脚上挂载一个纹理，并将Bitmap填充到此纹理中

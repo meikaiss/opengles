@@ -14,6 +14,7 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.MediaRecorder;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 import android.view.SurfaceView;
@@ -166,6 +167,7 @@ public class Camera2RecordHelper {
     private void configMediaRecorder() {
         String time = FormatUtil.get_yyyy_MM_DD_HH_mm_ss();
         File file = new File(context.getExternalCacheDir(), "camera_" + cameraId + "_" + time + ".mp4");
+
         if (file.exists()) {
             file.delete();
         }
