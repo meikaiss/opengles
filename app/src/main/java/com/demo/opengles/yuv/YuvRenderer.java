@@ -60,12 +60,31 @@ public class YuvRenderer extends BaseYuvRenderObject {
             uvBuffer.position(0);
 
             OpenGLESUtil.deleteTextureId(yTextureId);
-            //y平面的图像数据的宽高等于真实宽高
-            yTextureId = OpenGLESUtil.createTextureId(yBuffer, yuvWidth, yuvHeight);
+            /**
+             * 对Buffer中的数据进行采样，依据采样的结果创建一个相同宽高的纹理
+             * Y平面的图像数据的宽高等于真实宽高
+             * 将Y平面的数据填充到相同宽高的纹理中，纹理中每个像素的RGB都等于Y的值，每个像素的A值都为1
+             */
+            yTextureId = OpenGLESUtil.createTexture(yBuffer, yuvWidth, yuvHeight);
 
             OpenGLESUtil.deleteTextureId(uvTextureId);
-            //uv平面的图像数据的宽高只有图像真实宽高的一半
-            uvTextureId = OpenGLESUtil.createTextureId2(uvBuffer, yuvWidth / 2, yuvHeight / 2);
+            /**
+             * 官方的解释见下面这段英文
+             * 解释：从 uvBuffer 中采样生成一个纹理。
+             * UV数据的采样都缩小了一半，因此只需要宽高为一半的纹理，把U和V放进两个区域存储即可。
+             * 通过设置 GL_LUMINANCE_ALPHA 标志，opengl会将Buffer中第一个字节的数据存储到像素的RGB通道中，
+             * R和G和B三个值都是第一个字节，即V值；第二个字节的数据存储到像素的A通道中。
+             */
+            /**
+             * UV texture is (width/2*height/2) in size (downsampled by 2 in
+             * both dimensions, each pixel corresponds to 4 pixels of the Y channel)
+             * and each pixel is two bytes. By setting GL_LUMINANCE_ALPHA, OpenGL
+             * puts first byte (V) into R,G and B components and of the texture
+             * and the second byte (U) into the A component of the texture. That's
+             * why we find U and V at A and R respectively in the fragment shader code.
+             * Note that we could have also found V at G or B as well.
+             */
+            uvTextureId = OpenGLESUtil.createTextureWithAlpha(uvBuffer, yuvWidth / 2, yuvHeight / 2);
 
             GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, yTextureId);

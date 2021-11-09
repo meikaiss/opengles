@@ -1,7 +1,6 @@
 package com.demo.opengles.yuv;
 
 import android.graphics.ImageFormat;
-import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
@@ -51,7 +50,6 @@ public class YuvDisplayActivity extends BaseActivity {
         }
 
 
-
         SurfaceHolder holder = surfaceView.getHolder();
 
         holder.addCallback(new SurfaceHolder.Callback() {
@@ -66,6 +64,15 @@ public class YuvDisplayActivity extends BaseActivity {
                 camera.setPreviewCallback(new Camera.PreviewCallback() {
                     @Override
                     public void onPreviewFrame(byte[] data, Camera camera) {
+
+                        /**
+                         * data 的长度为 width * height * 1.5
+                         * 前面 width * height 长度的字节数据为 Y 信息
+                         * 后面 width * height * 1.5 长度的字节数据为 UV 信息
+                         */
+
+                        Log.e("yuv-nv21", "data = " + data[0]);
+
                         Camera.Size previewSize = camera.getParameters().getPreviewSize();
                         int width = previewSize.width;
                         int height = previewSize.height;
@@ -88,7 +95,6 @@ public class YuvDisplayActivity extends BaseActivity {
                 camera.release();
             }
         });
-
     }
 
     private void initGlSurfaceView() {

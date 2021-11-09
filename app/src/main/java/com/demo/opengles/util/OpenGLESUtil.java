@@ -132,7 +132,7 @@ public class OpenGLESUtil {
         return program;
     }
 
-    public static int createTextureId(Buffer buffer, int width, int height) {
+    public static int createTexture(Buffer buffer, int width, int height) {
         int[] textures = new int[1];
         GLES20.glGenTextures(1, textures, 0);
         int textureId = textures[0];
@@ -150,7 +150,7 @@ public class OpenGLESUtil {
         return textureId;
     }
 
-    public static int createTextureId2(Buffer buffer, int width, int height) {
+    public static int createTextureWithAlpha(Buffer buffer, int width, int height) {
         int[] textures = new int[1];
         GLES20.glGenTextures(1, textures, 0);
         int textureId = textures[0];
