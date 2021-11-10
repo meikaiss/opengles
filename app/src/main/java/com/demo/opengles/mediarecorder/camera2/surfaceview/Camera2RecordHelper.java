@@ -1,4 +1,4 @@
-package com.demo.opengles.record.camera2.mediarecorder.surfaceview;
+package com.demo.opengles.mediarecorder.camera2.surfaceview;
 
 import android.Manifest;
 import android.content.Context;
@@ -14,7 +14,6 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.MediaRecorder;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 import android.view.SurfaceView;

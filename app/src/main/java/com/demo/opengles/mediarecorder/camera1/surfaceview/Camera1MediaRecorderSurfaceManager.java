@@ -1,4 +1,4 @@
-package com.demo.opengles.record.camera1.mediarecorder.surfaceview;
+package com.demo.opengles.mediarecorder.camera1.surfaceview;
 
 import android.app.Activity;
 import android.hardware.Camera;

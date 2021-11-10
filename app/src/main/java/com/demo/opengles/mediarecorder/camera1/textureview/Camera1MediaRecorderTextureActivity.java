@@ -1,4 +1,4 @@
-package com.demo.opengles.record.camera1.mediarecorder.textureview;
+package com.demo.opengles.mediarecorder.camera1.textureview;
 
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
