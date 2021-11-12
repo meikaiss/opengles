@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -39,16 +40,34 @@ public class YuvDisplayActivity extends BaseActivity {
         initGlSurfaceView();
     }
 
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.btn_0:
+                yuvRenderer.setOrientation(0);
+                break;
+            case R.id.btn_90:
+                yuvRenderer.setOrientation(90);
+                break;
+            case R.id.btn_180:
+                yuvRenderer.setOrientation(180);
+                break;
+            case R.id.btn_270:
+                yuvRenderer.setOrientation(270);
+                break;
+            case R.id.btn_360:
+                yuvRenderer.setOrientation(360);
+                break;
+        }
+    }
+
     private void initCamera() {
         camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT);
-//        camera.setDisplayOrientation(90);
 
         int format = camera.getParameters().getPreviewFormat();
-        Log.e("mk", "previewFormat = " + format);
+        Log.e("yuv", "previewFormat = " + format);
         if (format == ImageFormat.NV21) {
-            Log.e("mk", "previewFormat = ImageFormat.NV21");
+            Log.e("yuv", "previewFormat = ImageFormat.NV21");
         }
-
 
         SurfaceHolder holder = surfaceView.getHolder();
 
@@ -71,7 +90,7 @@ public class YuvDisplayActivity extends BaseActivity {
                          * 后面 width * height * 1.5 长度的字节数据为 UV 信息
                          */
 
-                        Log.e("yuv-nv21", "data = " + data[0]);
+                        Log.e("yuv-nv21", "data[0] = " + data[0] + ", length=" + data.length);
 
                         Camera.Size previewSize = camera.getParameters().getPreviewSize();
                         int width = previewSize.width;
