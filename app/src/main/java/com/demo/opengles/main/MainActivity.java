@@ -59,6 +59,7 @@ import com.demo.opengles.record.camera2.glrecorddouble.Camera2GLSurfaceViewDoubl
 import com.demo.opengles.record.camera2.glsurfaceview.Camera2GLSurfaceView4PreviewActivity;
 import com.demo.opengles.mediarecorder.camera2.surfaceview.Camera2MediaRecorderSurfaceActivity;
 import com.demo.opengles.record.camera2.surfaceview.Camera2SurfaceView4PreviewActivity;
+import com.demo.opengles.record.camera2.takepicture.Camera2TakePictureActivity;
 import com.demo.opengles.surface.GLSurfaceViewAlphaVideoActivity;
 import com.demo.opengles.surface.GLSurfaceViewVideoActivity;
 import com.demo.opengles.surface.GLTextureViewAlphaVideoActivity;
@@ -122,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("EGL-Camera1-FBO-视频音频同时录制并保存mp4", EGLCamera1RecordActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("pcm录制并保存文件", PcmRecordActivity.class, Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("EGL-Camera1-FBO-4路录制音视频", EGLCamera1Record4SameTimeActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
+            add(new MainItemBean("Camera2-SurfaceView-1路拍照", Camera2TakePictureActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("Camera2-SurfaceView-4路预览", Camera2SurfaceView4PreviewActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("Camera2-GLSurfaceView-4路预览", Camera2GLSurfaceView4PreviewActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("Camera2-GLSurfaceView-4路录制", Camera2GLSurfaceView4RecordActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));

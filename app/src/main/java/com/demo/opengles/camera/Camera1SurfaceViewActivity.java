@@ -132,6 +132,23 @@ public class Camera1SurfaceViewActivity extends BaseActivity {
 
         camera.setPreviewDisplay(holder);
         camera.startPreview();
+
+        camera.takePicture(new Camera.ShutterCallback() {
+            @Override
+            public void onShutter() {
+
+            }
+        }, new Camera.PictureCallback() {
+            @Override
+            public void onPictureTaken(byte[] data, Camera camera) {
+
+            }
+        }, new Camera.PictureCallback() {
+            @Override
+            public void onPictureTaken(byte[] data, Camera camera) {
+
+            }
+        });
     }
 
     //根据屏幕的旋转角度、相机的硬件内置放置角度，来设置显示旋转角度

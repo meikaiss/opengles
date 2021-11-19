@@ -69,6 +69,7 @@
         <activity android:name=".egl.EGLCamera1FBOPreviewWaterMarkActivity" />
         <activity android:name=".record.camera1.EGLCamera1RecordActivity" />
         <activity android:name=".record.camera1.EGLCamera1Record4SameTimeActivity" />
+        <activity android:name=".record.camera2.takepicture.Camera2TakePictureActivity" />
         <activity android:name=".record.camera2.surfaceview.Camera2SurfaceView4PreviewActivity" />
         <activity android:name=".record.camera2.glsurfaceview.Camera2GLSurfaceView4PreviewActivity" />
         <activity android:name=".record.camera2.glrecord.Camera2GLSurfaceView4RecordActivity" />
