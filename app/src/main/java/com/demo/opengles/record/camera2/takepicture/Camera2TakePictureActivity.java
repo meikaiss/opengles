@@ -29,6 +29,7 @@ import androidx.annotation.Nullable;
 
 import com.demo.opengles.R;
 import com.demo.opengles.main.BaseActivity;
+import com.demo.opengles.util.IOUtil;
 import com.demo.opengles.util.LogUtil;
 import com.demo.opengles.util.ToastUtil;
 
@@ -138,27 +139,32 @@ public class Camera2TakePictureActivity extends BaseActivity {
     private ImageReader.OnImageAvailableListener onImageAvailableListener = new ImageReader.OnImageAvailableListener() {
         @Override
         public void onImageAvailable(ImageReader reader) {
-            LogUtil.e("onImageAvailable, " + System.currentTimeMillis());
+            LogUtil.e("mk", "onImageAvailable, " + System.currentTimeMillis());
 
             Image image = reader.acquireNextImage();
 
-            LogUtil.e("image.getFormat() = " + image.getFormat());
+            LogUtil.e("mk", "image.getFormat() = " + image.getFormat());
+            LogUtil.e("mk", "image.getPlanes().length = " + image.getPlanes().length);
 
             switch (image.getFormat()) {
                 case ImageFormat.JPEG:
-                    LogUtil.e("ImageReader format is JPEG");
+                    LogUtil.e("mk", "ImageReader format is JPEG");
+                    break;
+                case ImageFormat.YUV_420_888:
+                    LogUtil.e("mk", "ImageReader format is YUV_420_888");
                     break;
                 default:
                     break;
             }
 
+//            cameraThreadHandler.post(new ImageSaver(image, mFile));
 
-            cameraThreadHandler.post(new ImageSaver(image, mFile));
+            IOUtil.close(image);
         }
     };
 
     private void createCameraPreviewSession() throws CameraAccessException {
-        mImageReader = ImageReader.newInstance(surfaceView.getWidth(), surfaceView.getHeight(), ImageFormat.JPEG, 3);
+        mImageReader = ImageReader.newInstance(surfaceView.getWidth(), surfaceView.getHeight(), ImageFormat.YUV_420_888, 3);
         mImageReader.setOnImageAvailableListener(onImageAvailableListener, cameraThreadHandler);
 
         Surface surface = surfaceView.getHolder().getSurface();
