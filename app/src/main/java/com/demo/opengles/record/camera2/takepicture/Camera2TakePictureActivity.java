@@ -12,6 +12,7 @@ import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
+import android.media.Image;
 import android.media.ImageReader;
 import android.os.Bundle;
 import android.os.Handler;
@@ -69,7 +70,7 @@ public class Camera2TakePictureActivity extends BaseActivity {
 
         btnTakePicture = findViewById(R.id.btn_take_picture);
 
-        cameraHandlerThread = new HandlerThread("cameraOpenThread");
+        cameraHandlerThread = new HandlerThread("cameraHandlerThread");
         cameraHandlerThread.start();
         cameraThreadHandler = new Handler(cameraHandlerThread.getLooper());
 
@@ -139,7 +140,20 @@ public class Camera2TakePictureActivity extends BaseActivity {
         public void onImageAvailable(ImageReader reader) {
             LogUtil.e("onImageAvailable, " + System.currentTimeMillis());
 
-            cameraThreadHandler.post(new ImageSaver(reader.acquireNextImage(), mFile));
+            Image image = reader.acquireNextImage();
+
+            LogUtil.e("image.getFormat() = " + image.getFormat());
+
+            switch (image.getFormat()) {
+                case ImageFormat.JPEG:
+                    LogUtil.e("ImageReader format is JPEG");
+                    break;
+                default:
+                    break;
+            }
+
+
+            cameraThreadHandler.post(new ImageSaver(image, mFile));
         }
     };
 
@@ -288,7 +302,7 @@ public class Camera2TakePictureActivity extends BaseActivity {
             int rotation = getWindowManager().getDefaultDisplay().getRotation();
             captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, 90);
 
-            CameraCaptureSession.CaptureCallback CaptureCallback
+            CameraCaptureSession.CaptureCallback captureCallback
                     = new CameraCaptureSession.CaptureCallback() {
 
                 @Override
@@ -303,7 +317,7 @@ public class Camera2TakePictureActivity extends BaseActivity {
 
             mSession.stopRepeating();
             mSession.abortCaptures();
-            mSession.capture(captureBuilder.build(), CaptureCallback, null);
+            mSession.capture(captureBuilder.build(), captureCallback, null);
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
