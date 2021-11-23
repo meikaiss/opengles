@@ -1,7 +1,7 @@
 1、FBO对坐标系、相机矩阵的影响？是否仅仅是只需Y轴倒置
 
 
-2、对于透视投影矩阵的理解非常深刻的文章
+2、如何深入理解透视投影矩阵？
 https://cloud.tencent.com/developer/article/1472455
 
 定义：设置透视投影矩阵，用于定义物理世界中的一个锥形视景体，描述将物理世界中哪一部分范围的景色投影到二维屏幕中。
@@ -9,5 +9,18 @@ https://cloud.tencent.com/developer/article/1472455
 奥义：与通常所说的近大远小的结论相反，根本原因在于参照系不同。透视投影矩阵中所说的“近”是指视点与近平面的距离，近平面指的是计算机屏幕。
 避坑：在理解透视投影时，暂时不考虑相机矩阵，完全把相机当作固定位置。相机矩阵是在透视投影矩阵的基础上再次包装而得到的算法。
 代码：创建方法有两种：frustumM 和 perspectiveM
+
+
+3、UYVY格式的图像数据源如何获取？如何用opengl显示到屏幕？
+
+
+4、Camera2流式操作的各个api的相同点、不同点?
+https://blog.csdn.net/qq_42194101/category_11338722.html
+Android Camera2 API详解
+
+
+5、Camea2无预览界面时的后台录制？即只存在Application，却不存在Activity时，如何录制？
+
+
 
 

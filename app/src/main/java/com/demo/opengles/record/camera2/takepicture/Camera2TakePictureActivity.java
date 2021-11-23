@@ -29,14 +29,20 @@ import androidx.annotation.Nullable;
 
 import com.demo.opengles.R;
 import com.demo.opengles.main.BaseActivity;
-import com.demo.opengles.util.IOUtil;
 import com.demo.opengles.util.LogUtil;
 import com.demo.opengles.util.ToastUtil;
 
 import java.io.File;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * https://zhuanlan.zhihu.com/p/161883764
+ * Camera2的AF理解比较全面的文章，吊打微信京东的相机使用
+ */
 public class Camera2TakePictureActivity extends BaseActivity {
+
+    private static final String TAG = "tag";
 
     private static final int STATE_PREVIEW = 1;
     private static final int STATE_WAITING_PRE_CAPTURE = 2;
@@ -139,38 +145,40 @@ public class Camera2TakePictureActivity extends BaseActivity {
     private ImageReader.OnImageAvailableListener onImageAvailableListener = new ImageReader.OnImageAvailableListener() {
         @Override
         public void onImageAvailable(ImageReader reader) {
-            LogUtil.e("mk", "onImageAvailable, " + System.currentTimeMillis());
+            LogUtil.e(TAG, "onImageAvailable, " + System.currentTimeMillis());
 
             Image image = reader.acquireNextImage();
 
-            LogUtil.e("mk", "image.getFormat() = " + image.getFormat());
-            LogUtil.e("mk", "image.getPlanes().length = " + image.getPlanes().length);
+            LogUtil.e(TAG, "image.getFormat() = " + image.getFormat());
+            LogUtil.e(TAG, "image.getPlanes().length = " + image.getPlanes().length);
 
             switch (image.getFormat()) {
                 case ImageFormat.JPEG:
-                    LogUtil.e("mk", "ImageReader format is JPEG");
+                    LogUtil.e(TAG, "ImageReader format is JPEG");
                     break;
                 case ImageFormat.YUV_420_888:
-                    LogUtil.e("mk", "ImageReader format is YUV_420_888");
+                    LogUtil.e(TAG, "ImageReader format is YUV_420_888");
                     break;
                 default:
                     break;
             }
 
-//            cameraThreadHandler.post(new ImageSaver(image, mFile));
-
-            IOUtil.close(image);
+            cameraThreadHandler.post(new ImageSaver(image, mFile));
         }
     };
 
     private void createCameraPreviewSession() throws CameraAccessException {
-        mImageReader = ImageReader.newInstance(surfaceView.getWidth(), surfaceView.getHeight(), ImageFormat.YUV_420_888, 3);
+        mImageReader = ImageReader.newInstance(surfaceView.getWidth(), surfaceView.getHeight(), ImageFormat.JPEG, 3);
         mImageReader.setOnImageAvailableListener(onImageAvailableListener, cameraThreadHandler);
 
         Surface surface = surfaceView.getHolder().getSurface();
 
+        List<Surface> surfaceList = new ArrayList<>();
+        surfaceList.add(surface);
+        surfaceList.add(mImageReader.getSurface());
+
         cameraDevice.createCaptureSession(
-                Arrays.asList(surface, mImageReader.getSurface()),
+                surfaceList,
                 new CameraCaptureSession.StateCallback() {
                     @Override
                     public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
@@ -178,6 +186,7 @@ public class Camera2TakePictureActivity extends BaseActivity {
 
                         requestPreview();
                     }
+
 
                     @Override
                     public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
@@ -187,16 +196,48 @@ public class Camera2TakePictureActivity extends BaseActivity {
     }
 
     private void requestPreview() {
-        Surface surface = surfaceView.getHolder().getSurface();
-
         try {
             mPreviewBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
 
-            mPreviewBuilder.addTarget(surface);
-            //mPreviewBuilder.addTarget(mImageReader.getSurface());
+            mPreviewBuilder.addTarget(surfaceView.getHolder().getSurface());
 
+            /**
+             * 设置相机的自动对焦模式
+             *
+             * https://developer.android.com/reference/android/hardware/camera2/CaptureRequest?hl=en#CONTROL_AF_MODE
+             * AF是auto-focus的缩写，即控制自动对焦的模式
+             *
+             * OFF
+             * 相机专业模式中manual focus会设为这个模式，然后APP下发屈光度，底层转换为相应的马达位置，并将lens推到这个位置。目前只有这一个用途。
+             *
+             * AUTO
+             * 字面意思，自动对焦，但实际上准确的应该叫做单次对焦模式，APP下发一次trigger就对焦一次，APP不发trigger的话lens不会移动。
+             *
+             * MACRO
+             * 与AUTO完全一样，暂时不知道有什么用，也没见APP用到过。
+             *
+             * CONTINUOUS_VIDEO
+             * 连续对焦，这个才是真正的全自动对焦，camera画面有场景变化或camera检测到场景失焦，底层会自动触发对焦，保持camera画面处于合焦状态。
+             *
+             * CONTINUOUS_PICTURE
+             * 与CONTINUOUS_VIDEO一样，对于底层两者没有区别。
+             *
+             *
+             * 重点说明：
+             * 1、只有在AF_MODE_AUTO时才需要配AF_REGIONS，CONTINUOUS_VIDEO和CONTINUOUS_PICTURE模式都不需要，写成null，底层会自动选取画面中心的区域；
+             * 2、无论API1还是API2，Camera画面坐标的起始位置都是在手机横屏时（导航栏在右）画面的左上角，跟屏和TP的坐标不一样，需要做转换，APP下发touch AE AF的坐标都要遵循这个原则；
+             */
             mPreviewBuilder.set(CaptureRequest.CONTROL_AF_MODE,
                     CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+
+            /**
+             * 设置相机的自动暴光模式
+             *
+             * CONTROL_AE_MODE_ON_AUTO_FLASH
+             * 当光线不足时，自动打开暴光
+             *
+             * 其它值暂不说明
+             */
             mPreviewBuilder.set(CaptureRequest.CONTROL_AE_MODE,
                     CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
             mPreviewRequest = mPreviewBuilder.build();
@@ -253,6 +294,17 @@ public class Camera2TakePictureActivity extends BaseActivity {
     private void lockFocus() {
         try {
             // This is how to tell the camera to lock focus.
+            /**
+             * IDLE
+             * APP不对trigger做处理的话默认为idle。
+             *
+             * START
+             * Auto mode时AF收到一次CONTROL_AF_TRIGGER_START就开始触发一次对焦，没收到就停在当前位置；
+             * Continuous mode时，收到CONTROL_AF_TRIGGER_START就锁定对焦，停在当前位置，底层场景切换自动触发失效。
+             *
+             * CANCEL
+             * 取消当前对焦动作，等待再次触发。
+             */
             mPreviewBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER,
                     CameraMetadata.CONTROL_AF_TRIGGER_START);
 
@@ -261,7 +313,7 @@ public class Camera2TakePictureActivity extends BaseActivity {
             mSession.capture(mPreviewBuilder.build(), mCaptureCallback,
                     cameraThreadHandler);
         } catch (CameraAccessException e) {
-            e.printStackTrace();
+            LogUtil.e(e);
         }
     }
 
@@ -281,7 +333,7 @@ public class Camera2TakePictureActivity extends BaseActivity {
             // After this, the camera will go back to the normal state of preview.
             mSession.setRepeatingRequest(mPreviewBuilder.build(), mCaptureCallback, cameraThreadHandler);
         } catch (CameraAccessException e) {
-            e.printStackTrace();
+            LogUtil.e(e);
         }
     }
 
@@ -325,7 +377,7 @@ public class Camera2TakePictureActivity extends BaseActivity {
             mSession.abortCaptures();
             mSession.capture(captureBuilder.build(), captureCallback, null);
         } catch (CameraAccessException e) {
-            e.printStackTrace();
+            LogUtil.e(e);
         }
     }
 

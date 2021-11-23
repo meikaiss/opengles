@@ -8,7 +8,7 @@ import com.demo.opengles.util.OpenGLESUtil;
 
 import java.nio.ByteBuffer;
 
-public class YuvRenderer extends BaseYuvRenderObject {
+public class YuvNV21Renderer extends BaseYuvRenderObject {
 
     private int uMatrixLocation;
     private int uSamplerYLocation;
@@ -39,7 +39,7 @@ public class YuvRenderer extends BaseYuvRenderObject {
         this.orientation = orientation;
     }
 
-    public YuvRenderer(Context context) {
+    public YuvNV21Renderer(Context context) {
         super(context);
         initShaderFileName("render/yuv/vertex.frag", "render/yuv/frag.frag");
     }

@@ -86,7 +86,7 @@
         <activity android:name=".mediarecorder.camera1.textureview.Camera1MediaRecorderTextureActivity" />
         <activity android:name=".mediarecorder.camera1.surfaceview.Camera1MediaRecorderSurfaceActivity" />
         <activity android:name=".mediarecorder.camera2.surfaceview.Camera2MediaRecorderSurfaceActivity" />
-        <activity android:name=".yuv.YuvDisplayActivity" />
+        <activity android:name=".yuv.YuvNV21DisplayActivity" />
 
     </application>
 

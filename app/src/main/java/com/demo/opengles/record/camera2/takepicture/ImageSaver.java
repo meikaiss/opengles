@@ -35,7 +35,7 @@ public class ImageSaver implements Runnable {
             output = new FileOutputStream(mFile);
             output.write(bytes);
         } catch (IOException e) {
-            e.printStackTrace();
+            LogUtil.e(e);
         } finally {
             mImage.close();
             if (null != output) {
