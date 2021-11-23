@@ -110,7 +110,6 @@ public class Camera2TakePictureActivity extends BaseActivity {
                 lockFocus();
             }
         });
-
     }
 
     @SuppressLint("MissingPermission")
@@ -142,6 +141,38 @@ public class Camera2TakePictureActivity extends BaseActivity {
         }, cameraThreadHandler);
     }
 
+    private void createCameraPreviewSession() throws CameraAccessException {
+        mImageReader = ImageReader.newInstance(surfaceView.getWidth(), surfaceView.getHeight(), ImageFormat.JPEG, 3);
+        mImageReader.setOnImageAvailableListener(onImageAvailableListener, cameraThreadHandler);
+
+        Surface surface = surfaceView.getHolder().getSurface();
+
+        List<Surface> surfaceList = new ArrayList<>();
+        surfaceList.add(surface);
+        surfaceList.add(mImageReader.getSurface());
+
+        /**
+         * Capture捕获，Session会话
+         * 创建CaptureSession时传入的Surface列表，表示后续对此Session的所有Capture操作，只能以此Surface列表中的对象作为目标。
+         */
+        cameraDevice.createCaptureSession(
+                surfaceList,
+                new CameraCaptureSession.StateCallback() {
+                    @Override
+                    public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
+                        mSession = cameraCaptureSession;
+
+                        requestPreview();
+                    }
+
+
+                    @Override
+                    public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
+                        Toast.makeText(Camera2TakePictureActivity.this, "Camera configuration Failed", Toast.LENGTH_SHORT).show();
+                    }
+                }, cameraThreadHandler);
+    }
+
     private ImageReader.OnImageAvailableListener onImageAvailableListener = new ImageReader.OnImageAvailableListener() {
         @Override
         public void onImageAvailable(ImageReader reader) {
@@ -167,38 +198,16 @@ public class Camera2TakePictureActivity extends BaseActivity {
         }
     };
 
-    private void createCameraPreviewSession() throws CameraAccessException {
-        mImageReader = ImageReader.newInstance(surfaceView.getWidth(), surfaceView.getHeight(), ImageFormat.JPEG, 3);
-        mImageReader.setOnImageAvailableListener(onImageAvailableListener, cameraThreadHandler);
-
-        Surface surface = surfaceView.getHolder().getSurface();
-
-        List<Surface> surfaceList = new ArrayList<>();
-        surfaceList.add(surface);
-        surfaceList.add(mImageReader.getSurface());
-
-        cameraDevice.createCaptureSession(
-                surfaceList,
-                new CameraCaptureSession.StateCallback() {
-                    @Override
-                    public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
-                        mSession = cameraCaptureSession;
-
-                        requestPreview();
-                    }
-
-
-                    @Override
-                    public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
-                        Toast.makeText(Camera2TakePictureActivity.this, "Camera configuration Failed", Toast.LENGTH_SHORT).show();
-                    }
-                }, cameraThreadHandler);
-    }
-
     private void requestPreview() {
         try {
+            /**
+             * 创建一个适用于相机画面预览的捕获请求的建造器
+             */
             mPreviewBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
 
+            /**
+             * 注意这个Surface是在创建Session传话时传入的Surface数组中的一个
+             */
             mPreviewBuilder.addTarget(surfaceView.getHolder().getSurface());
 
             /**
@@ -240,7 +249,9 @@ public class Camera2TakePictureActivity extends BaseActivity {
              */
             mPreviewBuilder.set(CaptureRequest.CONTROL_AE_MODE,
                     CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
+
             mPreviewRequest = mPreviewBuilder.build();
+
             mSession.setRepeatingRequest(mPreviewRequest, mCaptureCallback, cameraThreadHandler);
         } catch (CameraAccessException e) {
             LogUtil.e(e);
@@ -252,21 +263,19 @@ public class Camera2TakePictureActivity extends BaseActivity {
         @Override
         public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
             super.onCaptureCompleted(session, request, result);
-            mSession = session;
             checkState(result);
         }
 
         @Override
         public void onCaptureProgressed(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull CaptureResult partialResult) {
             super.onCaptureProgressed(session, request, partialResult);
-            mSession = session;
             checkState(partialResult);
         }
 
         private void checkState(CaptureResult result) {
             switch (mState) {
                 case STATE_PREVIEW:
-                    // We have nothing to do when the camera preview is working normally.
+                    //预览画面时，捕获回调里不需要进行额外的处理
                     break;
                 case STATE_WAITING_PRE_CAPTURE:
                     Integer afState = result.get(CaptureResult.CONTROL_AF_STATE);
@@ -330,6 +339,7 @@ public class Camera2TakePictureActivity extends BaseActivity {
                     CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
      /*       mCaptureSession.capture(mPreviewBuilder.build(), mCaptureCallback,
                     mBackgroundHandler);*/
+            mState = STATE_PREVIEW;
             // After this, the camera will go back to the normal state of preview.
             mSession.setRepeatingRequest(mPreviewBuilder.build(), mCaptureCallback, cameraThreadHandler);
         } catch (CameraAccessException e) {
