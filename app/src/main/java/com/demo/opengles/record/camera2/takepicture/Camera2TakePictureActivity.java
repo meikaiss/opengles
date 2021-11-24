@@ -173,31 +173,6 @@ public class Camera2TakePictureActivity extends BaseActivity {
                 }, cameraThreadHandler);
     }
 
-    private ImageReader.OnImageAvailableListener onImageAvailableListener = new ImageReader.OnImageAvailableListener() {
-        @Override
-        public void onImageAvailable(ImageReader reader) {
-            LogUtil.e(TAG, "onImageAvailable, " + System.currentTimeMillis());
-
-            Image image = reader.acquireNextImage();
-
-            LogUtil.e(TAG, "image.getFormat() = " + image.getFormat());
-            LogUtil.e(TAG, "image.getPlanes().length = " + image.getPlanes().length);
-
-            switch (image.getFormat()) {
-                case ImageFormat.JPEG:
-                    LogUtil.e(TAG, "ImageReader format is JPEG");
-                    break;
-                case ImageFormat.YUV_420_888:
-                    LogUtil.e(TAG, "ImageReader format is YUV_420_888");
-                    break;
-                default:
-                    break;
-            }
-
-            cameraThreadHandler.post(new ImageSaver(image, mFile));
-        }
-    };
-
     private void requestPreview() {
         try {
             /**
@@ -332,15 +307,13 @@ public class Camera2TakePictureActivity extends BaseActivity {
      */
     private void unlockFocus() {
         try {
-            // Reset the auto-focus trigger
+            //回到自动对焦初始化时的设置的状态，并取消当前激活的对焦触发器
             mPreviewBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER,
                     CameraMetadata.CONTROL_AF_TRIGGER_CANCEL);
             mPreviewBuilder.set(CaptureRequest.CONTROL_AE_MODE,
                     CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
-     /*       mCaptureSession.capture(mPreviewBuilder.build(), mCaptureCallback,
-                    mBackgroundHandler);*/
             mState = STATE_PREVIEW;
-            // After this, the camera will go back to the normal state of preview.
+            //切换回到相机预览状态
             mSession.setRepeatingRequest(mPreviewBuilder.build(), mCaptureCallback, cameraThreadHandler);
         } catch (CameraAccessException e) {
             LogUtil.e(e);
@@ -356,17 +329,17 @@ public class Camera2TakePictureActivity extends BaseActivity {
             if (null == cameraDevice) {
                 return;
             }
-            // This is the CaptureRequest.Builder that we use to take a picture.
-            final CaptureRequest.Builder captureBuilder =
+            //拍照请求构造器，Still静止，StillCapture表示静止图像捕获器，即拍照的意思
+            CaptureRequest.Builder captureBuilder =
                     cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
-            captureBuilder.addTarget(mImageReader.getSurface());//拍照时，是将mImageReader.getSurface()作为目标
+            captureBuilder.addTarget(mImageReader.getSurface());//拍照时，将mImageReader.getSurface()作为目标
 
             // Use the same AE and AF modes as the preview.
             captureBuilder.set(CaptureRequest.CONTROL_AF_MODE,
                     CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
             captureBuilder.set(CaptureRequest.CONTROL_AE_MODE,
                     CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
-            // Orientation
+            // 根据屏幕横竖屏来设置图像的旋转方向，这里为了演示api，不做特殊计算
             int rotation = getWindowManager().getDefaultDisplay().getRotation();
             captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, 90);
 
@@ -391,4 +364,28 @@ public class Camera2TakePictureActivity extends BaseActivity {
         }
     }
 
+    private ImageReader.OnImageAvailableListener onImageAvailableListener = new ImageReader.OnImageAvailableListener() {
+        @Override
+        public void onImageAvailable(ImageReader reader) {
+            LogUtil.e(TAG, "onImageAvailable, " + System.currentTimeMillis());
+
+            Image image = reader.acquireNextImage();
+
+            LogUtil.e(TAG, "image.getFormat() = " + image.getFormat());
+            LogUtil.e(TAG, "image.getPlanes().length = " + image.getPlanes().length);
+
+            switch (image.getFormat()) {
+                case ImageFormat.JPEG:
+                    LogUtil.e(TAG, "ImageReader format is JPEG");
+                    break;
+                case ImageFormat.YUV_420_888:
+                    LogUtil.e(TAG, "ImageReader format is YUV_420_888");
+                    break;
+                default:
+                    break;
+            }
+
+            cameraThreadHandler.post(new ImageSaver(image, mFile));
+        }
+    };
 }
