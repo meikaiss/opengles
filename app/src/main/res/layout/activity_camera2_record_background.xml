@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <Button
+        android:id="@+id/btn_start_record"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="开始后台录制视频" />
+
+    <Button
+        android:id="@+id/btn_stop_record"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="停止后台录制视频" />
+
+    <Button
+        android:id="@+id/btn_play_record"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="播放录制的视频" />
+
+</LinearLayout>
