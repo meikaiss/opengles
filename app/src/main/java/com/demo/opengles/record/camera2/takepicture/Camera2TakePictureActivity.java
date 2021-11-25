@@ -142,6 +142,11 @@ public class Camera2TakePictureActivity extends BaseActivity {
     }
 
     private void createCameraPreviewSession() throws CameraAccessException {
+        /**
+         * 第3个参数指定此ImageReader提供的图像数据的格式，
+         * 值域参考ImageFormat or android.graphics.PixelFormat，
+         * 但不是这两个类里面所有格式都支持，例如NV21就不支持。
+         */
         mImageReader = ImageReader.newInstance(surfaceView.getWidth(), surfaceView.getHeight(), ImageFormat.JPEG, 3);
         mImageReader.setOnImageAvailableListener(onImageAvailableListener, cameraThreadHandler);
 
@@ -177,6 +182,11 @@ public class Camera2TakePictureActivity extends BaseActivity {
         try {
             /**
              * 创建一个适用于相机画面预览的捕获请求的建造器
+             * 常用参数的意义:
+             * TEMPLATE_PREVIEW：创建请求，优先保证高帧率，其次保证图像质量，需配合setRepeatingRequest使用
+             * TEMPLATE_STILL_CAPTURE：创建请求，优先保证图像质量，其次保证高帧率，需配合capture使用
+             * TEMPLATE_RECORD：创建请求，优先保证稳定的帧率，需配合setRepeatingRequest使用
+             * TEMPLATE_VIDEO_SNAPSHOT：创建请求，适合录视频时捕获静止画面，优先保证图像质量，而不考虑正在进行的录制，需配合capture和另一个正在进行的TEMPLATE_RECORD使用
              */
             mPreviewBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
 
@@ -227,6 +237,14 @@ public class Camera2TakePictureActivity extends BaseActivity {
 
             mPreviewRequest = mPreviewBuilder.build();
 
+
+            /**
+             * 无限循环的捕获图像，即等同于预览效果，并且尽可能提供最高的帧率。
+             * 使用此重复捕获方法，就不需要单独持续执行单次捕获（PS至少提高了java代码效率）
+             * 此就去的优先级比Capture更低，即如果在RepeatingRequest时调用Capture，会优先执行Capture
+             *
+             * 停止重复捕获：stopRepeating。abortCaptures可以清理request，它的停止层级更高
+             */
             mSession.setRepeatingRequest(mPreviewRequest, mCaptureCallback, cameraThreadHandler);
         } catch (CameraAccessException e) {
             LogUtil.e(e);
