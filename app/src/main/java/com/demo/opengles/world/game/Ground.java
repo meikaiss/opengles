@@ -8,7 +8,7 @@ import com.demo.opengles.world.common.TexturePlane;
 import javax.microedition.khronos.opengles.GL10;
 
 /**
- * 组合体不具体世界坐标变换特征，因为平衡矩阵不允许相乘叠加
+ * 组合体不具体世界坐标变换特征，因为平移矩阵不支持相乘叠加
  */
 public class Ground extends WorldObject {
 

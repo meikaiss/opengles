@@ -19,6 +19,7 @@ import com.demo.opengles.world.control.JumpControlView;
 import com.demo.opengles.world.control.MoveControlView;
 import com.demo.opengles.world.game.Axis;
 import com.demo.opengles.world.game.Ground;
+import com.demo.opengles.world.game.VideoBoard;
 import com.demo.opengles.world.game.World;
 
 import java.util.ArrayList;
@@ -46,6 +47,7 @@ public class WorldActivity extends BaseActivity {
     private List<Volume> cubeList = new ArrayList<>();
     private Ground ground = new Ground(activity);
     private Axis axis = new Axis(activity);
+    private VideoBoard videoBoard = new VideoBoard(activity);
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -89,12 +91,13 @@ public class WorldActivity extends BaseActivity {
                 ground.create();
                 axis.create();
 
-
                 for (int i = 0; i < 4; i++) {
                     Volume cube = new Volume(activity);
                     cube.create();
                     cubeList.add(cube);
                 }
+
+                videoBoard.create();
             }
 
             @Override
@@ -103,16 +106,18 @@ public class WorldActivity extends BaseActivity {
                 cube.change(gl, width, height);
                 ground.change(gl, width, height);
                 axis.change(gl, width, height);
+
                 for (int i = 0; i < 4; i++) {
                     cubeList.get(i).change(gl, width, height);
                 }
 
                 //正方体的边长是2，因为横坐标范围从-1到1的长度是2
-                cubeList.get(0).setTranslate(4f, 0, 0);
+                cubeList.get(0).setTranslate(4f, 0, 3);
                 cubeList.get(1).setTranslate(-4f, 0, 0);
                 cubeList.get(2).setTranslate(0, 4f, 0);
                 cubeList.get(3).setTranslate(0, -4f, 0);
 
+                videoBoard.change(gl, width, height);
             }
 
             @Override
@@ -125,12 +130,20 @@ public class WorldActivity extends BaseActivity {
                 for (int i = 0; i < 4; i++) {
                     cubeList.get(i).draw(world.getMVPMatrix());
                 }
+
+                videoBoard.draw(world.getMVPMatrix());
             }
         });
 
         glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
         initTouchListener();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        videoBoard.release();
     }
 
     @SuppressLint("ClickableViewAccessibility")

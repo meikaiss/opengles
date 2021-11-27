@@ -18,4 +18,7 @@ public abstract class GLObject {
 
     public abstract void draw(float[] MVPMatrix);
 
+    public void release() {
+
+    }
 }
