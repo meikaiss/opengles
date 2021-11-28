@@ -31,7 +31,11 @@ public class World {
     private float verticalAngle = 90; //视线方向与Z轴的夹角
     private float directionDelta = 0.5f; //方向控制器每一帧移动的角度
     private float directionRadius = 20f;
-    public float[] direction = {0f, directionRadius, 0f}; //方向向量
+    /**
+     * 观察方向向量
+     * 眼睛位置向量+观察方向向量 = 焦点位置向量
+     */
+    public float[] direction = {0f, directionRadius, 0f};
 
     public float scaleFactor = 1.0f;
 
@@ -105,6 +109,12 @@ public class World {
         Matrix.multiplyMM(mMVPMatrix, 0, mMVPMatrix, 0, scaleMatrix, 0);
     }
 
+    /**
+     * 通过位置控制器View的触摸位置计算当前眼睛的位置坐标
+     *
+     * @param viewTouchDeltaX 位置控制器View的触摸位置坐标.x
+     * @param viewTouchDeltaY 位置控制器View的触摸位置坐标.y
+     */
     public void moveXYChange(int viewTouchDeltaX, int viewTouchDeltaY) {
         float radius = (float) Math.sqrt(Math.pow(viewTouchDeltaX, 2) + Math.pow(viewTouchDeltaY, 2));
 
@@ -129,6 +139,12 @@ public class World {
         resetMatrixFlag = true;
     }
 
+    /**
+     * 通过方向控制器View的触摸位置计算观察方向向量
+     *
+     * @param viewTouchDeltaX 方向控制器View的触摸位置坐标.x
+     * @param viewTouchDeltaY 方向控制器View的触摸位置坐标.y
+     */
     public void directionChange(int viewTouchDeltaX, int viewTouchDeltaY) {
         resetMatrixFlag = true;
         float radius = (float) Math.sqrt(Math.pow(viewTouchDeltaX, 2) + Math.pow(viewTouchDeltaY, 2));
@@ -152,6 +168,18 @@ public class World {
 
         scaleFactor *= scaleFactorParam;
         scaleFactor = Math.max(scaleFactor, 0);
+    }
+
+    public void eyeXYZ(float eyeX, float eyeY, float eyeZ) {
+        this.eyeX = eyeX;
+        this.eyeY = eyeY;
+        this.eyeZ = eyeZ;
+        resetMatrixFlag = true;
+    }
+
+    public void directionXYZ(float directionX, float directionY, float directionZ) {
+        direction = new float[]{directionX, directionY, directionZ};
+        resetMatrixFlag = true;
     }
 
 }

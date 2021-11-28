@@ -44,6 +44,7 @@ import com.demo.opengles.graphic.TriangleColorActivity;
 import com.demo.opengles.graphic.TriangleMatrixActivity;
 import com.demo.opengles.graphic.TriangleModalActivity;
 import com.demo.opengles.leak.LeakGlSurfaceViewActivity;
+import com.demo.opengles.light.LightActivity;
 import com.demo.opengles.map.MapViewGaussianActivity;
 import com.demo.opengles.map.MapViewGaussianActivity2;
 import com.demo.opengles.mediarecorder.camera1.surfaceview.Camera1MediaRecorderSurfaceActivity;
@@ -139,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("Camera2-MediaRecorder-SurfaceView", Camera2MediaRecorderSurfaceActivity.class, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("YUV-NV21图像显示", YuvNV21DisplayActivity.class, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("Camera2-后台静默录制视频", Camera2BackgroundRecordActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
+            add(new MainItemBean("OpenGL-光照", LightActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
         }
     };
 
