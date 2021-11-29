@@ -159,7 +159,7 @@ public class World {
 
         verticalAngle += (directionDeltaVer * (viewTouchDeltaY > 0 ? -1 : 1));
         verticalAngle = Math.min(180, verticalAngle);
-        verticalAngle = Math.max(0, verticalAngle); //简直方向禁止循环观察
+        verticalAngle = Math.max(0, verticalAngle); //竖直方向禁止循环观察
         direction[2] = (float) (directionRadius * Math.cos(verticalAngle / 180 * Math.PI));
     }
 

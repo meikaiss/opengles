@@ -25,11 +25,11 @@ public class LightActivity extends BaseActivity {
     float[] ambient = {0.9f, 0.9f, 0.9f, 1.0f,};
     float[] diffuse = {0.5f, 0.5f, 0.5f, 1.0f,};
     float[] specular = {1.0f, 1.0f, 1.0f, 1.0f,};
-    float[] lightPosition = {0.5f, 0.5f, 0.5f, 0.0f,};
+    float[] lightPosition = {10.5f, 10.5f, 10.5f, 0.0f,};
 
-    float[] materialAmb = {0.4f, 0.4f, 1.0f, 1.0f};
+    float[] materialAmb = {0.0f, 0.0f, 1.0f, 1.0f};
     float[] materialDiff = {0.0f, 0.0f, 1.0f, 1.0f};//漫反射设置蓝色
-    float[] materialSpec = {1.0f, 0.5f, 0.0f, 1.0f};
+    float[] materialSpec = {1.0f, 0.0f, 0.0f, 1.0f};
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -43,26 +43,36 @@ public class LightActivity extends BaseActivity {
         glSurfaceView.setRenderer(new GLSurfaceView.Renderer() {
             @Override
             public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+                world.create();
+                cube.create();
+
+                world.eyeXYZ(-30, -30, 10);
+                world.directionXYZ(10, 10, 0);
+
+                //启用光照功能
                 gl.glEnable(GL10.GL_LIGHTING);
+                //开启0号光源
                 gl.glEnable(GL10.GL_LIGHT0);
+
+
+                //通过 glLightfv 函数来指定各种反射光的颜色
+                //设置环境光颜色
                 gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_AMBIENT, OpenGLESUtil.createFloatBuffer(ambient));
+                //设置漫反射光颜色
                 gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_DIFFUSE, OpenGLESUtil.createFloatBuffer(diffuse));
+                //设置镜面反射光颜色
                 gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_SPECULAR, OpenGLESUtil.createFloatBuffer(specular));
+                //设置光源位置
                 gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_POSITION, OpenGLESUtil.createFloatBuffer(lightPosition));
 
+
+                //设置材料的属性
                 //材料对环境光的反射情况
                 gl.glMaterialfv(GL10.GL_FRONT_AND_BACK, GL10.GL_AMBIENT, OpenGLESUtil.createFloatBuffer(materialAmb));
                 //散射光的反射情况
                 gl.glMaterialfv(GL10.GL_FRONT_AND_BACK, GL10.GL_DIFFUSE, OpenGLESUtil.createFloatBuffer(materialDiff));
                 //镜面光的反射情况
                 gl.glMaterialfv(GL10.GL_FRONT_AND_BACK, GL10.GL_SPECULAR, OpenGLESUtil.createFloatBuffer(materialSpec));
-
-
-                world.create();
-                cube.create();
-
-                world.eyeXYZ(-30, -30, 10);
-                world.directionXYZ(10, 10, 0);
             }
 
             @Override
@@ -75,6 +85,7 @@ public class LightActivity extends BaseActivity {
 
             @Override
             public void onDrawFrame(GL10 gl) {
+
                 world.draw();
 
                 cube.draw(world.getMVPMatrix());
