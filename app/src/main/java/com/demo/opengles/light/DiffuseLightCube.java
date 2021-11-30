@@ -17,34 +17,28 @@ import java.nio.ShortBuffer;
 import javax.microedition.khronos.opengles.GL10;
 
 /**
- * 环境光立方体
- * <p>
+ * 漫反射光立方体
+ *
  * 定义：
- * 无处不在的光，不来自任何特定方向的光。
- * <p>
+ * 不同的表面会以不同的方式反射光。镜面会将光线以与入射光相同角度的反方向反射出去。漫反射表面则会将入射光均等地反射到各个方向。
+ *
  * 特征：
- * 环境光在场景中是均匀分布的，对场景中的所有物体都有效。
- * <p>
- * 生活实例：
- * 环境光对物体观察效果的影响，可以近似理解为，在菜市场买猪肉时，商贩会用红色的聚光灯照射到猪肉上，使消费者看到猪肉时有更红的效果，从而误认为这猪肉更新鲜。
- * <p>
- * 总结分析：
- * 当物体处于某一种环境光中，人眼观察到物体的颜色效果会掺杂环境光因素。
+ * 漫反射光依赖于光源的方向。漫反射光在物体朝向光源的一面才有光照效果，在背面则没有光照效果
  */
-public class AmbientLightCube extends WorldObject {
+public class DiffuseLightCube extends WorldObject {
 
     private final String vertexShaderCode =
             "uniform mat4 uMatrix;" +
-                    "uniform vec3 uLightColor;" + //环境光源的颜色
-                    "uniform float uLightStrong;" + //环境光源的强度
+                    "uniform vec3 uLightColor;" + //光源的颜色
+                    "uniform float uLightStrong;" + //光源的强度
                     "attribute vec4 aPosition;" +
                     "attribute vec4 aColor;" +
                     "varying vec4 vColor;" +
-                    "varying vec3 ambient;" + //环境光的实际生效值
+                    "varying vec3 ambient;" + //光的实际生效值
                     "void main() {" +
                     "  gl_Position = uMatrix*aPosition;" +
                     "  vColor = aColor;" +
-                    "  float ambientStrength = uLightStrong;" + //环境光源的强度。值越大光线越强，对观察效果的颜色影响越重，但亮度的影响越小；值越小光线越弱，对观察效果的影响越轻，但亮度的影响越大。当强度=0时，表示毫无光线，在毫无光线的漆黑房间里是看不见任何物体的。
+                    "  float ambientStrength = uLightStrong;" +
                     "  ambient = ambientStrength * uLightColor;" +
                     "}";
 
@@ -80,6 +74,13 @@ public class AmbientLightCube extends WorldObject {
             0, 3, 2, 0, 2, 1,    //正面
             0, 1, 5, 0, 5, 4,    //左面
             0, 7, 3, 0, 4, 7,    //上面
+    };
+
+    /**
+     * 各个顶点的法向量
+     */
+    final short normalCoords[] = {
+
     };
 
     //八个顶点的颜色，与顶点坐标一一对应
@@ -125,7 +126,7 @@ public class AmbientLightCube extends WorldObject {
         this.lightStrong = lightStrong;
     }
 
-    public AmbientLightCube(Context context) {
+    public DiffuseLightCube(Context context) {
         super(context);
     }
 

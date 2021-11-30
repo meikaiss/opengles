@@ -14,18 +14,18 @@ import com.demo.opengles.world.game.World;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class AmbientLightActivity extends BaseActivity {
+public class DiffuseLightActivity extends BaseActivity {
 
     private GLSurfaceView glSurfaceView;
     private SeekBar seekBar;
 
     private World world = new World();
-    private AmbientLightCube cube = new AmbientLightCube(activity);
+    private DiffuseLightCube cube = new DiffuseLightCube(activity);
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_light_ambient);
+        setContentView(R.layout.activity_light_diffuse);
 
         glSurfaceView = findViewById(R.id.surface_view);
         glSurfaceView.setEGLContextClientVersion(2);

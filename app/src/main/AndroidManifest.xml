@@ -89,6 +89,7 @@
         <activity android:name=".yuv.YuvNV21DisplayActivity" />
         <activity android:name=".mediarecorder.camera2.background.Camera2BackgroundRecordActivity" />
         <activity android:name=".light.AmbientLightActivity" />
+        <activity android:name=".light.DiffuseLightActivity" />
 
     </application>
 
