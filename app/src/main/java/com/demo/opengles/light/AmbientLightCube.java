@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
 
+import com.demo.opengles.util.MathUtil;
 import com.demo.opengles.util.OpenGLESUtil;
 import com.demo.opengles.world.MatrixHelper;
 import com.demo.opengles.world.base.WorldObject;
@@ -17,10 +18,10 @@ import javax.microedition.khronos.opengles.GL10;
 
 /**
  * 环境光立方体
- *
+ * <p>
  * 生活实例：
- * 环境光对物体观察效果的影响，可以近似理解为，在菜市场买单猪肉时，商贩会用红色的聚光灯照射到猪肉上，使消息者看到猪肉时有更红的效果，从而误认为这猪肉更新鲜。
- *
+ * 环境光对物体观察效果的影响，可以近似理解为，在菜市场买猪肉时，商贩会用红色的聚光灯照射到猪肉上，使消费者看到猪肉时有更红的效果，从而误认为这猪肉更新鲜。
+ * <p>
  * 总结分析：
  * 当物体处于某一种环境光中，人眼观察到物体的颜色效果会掺杂环境光因素。
  */
@@ -29,6 +30,7 @@ public class AmbientLightCube extends WorldObject {
     private final String vertexShaderCode =
             "uniform mat4 uMatrix;" +
                     "uniform vec3 uLightColor;" + //环境光源的颜色
+                    "uniform float uLightStrong;" + //环境光源的强度
                     "attribute vec4 aPosition;" +
                     "attribute vec4 aColor;" +
                     "varying vec4 vColor;" +
@@ -36,7 +38,7 @@ public class AmbientLightCube extends WorldObject {
                     "void main() {" +
                     "  gl_Position = uMatrix*aPosition;" +
                     "  vColor = aColor;" +
-                    "  float ambientStrength = 0.3;" + //环境光源的强度。值越大光线越强，对观察效果的颜色影响越重，但亮度的影响越小；值越小光线越弱，对观察效果的影响越轻，但亮度的影响越大。当强度=0时，表示毫无光线，在毫无光线的漆黑房间里是看不见任何物体的。
+                    "  float ambientStrength = uLightStrong;" + //环境光源的强度。值越大光线越强，对观察效果的颜色影响越重，但亮度的影响越小；值越小光线越弱，对观察效果的影响越轻，但亮度的影响越大。当强度=0时，表示毫无光线，在毫无光线的漆黑房间里是看不见任何物体的。
                     "  ambient = ambientStrength * uLightColor;" +
                     "}";
 
@@ -95,6 +97,7 @@ public class AmbientLightCube extends WorldObject {
 
     private int mMatrixHandler;
     private int mLightColorHandler;
+    private int mLightStrongHandler;
     private int mPositionHandle;
     private int mColorHandle;
 
@@ -103,11 +106,18 @@ public class AmbientLightCube extends WorldObject {
 
     public Bitmap textureBmp;
 
+    //环境光的强度
+    private float lightStrong = 0.3f;
 
     private int COORDS_PER_VERTEX = 3;  //每个顶点有3个数字来表示它的坐标
     private int COORDS_PER_COLOR = 4;  //每个颜色值有4个数字来表示它的内容
     private int vertexStride = COORDS_PER_VERTEX * 4; //每个顶点的坐标有3个数值，数值都是float类型，每个float
     private int colorStride = COORDS_PER_COLOR * 4; // 每个float四个字节
+
+    public void setLightStrong(float lightStrong) {
+        lightStrong = MathUtil.clamp(lightStrong, 0f, 1f);
+        this.lightStrong = lightStrong;
+    }
 
     public AmbientLightCube(Context context) {
         super(context);
@@ -142,6 +152,7 @@ public class AmbientLightCube extends WorldObject {
 
         mMatrixHandler = GLES20.glGetUniformLocation(mProgram, "uMatrix");
         mLightColorHandler = GLES20.glGetUniformLocation(mProgram, "uLightColor");
+        mLightStrongHandler = GLES20.glGetUniformLocation(mProgram, "uLightStrong");
         mPositionHandle = GLES20.glGetAttribLocation(mProgram, "aPosition");
         mColorHandle = GLES20.glGetAttribLocation(mProgram, "aColor");
     }
@@ -158,6 +169,8 @@ public class AmbientLightCube extends WorldObject {
         GLES20.glEnableVertexAttribArray(mLightColorHandler);
         //设置环境光的颜色（设置环境光的颜色，可以近似认为处于一个房间内，房间的四面墙壁、天花板、地板都涂有此颜色的涂料）
         GLES20.glUniform3f(mLightColorHandler, 1.0f, 1.0f, 1.0f);
+
+        GLES20.glUniform1f(mLightStrongHandler, lightStrong);
 
         GLES20.glEnableVertexAttribArray(mPositionHandle);
         GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX,

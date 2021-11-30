@@ -8,4 +8,10 @@ public class MathUtil {
         return target;
     }
 
+    public static float clamp(float target, float min, float max) {
+        target = Math.max(min, target);
+        target = Math.min(max, target);
+        return target;
+    }
+
 }

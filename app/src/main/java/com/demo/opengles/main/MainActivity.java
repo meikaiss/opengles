@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("Camera2-MediaRecorder-SurfaceView", Camera2MediaRecorderSurfaceActivity.class, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("YUV-NV21图像显示", YuvNV21DisplayActivity.class, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("Camera2-后台静默录制视频", Camera2BackgroundRecordActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
-            add(new MainItemBean("OpenGL-冯氏光照模型", AmbientLightActivity.class));
+            add(new MainItemBean("OpenGL-冯氏光照模型-环境光", AmbientLightActivity.class));
         }
     };
 

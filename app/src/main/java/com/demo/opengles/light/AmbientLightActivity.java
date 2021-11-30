@@ -2,6 +2,7 @@ package com.demo.opengles.light;
 
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.widget.SeekBar;
 
 import androidx.annotation.Nullable;
 
@@ -16,6 +17,7 @@ import javax.microedition.khronos.opengles.GL10;
 public class AmbientLightActivity extends BaseActivity {
 
     private GLSurfaceView glSurfaceView;
+    private SeekBar seekBar;
 
     private World world = new World();
     private AmbientLightCube cube = new AmbientLightCube(activity);
@@ -28,6 +30,25 @@ public class AmbientLightActivity extends BaseActivity {
         glSurfaceView = findViewById(R.id.surface_view);
         glSurfaceView.setEGLContextClientVersion(2);
         glSurfaceView.setEGLConfigChooser(new AntiConfigChooser());
+
+        seekBar = findViewById(R.id.seek_bar);
+        seekBar.setProgress(30);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                cube.setLightStrong(progress / 100f);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
         glSurfaceView.setRenderer(new GLSurfaceView.Renderer() {
             @Override
