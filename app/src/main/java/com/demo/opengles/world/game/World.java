@@ -99,6 +99,13 @@ public class World {
                 eyeX, eyeY, eyeZ,
                 eyeX + direction[0], eyeY + direction[1], eyeZ + direction[2],
                 0f, 0f, 1f);
+
+
+//        Matrix.setLookAtM(mViewMatrix, 0,
+//                0, 0, 5,
+//                0,0,0,
+//                0f, 0f, 1f);
+
         //计算变换矩阵
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0);
 
@@ -142,21 +149,20 @@ public class World {
     /**
      * 通过方向控制器View的触摸位置计算观察方向向量
      *
-     * @param viewTouchDeltaX 方向控制器View的触摸位置坐标.x
-     * @param viewTouchDeltaY 方向控制器View的触摸位置坐标.y
+     * @param viewTouchDeltaX 方向控制器View的触摸位置坐标.x，控制视线在世界坐系xy面的朝向
+     * @param viewTouchDeltaY 方向控制器View的触摸位置坐标.y，控制视线在世界坐系与z轴的朝向
      */
     public void directionChange(int viewTouchDeltaX, int viewTouchDeltaY) {
         resetMatrixFlag = true;
         float radius = (float) Math.sqrt(Math.pow(viewTouchDeltaX, 2) + Math.pow(viewTouchDeltaY, 2));
+
         float directionDeltaHor = (directionDelta * Math.abs(viewTouchDeltaX) / radius);
-        float directionDeltaVer = (directionDelta * Math.abs(viewTouchDeltaY) / radius);
-
-
         horizontalAngle += (directionDeltaHor * (viewTouchDeltaX >= 0 ? 1 : -1));
         horizontalAngle = (horizontalAngle + 360) % 360;//水平方向可以循环观察
         direction[0] = (float) (directionRadius * Math.sin(horizontalAngle / 180 * Math.PI));
         direction[1] = (float) (directionRadius * Math.cos(horizontalAngle / 180 * Math.PI));
 
+        float directionDeltaVer = (directionDelta * Math.abs(viewTouchDeltaY) / radius);
         verticalAngle += (directionDeltaVer * (viewTouchDeltaY > 0 ? -1 : 1));
         verticalAngle = Math.min(180, verticalAngle);
         verticalAngle = Math.max(0, verticalAngle); //竖直方向禁止循环观察
