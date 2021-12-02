@@ -12,66 +12,42 @@ import com.demo.opengles.world.base.WorldObject;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
 
 import javax.microedition.khronos.opengles.GL10;
 
 /**
  * 漫反射光立方体
- *
+ * <p>
  * 定义：
  * 不同的表面会以不同的方式反射光。镜面会将光线以与入射光相同角度的反方向反射出去。漫反射表面则会将入射光均等地反射到各个方向。
- *
+ * <p>
  * 特征：
  * 漫反射光依赖于光源的方向。漫反射光在物体朝向光源的一面才有光照效果，在背面则没有光照效果
  */
 public class DiffuseLightCube extends WorldObject {
 
-    private final String vertexShaderCode =
-            "uniform mat4 uMatrix;" +
-                    "uniform vec3 uLightColor;" + //光源的颜色
-                    "uniform float uLightStrong;" + //光源的强度
-                    "attribute vec4 aPosition;" +
-                    "attribute vec4 aColor;" +
-                    "varying vec4 vColor;" +
-                    "varying vec3 ambient;" + //光的实际生效值
-                    "void main() {" +
-                    "  gl_Position = uMatrix*aPosition;" +
-                    "  vColor = aColor;" +
-                    "  float ambientStrength = uLightStrong;" +
-                    "  ambient = ambientStrength * uLightColor;" +
-                    "}";
 
-    private final String fragmentShaderCode =
-            "precision mediump float;" +
-                    "varying vec4 vColor;" +
-                    "varying vec3 ambient;" +
-                    "void main() {" +
-                    "  vec3 finalColor = ambient * vec3(vColor);" +
-                    "  gl_FragColor = min(vec4(finalColor, vColor.a), vec4(1.0));" +
-                    "}";
-
-
-    //每个顶点的坐标，z轴坐标需要启用openGL深度功能
+    //顶点坐标（xyz），以散列三角形方式绘制
     final float vertexCoords[] = {
-            -1.0f, 1.0f, 0.0f,    //正面左上0
-            -1.0f, -1.0f, 0.0f,   //正面左下1
-            1.0f, -1.0f, 0.0f,    //正面右下2
-            1.0f, 1.0f, 0.0f,     //正面右上3
-    };
-
-    /**
-     * 顶点坐标的索引，从0开始
-     */
-    final short index[] = {
-            0, 3, 2, 0, 2, 1,    //正面
+            -1.0f, 1.0f, 0.0f,
+            -1.0f, -1.0f, 0.0f,
+            1.0f, -1.0f, 0.0f,
+            1.0f, -1.0f, 0.0f,
+            1.0f, 1.0f, 0.0f,
+            -1.0f, 1.0f, 0.0f,
     };
 
     /**
      * 各个顶点的法向量
+     * 因为此例中我们只绘制一个正方形，因此各个顶点的法向量都是Z轴正方向
      */
-    final short normalCoords[] = {
-
+    final float normalCoords[] = {
+            0f, 0f, 1f,
+            0f, 0f, 1f,
+            0f, 0f, 1f,
+            0f, 0f, 1f,
+            0f, 0f, 1f,
+            0f, 0f, 1f,
     };
 
     //4个顶点的颜色，与顶点坐标一一对应
@@ -79,20 +55,24 @@ public class DiffuseLightCube extends WorldObject {
             1f, 0f, 0f, 1f,
             0f, 1f, 0f, 1f,
             0f, 0f, 1f, 1f,
+            0f, 0f, 1f, 1f,
             1f, 1f, 0f, 1f,
+            1f, 0f, 0f, 1f,
     };
 
-
     private FloatBuffer vertexBuffer;
+    private FloatBuffer normalBuffer;
     private FloatBuffer colorBuffer;
-    private ShortBuffer indexBuffer;
 
     private int mProgram;
 
     private int mMatrixHandler;
+    private int mModelMatrixHandler;
     private int mLightColorHandler;
-    private int mLightStrongHandler;
+    private int mLightPosHandler;
+
     private int mPositionHandle;
+    private int mNormalHandle;
     private int mColorHandle;
 
     private int vertexShaderIns;
@@ -124,20 +104,22 @@ public class DiffuseLightCube extends WorldObject {
         vertexBuffer.put(vertexCoords);
         vertexBuffer.position(0);
 
+        ByteBuffer bbNormal = ByteBuffer.allocateDirect(normalCoords.length * 4);
+        bbNormal.order(ByteOrder.nativeOrder());
+        normalBuffer = bbNormal.asFloatBuffer();
+        normalBuffer.put(normalCoords);
+        normalBuffer.position(0);
+
         ByteBuffer dd = ByteBuffer.allocateDirect(color.length * 4);
         dd.order(ByteOrder.nativeOrder());
         colorBuffer = dd.asFloatBuffer();
         colorBuffer.put(color);
         colorBuffer.position(0);
 
-        ByteBuffer cc = ByteBuffer.allocateDirect(index.length * 2); //short类型占2个字节
-        cc.order(ByteOrder.nativeOrder());
-        indexBuffer = cc.asShortBuffer();
-        indexBuffer.put(index);
-        indexBuffer.position(0);
-
-        vertexShaderIns = OpenGLESUtil.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
-        fragmentShaderIns = OpenGLESUtil.loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
+        vertexShaderIns = OpenGLESUtil.loadShader(GLES20.GL_VERTEX_SHADER,
+                OpenGLESUtil.getShaderCode(context, "shader/light/diffuse/diffuse_vertext.glsl"));
+        fragmentShaderIns = OpenGLESUtil.loadShader(GLES20.GL_FRAGMENT_SHADER,
+                OpenGLESUtil.getShaderCode(context, "shader/light/diffuse/diffuse_fragment.glsl"));
 
         mProgram = GLES20.glCreateProgram();
         GLES20.glAttachShader(mProgram, vertexShaderIns);
@@ -145,9 +127,12 @@ public class DiffuseLightCube extends WorldObject {
         GLES20.glLinkProgram(mProgram);
 
         mMatrixHandler = GLES20.glGetUniformLocation(mProgram, "uMatrix");
+        mModelMatrixHandler = GLES20.glGetUniformLocation(mProgram, "uModelMatrix");
         mLightColorHandler = GLES20.glGetUniformLocation(mProgram, "uLightColor");
-        mLightStrongHandler = GLES20.glGetUniformLocation(mProgram, "uLightStrong");
+        mLightPosHandler = GLES20.glGetUniformLocation(mProgram, "uLightPos");
+
         mPositionHandle = GLES20.glGetAttribLocation(mProgram, "aPosition");
+        mNormalHandle = GLES20.glGetAttribLocation(mProgram, "aNormal");
         mColorHandle = GLES20.glGetAttribLocation(mProgram, "aColor");
     }
 
@@ -160,25 +145,36 @@ public class DiffuseLightCube extends WorldObject {
         float[] effectMatrix = MatrixHelper.multiplyMM(MVPMatrix, getWorldMatrix());
         GLES20.glUniformMatrix4fv(mMatrixHandler, 1, false, effectMatrix, 0);
 
+        GLES20.glUniformMatrix4fv(mModelMatrixHandler, 1, false, getWorldMatrix(), 0);
+
         GLES20.glEnableVertexAttribArray(mLightColorHandler);
         //设置环境光的颜色（设置环境光的颜色，可以近似认为处于一个房间内，房间的四面墙壁、天花板、地板都涂有此颜色的涂料）
         GLES20.glUniform3f(mLightColorHandler, 1.0f, 1.0f, 1.0f);
+        GLES20.glUniform3f(mLightPosHandler, 10.0f, 10.0f, 10.0f);
 
-        GLES20.glUniform1f(mLightStrongHandler, lightStrong);
+//        GLES20.glUniform1f(mLightStrongHandler, lightStrong);
 
         GLES20.glEnableVertexAttribArray(mPositionHandle);
         GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX,
                 GLES20.GL_FLOAT, false, vertexStride, vertexBuffer);
 
+        GLES20.glEnableVertexAttribArray(mNormalHandle);
+        GLES20.glVertexAttribPointer(mNormalHandle, COORDS_PER_VERTEX,
+                GLES20.GL_FLOAT, false, vertexStride, normalBuffer);
+
         GLES20.glEnableVertexAttribArray(mColorHandle);
         GLES20.glVertexAttribPointer(mColorHandle, COORDS_PER_COLOR,
                 GLES20.GL_FLOAT, false, colorStride, colorBuffer);
 
-        //用索引法来绘制三角形，最后这些三角形就会组合成一个正方体
-        GLES20.glDrawElements(GLES20.GL_TRIANGLES, index.length, GLES20.GL_UNSIGNED_SHORT
-                , indexBuffer);
+        /**
+         * 参数1：GL_TRIANGLES，表示按顶点顺序，每3个顶点绘制一个三角形，并且不共用顶点
+         * 参数2：0，表示起始顶点的索引（在本例中每个顶点使用了3个float来表示x、y、z）
+         * 参数3：6，表示从索引指定的顶点开始，往后连续采用6个顶点
+         */
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
 
         GLES20.glDisableVertexAttribArray(mPositionHandle);
+        GLES20.glDisableVertexAttribArray(mNormalHandle);
         GLES20.glDisableVertexAttribArray(mColorHandle);
     }
 }

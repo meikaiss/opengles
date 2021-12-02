@@ -112,6 +112,12 @@ public class AmbientLightCube extends WorldObject {
 
     public Bitmap textureBmp;
 
+    //环境光红色分量
+    private float lightR = 1.0f;
+    //环境光绿色分量
+    private float lightG = 1.0f;
+    //环境光蓝色分量
+    private float lightB = 1.0f;
     //环境光的强度
     private float lightStrong = 0.3f;
 
@@ -123,6 +129,18 @@ public class AmbientLightCube extends WorldObject {
     public void setLightStrong(float lightStrong) {
         lightStrong = MathUtil.clamp(lightStrong, 0f, 1f);
         this.lightStrong = lightStrong;
+    }
+
+    public void setLightColorR(float r) {
+        lightR = MathUtil.clamp(r, 0f, 1f);
+    }
+
+    public void setLightColorG(float g) {
+        lightG = MathUtil.clamp(g, 0f, 1f);
+    }
+
+    public void setLightColorB(float b) {
+        lightB = MathUtil.clamp(b, 0f, 1f);
     }
 
     public AmbientLightCube(Context context) {
@@ -174,7 +192,7 @@ public class AmbientLightCube extends WorldObject {
 
         GLES20.glEnableVertexAttribArray(mLightColorHandler);
         //设置环境光的颜色（设置环境光的颜色，可以近似认为处于一个房间内，房间的四面墙壁、天花板、地板都涂有此颜色的涂料）
-        GLES20.glUniform3f(mLightColorHandler, 1.0f, 1.0f, 1.0f);
+        GLES20.glUniform3f(mLightColorHandler, lightR, lightG, lightB);
 
         GLES20.glUniform1f(mLightStrongHandler, lightStrong);
 

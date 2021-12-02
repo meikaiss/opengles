@@ -12,7 +12,6 @@ import com.demo.opengles.main.BaseActivity;
 import com.demo.opengles.world.control.DirectionControlView;
 import com.demo.opengles.world.control.JumpControlView;
 import com.demo.opengles.world.control.MoveControlView;
-import com.demo.opengles.world.game.Ground;
 import com.demo.opengles.world.game.World;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -28,7 +27,6 @@ public class DiffuseLightActivity extends BaseActivity {
     private JumpControlView jumpControlView;
 
     private World world = new World();
-    private Ground ground = new Ground(activity);
     private DiffuseLightCube diffuseCube = new DiffuseLightCube(activity);
 
     @Override
@@ -87,7 +85,6 @@ public class DiffuseLightActivity extends BaseActivity {
             @Override
             public void onSurfaceCreated(GL10 gl, EGLConfig config) {
                 world.create();
-                ground.create();
                 diffuseCube.create();
 
                 world.eyeXYZ(-20, -20, 20);
@@ -97,7 +94,6 @@ public class DiffuseLightActivity extends BaseActivity {
             @Override
             public void onSurfaceChanged(GL10 gl, int width, int height) {
                 world.change(gl, width, height);
-                ground.change(gl, width, height);
                 diffuseCube.change(gl, width, height);
 
                 diffuseCube.setScale(10, 10, 10);
@@ -106,7 +102,6 @@ public class DiffuseLightActivity extends BaseActivity {
             @Override
             public void onDrawFrame(GL10 gl) {
                 world.draw();
-                ground.draw(world.getMVPMatrix());
 
                 diffuseCube.draw(world.getMVPMatrix());
             }
