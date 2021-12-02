@@ -61,7 +61,7 @@ public class DiffuseLightCube extends WorldObject {
     };
 
     /**
-     * 顶点坐标的索引从0开始，674三个顶点表示一个三角形，674+645拼接起来就是正方体的背面
+     * 顶点坐标的索引，从0开始
      */
     final short index[] = {
             0, 3, 2, 0, 2, 1,    //正面

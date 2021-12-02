@@ -95,6 +95,15 @@ public class World {
                 -1 * worldSizeScale, 1 * worldSizeScale,
                 1f * worldSizeScale, 500 * worldSizeScale);
 
+        /**
+         * 理解透视投影矩阵与相机矩阵的关系
+         * 1、透视投影矩阵用于创建一个锥形视景体，规则是在世界坐标系中以原点为起点，向Z轴正方向发射四条射线组一个四棱锥，再由near近面与far远面进行切割，剩下一个四棱台即为世界坐标系中可以被此模型显示出的景物。
+         * 2、相机矩阵用于定义以何种方式观察视景体。有三个要素：眼睛位置、眼睛观察的焦点位置、眼睛的上方向。这三个要素都会影响眼睛所接收到的图像。
+         *   2.1、眼睛位置的影响可以类比现实中，在你面前有一张桌子，你站着看这张桌子和蹲着看这张桌子，你眼睛所看到的桌子的样子肯定是不一样的。
+         *   2.2、焦点位置的影响可以这样想像，当你的眼睛盯着这张桌子看时，你眼睛的余光肯定还能观察到桌子四周的景物，只不过这些景物很模糊，但可以肯定的是这张桌子一定出现在你眼睛所观察到的景物的中间位置。但当你抬头看向远方时，你眼睛的焦点定位到远方，此时你眼睛的余光仍然能模糊的看到视野下方存在一张桌子。这种不同就是焦点位置对实际观察结果的影响
+         *   2.3、上方向可以这样理解，你站立看这张桌子，和你倒立着但用绳子把你的脚吊起来，使倒立时眼睛位置与站立时眼睛位置相同，这时你大脑所接收到的眼睛的景物肯定是不同的
+         */
+
         float centerX = eyeX + direction[0];
         float centerY = eyeY + direction[1];
         float centerZ = eyeZ + direction[2];
@@ -115,8 +124,7 @@ public class World {
                 centerX, centerY, centerZ,
                 upX, upY, upZ);
 
-        if (eyeX - centerX == 0 && eyeY - centerY == 0
-                && upX == 0 && upY == 0) {
+        if (eyeX - centerX == 0 && eyeY - centerY == 0 && upX == 0 && upY == 0) {
             throw new IllegalStateException("观察方向不能与相机上方向平行，在矩阵数据模型上也不存在这种情况");
         }
 
