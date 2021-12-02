@@ -6,6 +6,8 @@ import android.opengl.Matrix;
 import javax.microedition.khronos.opengles.GL10;
 
 /**
+ * 世界坐标系与屏幕的方向关系，当人眼朝向屏幕时，X轴向右，Y轴向上，Z轴垂直于屏幕正方向朝向人眼
+ * <p>
  * Created by meikai on 2021/10/16.
  */
 public class World {
@@ -34,6 +36,8 @@ public class World {
     /**
      * 观察方向向量
      * 眼睛位置向量+观察方向向量 = 焦点位置向量
+     * <p>
+     * 观察方向向量的值域所形成的区域是一个圆柱体，底面圆形的半径为directionRadius，圆柱高度为2*directionRadius
      */
     public float[] direction = {0f, directionRadius, 0f};
 
@@ -83,28 +87,46 @@ public class World {
          * 定义：设置透视投影矩阵，用于定义物理世界中的一个锥形视景体，描述将物理世界中哪一部分范围的景色投影到二维屏幕中。
          * 理解：透视投影中，视点理解为眼睛，近平面理解为屏幕，远平面理解为观察的最远平面，近平面与远平面之间的物体可被投影到近平面（即屏幕）上。视点与近平面的射线在近平面与远平面的部分是四棱锥，这部分四棱锥就是可以显示出的物理世界的物体。视点与近平面越近，则看到的范围越广，则同一个物体在视角范围内的占比就越小，从而投影到近平面上就越小。
          * 奥义：与通常所说的近大远小的结论相反，根本原因在于参照系不同。透视投影矩阵中所说的“近”是指视点与近平面的距离，近平面指的是计算机屏幕。
-         * 避坑：在理解透视投影时，暂时不考虑相机矩阵，完全把相机当作固定位置。相机矩阵是在透视投影矩阵的基础上再次包装而得到的算法。
+         * 避坑：在理解透视投影时，暂时不考虑相机矩阵，完全把相机当作固定在原点位置。相机矩阵是在透视投影矩阵的基础上再次包装而得到的算法。
          * 代码：创建方法有两种：frustumM 和 perspectiveM
          */
         Matrix.frustumM(mProjectMatrix, 0,
                 -ratio * worldSizeScale, ratio * worldSizeScale,
                 -1 * worldSizeScale, 1 * worldSizeScale,
                 1f * worldSizeScale, 500 * worldSizeScale);
+
+        float centerX = eyeX + direction[0];
+        float centerY = eyeY + direction[1];
+        float centerZ = eyeZ + direction[2];
+
+        float upX = 0f;
+        float upY = 0f;
+        float upZ = 1f;
+
         /**
          * 设置相机位置
          * 当用视图矩阵确定了照相机的位置时，要确保物体距离视点的位置在 near 和 far 的区间范围内，否则就会看不到物体。
-         * 注意：针对相机矩阵，视觉效果为近大远小
+         * 注意：
+         * a、针对相机矩阵，视觉效果为近大远小
+         * b、up的方向不能与视线方向平行，否则无法预览，视线方向由眼睛和焦点决定
          */
         Matrix.setLookAtM(mViewMatrix, 0,
                 eyeX, eyeY, eyeZ,
-                eyeX + direction[0], eyeY + direction[1], eyeZ + direction[2],
-                0f, 0f, 1f);
+                centerX, centerY, centerZ,
+                upX, upY, upZ);
 
+        if (eyeX - centerX == 0 && eyeY - centerY == 0
+                && upX == 0 && upY == 0) {
+            throw new IllegalStateException("观察方向不能与相机上方向平行，在矩阵数据模型上也不存在这种情况");
+        }
 
-//        Matrix.setLookAtM(mViewMatrix, 0,
-//                0, 0, 5,
-//                0,0,0,
-//                0f, 0f, 1f);
+        int testFlag = 0;
+        if (testFlag == 1) {
+            Matrix.setLookAtM(mViewMatrix, 0,
+                    0, 0, 20,
+                    0, 0, 0,
+                    0f, 0f, 1f);
+        }
 
         //计算变换矩阵
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0);
@@ -185,7 +207,6 @@ public class World {
 
     public void directionXYZ(float directionX, float directionY, float directionZ) {
         direction = new float[]{directionX, directionY, directionZ};
-        resetMatrixFlag = true;
     }
 
 }

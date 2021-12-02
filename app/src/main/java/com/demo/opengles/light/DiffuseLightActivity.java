@@ -89,6 +89,9 @@ public class DiffuseLightActivity extends BaseActivity {
                 world.create();
                 ground.create();
                 diffuseCube.create();
+
+                world.eyeXYZ(-20, -20, 20);
+                world.directionXYZ(10, 10, -10);
             }
 
             @Override
