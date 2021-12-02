@@ -61,7 +61,9 @@ public class DiffuseLightActivity extends BaseActivity {
         moveControlView.setOnMoveListener(new MoveControlView.OnMoveListener() {
             @Override
             public void onMove(int deltaX, int deltaY) {
-                world.moveXYChange(deltaX, deltaY);
+//                world.moveXYChange(deltaX, deltaY);
+                diffuseCube.addTranslate(deltaX > 0 ? 0.001f : -0.001f,
+                        deltaY > 0 ? 0.001f : -0.001f, 0);
             }
         });
 

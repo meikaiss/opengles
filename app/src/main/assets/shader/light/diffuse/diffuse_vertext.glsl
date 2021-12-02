@@ -19,7 +19,7 @@ void main() {
     vec3 unitNormal = normalize(vec3(uModelMatrix * vec4(aNormal, 1.0)));
     //从顶点到光源的单位向量
     vec3 lightDir = normalize(uLightPos - fragPos);
-    //上面来两个向量进行点乘
+    //上面的两个向量进行点乘
     float diff = max(dot(unitNormal, lightDir), 0.0);
     diffuse = diffuseStrength * diff * uLightColor;
 

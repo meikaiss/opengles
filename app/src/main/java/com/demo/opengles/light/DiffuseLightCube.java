@@ -148,9 +148,8 @@ public class DiffuseLightCube extends WorldObject {
         GLES20.glUniformMatrix4fv(mModelMatrixHandler, 1, false, getWorldMatrix(), 0);
 
         GLES20.glEnableVertexAttribArray(mLightColorHandler);
-        //设置环境光的颜色（设置环境光的颜色，可以近似认为处于一个房间内，房间的四面墙壁、天花板、地板都涂有此颜色的涂料）
         GLES20.glUniform3f(mLightColorHandler, 1.0f, 1.0f, 1.0f);
-        GLES20.glUniform3f(mLightPosHandler, 10.0f, 10.0f, 10.0f);
+        GLES20.glUniform3f(mLightPosHandler, 20.0f, 20.0f, 20.0f);
 
 //        GLES20.glUniform1f(mLightStrongHandler, lightStrong);
 
