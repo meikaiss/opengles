@@ -26,7 +26,6 @@ import javax.microedition.khronos.opengles.GL10;
  */
 public class DiffuseLightCube extends WorldObject {
 
-
     //顶点坐标（xyz），以散列三角形方式绘制
     final float vertexCoords[] = {
             -1.0f, 1.0f, 0.0f,
@@ -70,6 +69,7 @@ public class DiffuseLightCube extends WorldObject {
     private int mModelMatrixHandler;
     private int mLightColorHandler;
     private int mLightPosHandler;
+    private int mDiffuseStrongHandler;
 
     private int mPositionHandle;
     private int mNormalHandle;
@@ -80,8 +80,8 @@ public class DiffuseLightCube extends WorldObject {
 
     public Bitmap textureBmp;
 
-    //环境光的强度
-    private float lightStrong = 0.3f;
+    //漫反射光的强度
+    private float lightStrong = 0.8f;
 
     private int COORDS_PER_VERTEX = 3;  //每个顶点有3个数字来表示它的坐标
     private int COORDS_PER_COLOR = 4;  //每个颜色值有4个数字来表示它的内容
@@ -130,6 +130,7 @@ public class DiffuseLightCube extends WorldObject {
         mModelMatrixHandler = GLES20.glGetUniformLocation(mProgram, "uModelMatrix");
         mLightColorHandler = GLES20.glGetUniformLocation(mProgram, "uLightColor");
         mLightPosHandler = GLES20.glGetUniformLocation(mProgram, "uLightPos");
+        mDiffuseStrongHandler = GLES20.glGetUniformLocation(mProgram, "uDiffuseStrength");
 
         mPositionHandle = GLES20.glGetAttribLocation(mProgram, "aPosition");
         mNormalHandle = GLES20.glGetAttribLocation(mProgram, "aNormal");
@@ -149,9 +150,10 @@ public class DiffuseLightCube extends WorldObject {
 
         GLES20.glEnableVertexAttribArray(mLightColorHandler);
         GLES20.glUniform3f(mLightColorHandler, 1.0f, 1.0f, 1.0f);
+        //设置漫反射光源位置
         GLES20.glUniform3f(mLightPosHandler, 20.0f, 20.0f, 20.0f);
 
-//        GLES20.glUniform1f(mLightStrongHandler, lightStrong);
+        GLES20.glUniform1f(mDiffuseStrongHandler, lightStrong);
 
         GLES20.glEnableVertexAttribArray(mPositionHandle);
         GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX,

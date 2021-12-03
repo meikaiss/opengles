@@ -167,7 +167,7 @@ public class World {
         resetMatrixFlag = true;
     }
 
-    public void moveZChange(int viewTouchZ) {
+    public void eyeZChange(int viewTouchZ) {
         eyeZ = viewTouchZ;
 
         eyeZ = Math.max(0, eyeZ);

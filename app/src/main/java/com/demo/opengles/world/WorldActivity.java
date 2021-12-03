@@ -71,7 +71,7 @@ public class WorldActivity extends BaseActivity {
         jumpControlView.setOnJumpListener(new JumpControlView.OnJumpListener() {
             @Override
             public void onJump(float progress) {
-                world.moveZChange((int) (progress * 100));
+                world.eyeZChange((int) (progress * 100));
             }
         });
 

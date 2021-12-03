@@ -2,6 +2,7 @@ package com.demo.opengles.light;
 
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.SeekBar;
 
 import androidx.annotation.Nullable;
@@ -9,9 +10,11 @@ import androidx.annotation.Nullable;
 import com.demo.opengles.R;
 import com.demo.opengles.egl.AntiConfigChooser;
 import com.demo.opengles.main.BaseActivity;
+import com.demo.opengles.world.common.Point;
 import com.demo.opengles.world.control.DirectionControlView;
 import com.demo.opengles.world.control.JumpControlView;
 import com.demo.opengles.world.control.MoveControlView;
+import com.demo.opengles.world.game.Axis;
 import com.demo.opengles.world.game.World;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -27,6 +30,8 @@ public class DiffuseLightActivity extends BaseActivity {
     private JumpControlView jumpControlView;
 
     private World world = new World();
+    private Point point = new Point(activity);
+    private Axis axis = new Axis(activity);
     private DiffuseLightCube diffuseCube = new DiffuseLightCube(activity);
 
     @Override
@@ -39,7 +44,7 @@ public class DiffuseLightActivity extends BaseActivity {
         glSurfaceView.setEGLConfigChooser(new AntiConfigChooser());
 
         seekBar = findViewById(R.id.seek_bar);
-        seekBar.setProgress(30);
+        seekBar.setProgress(80);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -62,8 +67,11 @@ public class DiffuseLightActivity extends BaseActivity {
             @Override
             public void onMove(int deltaX, int deltaY) {
 //                world.moveXYChange(deltaX, deltaY);
+
+                Log.e("mk", "deltaX = " + deltaX + ", deltaY" + deltaY);
+
                 diffuseCube.addTranslate(deltaX > 0 ? 0.001f : -0.001f,
-                        deltaY > 0 ? 0.001f : -0.001f, 0);
+                        0, 0);
             }
         });
 
@@ -79,7 +87,7 @@ public class DiffuseLightActivity extends BaseActivity {
         jumpControlView.setOnJumpListener(new JumpControlView.OnJumpListener() {
             @Override
             public void onJump(float progress) {
-                world.moveZChange((int) (progress * 100));
+                world.eyeZChange((int) (progress * 100));
             }
         });
 
@@ -87,6 +95,10 @@ public class DiffuseLightActivity extends BaseActivity {
             @Override
             public void onSurfaceCreated(GL10 gl, EGLConfig config) {
                 world.create();
+                point.setVertexCoord(20f, 20f, 20f);
+                point.setColor(1f, 1f, 1f, 1f);
+                point.create();
+                axis.create();
                 diffuseCube.create();
 
                 world.eyeXYZ(-20, -20, 20);
@@ -96,6 +108,8 @@ public class DiffuseLightActivity extends BaseActivity {
             @Override
             public void onSurfaceChanged(GL10 gl, int width, int height) {
                 world.change(gl, width, height);
+                point.change(gl, width, height);
+                axis.change(gl, width, height);
                 diffuseCube.change(gl, width, height);
 
                 diffuseCube.setScale(10, 10, 10);
@@ -104,7 +118,8 @@ public class DiffuseLightActivity extends BaseActivity {
             @Override
             public void onDrawFrame(GL10 gl) {
                 world.draw();
-
+                point.draw2(gl, world.getMVPMatrix());
+                axis.draw(world.getMVPMatrix());
                 diffuseCube.draw(world.getMVPMatrix());
             }
         });
