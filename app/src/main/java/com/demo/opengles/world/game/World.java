@@ -2,6 +2,7 @@ package com.demo.opengles.world.game;
 
 import android.opengl.GLES20;
 import android.opengl.Matrix;
+import android.util.Log;
 
 import javax.microedition.khronos.opengles.GL10;
 
@@ -30,7 +31,7 @@ public class World {
     private float speed = 0.12f; //移动控制器满半径时的世界坐标系移动速度
 
     private float horizontalAngle = 0; //视线方向在XY平面投影与Y轴的夹角
-    private float verticalAngle = 90; //视线方向与Z轴的夹角
+    private float verticalAngle = 90; //视线方向与Z轴的夹角，值域=(-90，90)
     private float directionDelta = 0.5f; //方向控制器每一帧移动的角度
     private float directionRadius = 20f;
     /**
@@ -158,11 +159,11 @@ public class World {
         float moveDeltaX = (speed * viewTouchDeltaX / radius);
         float moveDeltaY = (speed * viewTouchDeltaY / radius);
 
-
-        float realDealX = (float) (moveDeltaY * Math.sin(Math.toRadians(horizontalAngle)) + moveDeltaX * Math.cos(Math.toRadians(horizontalAngle)));
-        float realDealY = (float) (moveDeltaY * Math.cos(Math.toRadians(horizontalAngle)) - moveDeltaX * Math.sin(Math.toRadians(horizontalAngle)));
-        eyeX += realDealX;
-        eyeY += realDealY;
+        //行进的方向是视角方向，而视角方向与世界坐标系XY轴存在一定的夹角，因此需要计算分量
+        float realDeltaX = (float) (moveDeltaY * Math.sin(Math.toRadians(horizontalAngle)) + moveDeltaX * Math.cos(Math.toRadians(horizontalAngle)));
+        float realDeltaY = (float) (moveDeltaY * Math.cos(Math.toRadians(horizontalAngle)) - moveDeltaX * Math.sin(Math.toRadians(horizontalAngle)));
+        eyeX += realDeltaX;
+        eyeY += realDeltaY;
 
         resetMatrixFlag = true;
     }
@@ -186,17 +187,21 @@ public class World {
         resetMatrixFlag = true;
         float radius = (float) Math.sqrt(Math.pow(viewTouchDeltaX, 2) + Math.pow(viewTouchDeltaY, 2));
 
-        float directionDeltaHor = (directionDelta * Math.abs(viewTouchDeltaX) / radius);
-        horizontalAngle += (directionDeltaHor * (viewTouchDeltaX >= 0 ? 1 : -1));
-        horizontalAngle = (horizontalAngle + 360) % 360;//水平方向可以循环观察
-        direction[0] = (float) (directionRadius * Math.sin(horizontalAngle / 180 * Math.PI));
-        direction[1] = (float) (directionRadius * Math.cos(horizontalAngle / 180 * Math.PI));
+        if (viewTouchDeltaX != 0) {
+            float directionDeltaHor = (directionDelta * Math.abs(viewTouchDeltaX) / radius);
+            horizontalAngle += (directionDeltaHor * (viewTouchDeltaX >= 0 ? 1 : -1));
+            horizontalAngle = (horizontalAngle + 360) % 360;//水平方向可以循环观察
+            direction[0] = (float) (directionRadius * Math.sin(horizontalAngle / 180 * Math.PI));
+            direction[1] = (float) (directionRadius * Math.cos(horizontalAngle / 180 * Math.PI));
+        }
 
-        float directionDeltaVer = (directionDelta * Math.abs(viewTouchDeltaY) / radius);
-        verticalAngle += (directionDeltaVer * (viewTouchDeltaY > 0 ? -1 : 1));
-        verticalAngle = Math.min(180, verticalAngle);
-        verticalAngle = Math.max(0, verticalAngle); //竖直方向禁止循环观察
-        direction[2] = (float) (directionRadius * Math.cos(verticalAngle / 180 * Math.PI));
+        if (viewTouchDeltaY != 0) {
+            float directionDeltaVer = (directionDelta * Math.abs(viewTouchDeltaY) / radius);
+            verticalAngle += (directionDeltaVer * (viewTouchDeltaY > 0 ? -1 : 1));
+            verticalAngle = Math.min(180, verticalAngle);
+            verticalAngle = Math.max(0, verticalAngle); //竖直方向禁止循环观察
+            direction[2] = (float) (directionRadius * Math.cos(verticalAngle / 180 * Math.PI));
+        }
     }
 
     public void onScale(float scaleFactorParam) {
@@ -213,8 +218,32 @@ public class World {
         resetMatrixFlag = true;
     }
 
-    public void directionXYZ(float directionX, float directionY, float directionZ) {
-        direction = new float[]{directionX, directionY, directionZ};
+    public void setInitDirectionXYZ(float directionX, float directionY, float directionZ) {
+        float radiusDirXYZ = (float) Math.sqrt(Math.pow(directionX, 2) + Math.pow(directionY, 2) + Math.pow(directionZ, 2));
+        float radiusDirXY = (float) Math.sqrt(Math.pow(directionX, 2) + Math.pow(directionY, 2));
+
+        float unitDirX = directionX * directionRadius / radiusDirXY;
+        float unitDirY = directionY * directionRadius / radiusDirXY;
+
+        direction = new float[]{unitDirX, unitDirY, directionZ};
+
+        if (directionX == 0 && directionY == 0) {
+            throw new IllegalStateException("不允许设置平行与Z轴的观察方向，以简化数据模型的边界条件计算");
+        } else if (directionX == 0) {
+            if (directionY > 0) {
+                horizontalAngle = 0;
+            } else {
+                horizontalAngle = 90;
+            }
+        } else if (directionY == 0) {
+            if (directionX > 0) {
+                horizontalAngle = 0;
+            } else {
+                horizontalAngle = 90;
+            }
+        } else {
+            horizontalAngle = (float) (Math.acos(directionX / radiusDirXY) * 180 / Math.PI);
+        }
     }
 
 }

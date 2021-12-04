@@ -44,7 +44,7 @@ public class AmbientLightActivity extends BaseActivity {
                 cube.create();
 
                 world.eyeXYZ(-20, -20, 20);
-                world.directionXYZ(10, 10, -10);
+                world.setInitDirectionXYZ(10, 10, -10);
             }
 
             @Override

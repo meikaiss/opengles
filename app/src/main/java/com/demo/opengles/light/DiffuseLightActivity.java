@@ -2,7 +2,6 @@ package com.demo.opengles.light;
 
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.SeekBar;
 
 import androidx.annotation.Nullable;
@@ -66,12 +65,11 @@ public class DiffuseLightActivity extends BaseActivity {
         moveControlView.setOnMoveListener(new MoveControlView.OnMoveListener() {
             @Override
             public void onMove(int deltaX, int deltaY) {
-//                world.moveXYChange(deltaX, deltaY);
-
-                Log.e("mk", "deltaX = " + deltaX + ", deltaY" + deltaY);
-
-                diffuseCube.addTranslate(deltaX > 0 ? 0.001f : -0.001f,
-                        0, 0);
+                if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                    diffuseCube.addTranslate(deltaX > 0 ? 0.1f : -0.1f, 0, 0);
+                } else {
+                    diffuseCube.addTranslate(0, deltaY > 0 ? 0.1f : -0.1f, 0);
+                }
             }
         });
 
@@ -79,7 +77,7 @@ public class DiffuseLightActivity extends BaseActivity {
         directionControlView.setOnDirectionListener(new DirectionControlView.OnDirectionListener() {
             @Override
             public void onDirection(int deltaX, int deltaY) {
-                world.directionChange(deltaX, deltaY);
+                world.directionChange(deltaX, 0);
             }
         });
 
@@ -102,7 +100,7 @@ public class DiffuseLightActivity extends BaseActivity {
                 diffuseCube.create();
 
                 world.eyeXYZ(-20, -20, 20);
-                world.directionXYZ(10, 10, -10);
+                world.setInitDirectionXYZ(20, 20, -20);
             }
 
             @Override
