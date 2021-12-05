@@ -46,6 +46,7 @@ import com.demo.opengles.graphic.TriangleModalActivity;
 import com.demo.opengles.leak.LeakGlSurfaceViewActivity;
 import com.demo.opengles.light.AmbientLightActivity;
 import com.demo.opengles.light.DiffuseLightActivity;
+import com.demo.opengles.light.SpecularLightActivity;
 import com.demo.opengles.map.MapViewGaussianActivity;
 import com.demo.opengles.map.MapViewGaussianActivity2;
 import com.demo.opengles.mediarecorder.camera1.surfaceview.Camera1MediaRecorderSurfaceActivity;
@@ -143,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("Camera2-后台静默录制视频", Camera2BackgroundRecordActivity.class, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO));
             add(new MainItemBean("OpenGL-冯氏光照模型-环境光", AmbientLightActivity.class));
             add(new MainItemBean("OpenGL-冯氏光照模型-漫反射光", DiffuseLightActivity.class));
+            add(new MainItemBean("OpenGL-冯氏光照模型-镜面反射光", SpecularLightActivity.class));
         }
     };
 

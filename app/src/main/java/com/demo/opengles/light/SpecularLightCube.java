@@ -16,15 +16,16 @@ import java.nio.FloatBuffer;
 import javax.microedition.khronos.opengles.GL10;
 
 /**
- * 漫反射光立方体
+ * 镜面反射光立方体
  * <p>
  * 定义：
- * 不同的表面会以不同的方式反射光。镜面会将光线以与入射光相同角度的反方向反射出去。漫反射表面则会将入射光均等地反射到各个方向。
+ * 镜面反射的结果是物体在从某个角度看上去会十分明亮，而移动开后这个光亮又会消失
  * <p>
  * 特征：
- * 漫反射光依赖于光源的方向。漫反射光在物体朝向光源的一面才有光照效果，在背面则没有光照效果
+ * 现实中好的镜面反射的例子是金属物体，这些物体有时候看上去由于太亮了导致看不到他本来的颜色而是直接照向你眼睛的白色的亮光。
+ * 但这种属性在其他的一些材料上是没有的（比如：木头）。很多东西根本不会发光，不管光源从什么角度照射以及观察者在什么位置。所以，镜面反射光的存在更取决于反射物体的材料性质而不是光源本身。
  */
-public class DiffuseLightCube extends WorldObject {
+public class SpecularLightCube extends WorldObject {
 
     //顶点坐标（xyz），以散列三角形方式绘制
     final float vertexCoords[] = {
@@ -69,6 +70,7 @@ public class DiffuseLightCube extends WorldObject {
     private int mModelMatrixHandler;
     private int mLightColorHandler;
     private int mLightPosHandler;
+    private int mViewPosHandler;
     private int mDiffuseStrongHandler;
 
     private int mPositionHandle;
@@ -93,7 +95,7 @@ public class DiffuseLightCube extends WorldObject {
         this.lightStrong = lightStrong;
     }
 
-    public DiffuseLightCube(Context context) {
+    public SpecularLightCube(Context context) {
         super(context);
     }
 
@@ -117,9 +119,9 @@ public class DiffuseLightCube extends WorldObject {
         colorBuffer.position(0);
 
         vertexShaderIns = OpenGLESUtil.loadShader(GLES20.GL_VERTEX_SHADER,
-                OpenGLESUtil.getShaderCode(context, "shader/light/diffuse/diffuse_vertex.glsl"));
+                OpenGLESUtil.getShaderCode(context, "shader/light/specular/specular_vertex.glsl"));
         fragmentShaderIns = OpenGLESUtil.loadShader(GLES20.GL_FRAGMENT_SHADER,
-                OpenGLESUtil.getShaderCode(context, "shader/light/diffuse/diffuse_fragment.glsl"));
+                OpenGLESUtil.getShaderCode(context, "shader/light/specular/specular_fragment.glsl"));
 
         mProgram = GLES20.glCreateProgram();
         GLES20.glAttachShader(mProgram, vertexShaderIns);
@@ -130,6 +132,7 @@ public class DiffuseLightCube extends WorldObject {
         mModelMatrixHandler = GLES20.glGetUniformLocation(mProgram, "uModelMatrix");
         mLightColorHandler = GLES20.glGetUniformLocation(mProgram, "uLightColor");
         mLightPosHandler = GLES20.glGetUniformLocation(mProgram, "uLightPos");
+        mViewPosHandler = GLES20.glGetUniformLocation(mProgram, "uViewPosLoc");
         mDiffuseStrongHandler = GLES20.glGetUniformLocation(mProgram, "uDiffuseStrength");
 
         mPositionHandle = GLES20.glGetAttribLocation(mProgram, "aPosition");
@@ -150,8 +153,9 @@ public class DiffuseLightCube extends WorldObject {
 
         GLES20.glEnableVertexAttribArray(mLightColorHandler);
         GLES20.glUniform3f(mLightColorHandler, 1.0f, 1.0f, 1.0f);
-        //设置漫反射光源位置
+        //设置镜面反射光源位置
         GLES20.glUniform3f(mLightPosHandler, 10.0f, 10.0f, 10.0f);
+        GLES20.glUniform3f(mViewPosHandler, -10.0f, -10.0f, 10.0f);
 
         GLES20.glUniform1f(mDiffuseStrongHandler, lightStrong);
 

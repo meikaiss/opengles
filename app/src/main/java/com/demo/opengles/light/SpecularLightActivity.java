@@ -19,7 +19,7 @@ import com.demo.opengles.world.game.World;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class DiffuseLightActivity extends BaseActivity {
+public class SpecularLightActivity extends BaseActivity {
 
     private GLSurfaceView glSurfaceView;
     private SeekBar seekBar;
@@ -31,12 +31,12 @@ public class DiffuseLightActivity extends BaseActivity {
     private World world = new World();
     private Point point = new Point(activity);
     private Axis axis = new Axis(activity);
-    private DiffuseLightCube diffuseCube = new DiffuseLightCube(activity);
+    private SpecularLightCube specularCube = new SpecularLightCube(activity);
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_light_diffuse);
+        setContentView(R.layout.activity_light_specular);
 
         glSurfaceView = findViewById(R.id.gl_surface_view);
         glSurfaceView.setEGLContextClientVersion(2);
@@ -47,7 +47,7 @@ public class DiffuseLightActivity extends BaseActivity {
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                diffuseCube.setLightStrong(progress / 100f);
+                specularCube.setLightStrong(progress / 100f);
             }
 
             @Override
@@ -66,9 +66,9 @@ public class DiffuseLightActivity extends BaseActivity {
             @Override
             public void onMove(int deltaX, int deltaY) {
                 if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                    diffuseCube.addTranslate(deltaX > 0 ? 0.1f : -0.1f, 0, 0);
+                    specularCube.addTranslate(deltaX > 0 ? 0.1f : -0.1f, 0, 0);
                 } else {
-                    diffuseCube.addTranslate(0, deltaY > 0 ? 0.1f : -0.1f, 0);
+                    specularCube.addTranslate(0, deltaY > 0 ? 0.1f : -0.1f, 0);
                 }
             }
         });
@@ -97,7 +97,7 @@ public class DiffuseLightActivity extends BaseActivity {
                 point.setColor(1f, 1f, 1f, 1f);
                 point.create();
                 axis.create();
-                diffuseCube.create();
+                specularCube.create();
 
                 world.eyeXYZ(-20, -20, 20);
                 world.setInitDirectionXYZ(20, 20, -20);
@@ -108,9 +108,9 @@ public class DiffuseLightActivity extends BaseActivity {
                 world.change(gl, width, height);
                 point.change(gl, width, height);
                 axis.change(gl, width, height);
-                diffuseCube.change(gl, width, height);
+                specularCube.change(gl, width, height);
 
-                diffuseCube.setScale(10, 10, 10);
+                specularCube.setScale(10, 10, 10);
             }
 
             @Override
@@ -118,7 +118,7 @@ public class DiffuseLightActivity extends BaseActivity {
                 world.draw();
                 point.draw2(gl, world.getMVPMatrix());
                 axis.draw(world.getMVPMatrix());
-                diffuseCube.draw(world.getMVPMatrix());
+                specularCube.draw(world.getMVPMatrix());
             }
         });
 
