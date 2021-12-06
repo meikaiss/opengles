@@ -10,7 +10,7 @@ varying vec3 diffuse;
 varying vec4 vColor;
 
 void main() {
-    //4行4列的矩阵在左，乘以4行1列的向量在右，得到4行一列的向量
+    //4行4列的矩阵在左，乘以4行1列的向量在右，得到4行1列的向量
     gl_Position = uMatrix * aPosition;
 
     vec3 fragPos = vec3(uModelMatrix * aPosition);
