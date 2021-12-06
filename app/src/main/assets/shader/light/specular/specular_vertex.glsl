@@ -24,11 +24,10 @@ void main() {
     float specularStrength = 0.9;
     //视角和顶点的单位向量
     vec3 viewDir = normalize(uViewPosLoc - fragPos);
-    //调用reflect反射内置函数
+    //调用opengl-shader内置函数reflect，计算光的反射向量
     vec3 reflectDir = reflect(-lightDir, unitNormal);
     float spec = pow(max(dot(unitNormal, reflectDir), 0.0), 16.0);
     specular = specularStrength * spec * uLightColor;
-
 
     vColor = aColor;
 }

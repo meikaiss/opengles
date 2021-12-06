@@ -15,13 +15,24 @@ android {
 
     }
 
+    signingConfigs {
+        keystore {
+            storeFile file('../keystore/opengles_key.jks')
+            storePassword '123456'
+            keyAlias 'opengles'
+            keyPassword '123456'
+        }
+    }
+
     buildTypes {
         debug {
             minifyEnabled false
+            signingConfig signingConfigs.keystore
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         release {
             minifyEnabled false
+            signingConfig signingConfigs.keystore
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
