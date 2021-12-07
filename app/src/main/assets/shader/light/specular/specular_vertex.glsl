@@ -26,6 +26,10 @@ void main() {
     vec3 viewDir = normalize(uViewPosLoc - fragPos);
     //调用opengl-shader内置函数reflect，计算光的反射向量
     vec3 reflectDir = reflect(-lightDir, unitNormal);
+    /**
+    两个矩阵的行数和列数必须相等才能进行点乘
+    两个矩阵相乘，结果为两个矩阵对应元素相乘组成的矩阵，即
+    */
     float spec = pow(max(dot(unitNormal, reflectDir), 0.0), 16.0);
     specular = specularStrength * spec * uLightColor;
 
