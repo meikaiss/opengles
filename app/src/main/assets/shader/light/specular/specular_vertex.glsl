@@ -26,8 +26,9 @@ void main() {
     //调用opengl-shader内置函数reflect，计算光的反射向量
     vec3 reflectDir = reflect(-lightDir, unitNormal);
     /**
-    两个矩阵的行数和列数必须相等才能进行点乘
-    两个矩阵相乘，结果为两个矩阵对应元素相乘组成的矩阵，即
+        dot为opengl内置的点积函数
+        对于向量a和向量b，a和b的点积公式为：将对应分量逐个相乘，然后再把所得积相加得到的数
+        要求：向量a和向量b都是一维向量，而且行列数都相同
     */
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 16.0);
 
