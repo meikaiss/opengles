@@ -69,6 +69,18 @@ public abstract class WorldObject extends GLObject {
     }
 
     public float[] getWorldMatrix() {
+        if (translateMatrix == null) {
+            translateMatrix = new float[16];
+            Matrix.setIdentityM(translateMatrix, 0);
+        }
+        if (scaleMatrix == null) {
+            scaleMatrix = new float[16];
+            Matrix.setIdentityM(scaleMatrix, 0);
+        }
+        if (rotateMatrix == null) {
+            rotateMatrix = new float[16];
+            Matrix.setIdentityM(rotateMatrix, 0);
+        }
         return MatrixHelper.multiplyMM(translateMatrix, scaleMatrix, rotateMatrix);
     }
 

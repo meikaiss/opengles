@@ -3,7 +3,7 @@ uniform mat4 uModelMatrix;
 uniform vec3 uLightColor;
 uniform vec3 uLightPos;
 uniform vec3 uViewPosLoc;
-uniform float uDiffuseStrength;
+uniform float uSpecularStrength; //镜面反射强度
 attribute vec4 aPosition;
 attribute vec3 aNormal;
 attribute vec4 aColor;
@@ -20,9 +20,8 @@ void main() {
     //从顶点到光源的单位向量
     vec3 lightDir = normalize(uLightPos - fragPos);
 
-    //镜面反射
-    float specularStrength = 0.9;
-    //视角和顶点的单位向量
+
+    //观察点和顶点的单位向量
     vec3 viewDir = normalize(uViewPosLoc - fragPos);
     //调用opengl-shader内置函数reflect，计算光的反射向量
     vec3 reflectDir = reflect(-lightDir, unitNormal);
@@ -30,8 +29,9 @@ void main() {
     两个矩阵的行数和列数必须相等才能进行点乘
     两个矩阵相乘，结果为两个矩阵对应元素相乘组成的矩阵，即
     */
-    float spec = pow(max(dot(unitNormal, reflectDir), 0.0), 16.0);
-    specular = specularStrength * spec * uLightColor;
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 16.0);
+
+    specular = uSpecularStrength * spec * uLightColor;
 
     vColor = aColor;
 }

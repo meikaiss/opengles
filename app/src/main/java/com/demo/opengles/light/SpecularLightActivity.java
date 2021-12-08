@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 import com.demo.opengles.R;
 import com.demo.opengles.egl.AntiConfigChooser;
 import com.demo.opengles.main.BaseActivity;
+import com.demo.opengles.sdk.OnSeekBarChangeListenerImpl;
 import com.demo.opengles.world.common.Point;
 import com.demo.opengles.world.control.DirectionControlView;
 import com.demo.opengles.world.control.JumpControlView;
@@ -23,6 +24,7 @@ public class SpecularLightActivity extends BaseActivity {
 
     private GLSurfaceView glSurfaceView;
     private SeekBar seekBar;
+    private SeekBar seekBarXY;
 
     private MoveControlView moveControlView;
     private DirectionControlView directionControlView;
@@ -44,20 +46,19 @@ public class SpecularLightActivity extends BaseActivity {
 
         seekBar = findViewById(R.id.seek_bar);
         seekBar.setProgress(80);
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListenerImpl() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 specularCube.setLightStrong(progress / 100f);
             }
+        });
 
+        seekBarXY = findViewById(R.id.seek_bar_xy);
+        seekBarXY.setProgress(25);
+        seekBarXY.setOnSeekBarChangeListener(new OnSeekBarChangeListenerImpl() {
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                specularCube.setLightPosXY(progress);
             }
         });
 
@@ -110,7 +111,7 @@ public class SpecularLightActivity extends BaseActivity {
                 axis.change(gl, width, height);
                 specularCube.change(gl, width, height);
 
-                specularCube.setScale(10, 10, 10);
+                specularCube.setScale(10f, 10f, 10f);
             }
 
             @Override

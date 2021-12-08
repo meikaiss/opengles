@@ -71,7 +71,7 @@ public class SpecularLightCube extends WorldObject {
     private int mLightColorHandler;
     private int mLightPosHandler;
     private int mViewPosHandler;
-    private int mDiffuseStrongHandler;
+    private int mSpecularStrongHandler;
 
     private int mPositionHandle;
     private int mNormalHandle;
@@ -84,6 +84,8 @@ public class SpecularLightCube extends WorldObject {
 
     //漫反射光的强度
     private float lightStrong = 0.8f;
+    //光源xy坐标
+    private float lightPosXY = 25;
 
     private int COORDS_PER_VERTEX = 3;  //每个顶点有3个数字来表示它的坐标
     private int COORDS_PER_COLOR = 4;  //每个颜色值有4个数字来表示它的内容
@@ -93,6 +95,10 @@ public class SpecularLightCube extends WorldObject {
     public void setLightStrong(float lightStrong) {
         lightStrong = MathUtil.clamp(lightStrong, 0f, 1f);
         this.lightStrong = lightStrong;
+    }
+
+    public void setLightPosXY(float lightPosXY) {
+        this.lightPosXY = lightPosXY;
     }
 
     public SpecularLightCube(Context context) {
@@ -133,7 +139,7 @@ public class SpecularLightCube extends WorldObject {
         mLightColorHandler = GLES20.glGetUniformLocation(mProgram, "uLightColor");
         mLightPosHandler = GLES20.glGetUniformLocation(mProgram, "uLightPos");
         mViewPosHandler = GLES20.glGetUniformLocation(mProgram, "uViewPosLoc");
-        mDiffuseStrongHandler = GLES20.glGetUniformLocation(mProgram, "uDiffuseStrength");
+        mSpecularStrongHandler = GLES20.glGetUniformLocation(mProgram, "uSpecularStrength");
 
         mPositionHandle = GLES20.glGetAttribLocation(mProgram, "aPosition");
         mNormalHandle = GLES20.glGetAttribLocation(mProgram, "aNormal");
@@ -153,11 +159,23 @@ public class SpecularLightCube extends WorldObject {
 
         GLES20.glEnableVertexAttribArray(mLightColorHandler);
         GLES20.glUniform3f(mLightColorHandler, 1.0f, 1.0f, 1.0f);
-        //设置镜面反射光源位置
-        GLES20.glUniform3f(mLightPosHandler, 10.0f, 10.0f, 10.0f);
-        GLES20.glUniform3f(mViewPosHandler, -10.0f, -10.0f, 10.0f);
 
-        GLES20.glUniform1f(mDiffuseStrongHandler, lightStrong);
+        float testValueXY = lightPosXY;
+        float testValueZ = 20f;
+        //设置镜面反射光源位置
+        GLES20.glUniform3f(mLightPosHandler, testValueXY, testValueXY, testValueZ);
+        //设置观察点的位置
+        GLES20.glUniform3f(mViewPosHandler, -testValueXY, -testValueXY, testValueZ);
+
+        /**
+         * 外部设置了specularCube.setScale(10f, 10f, 10f);来放大10倍
+         * 同时镜面反射原理中又用到 pow 函数增加镜面效果
+         *
+         * 因此当 testValueXY 值较小时，镜面反射的光几乎无法射到人眼位置
+         *
+         */
+
+        GLES20.glUniform1f(mSpecularStrongHandler, lightStrong);
 
         GLES20.glEnableVertexAttribArray(mPositionHandle);
         GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX,
