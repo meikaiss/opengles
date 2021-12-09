@@ -14,7 +14,7 @@ void main() {
     gl_Position = uMatrix * aPosition;
 
     vec3 fragPos = vec3(uModelMatrix * aPosition);
-    fragPos = vec3(gl_Position);
+    //fragPos = vec3(gl_Position);
 
     //顶点的单位法线
     vec3 unitNormal = normalize(vec3(uModelMatrix * vec4(aNormal, 1.0)));
@@ -22,7 +22,6 @@ void main() {
 
     //从顶点到光源的单位向量
     vec3 lightDir = normalize(uLightPos - fragPos);
-
 
     //观察点和顶点的单位向量
     vec3 viewDir = normalize(uViewPosLoc - fragPos);

@@ -129,13 +129,8 @@ public class World {
             throw new IllegalStateException("观察方向不能与相机上方向平行，在矩阵数据模型上也不存在这种情况");
         }
 
-        int testFlag = 0;
-        if (testFlag == 1) {
-            Matrix.setLookAtM(mViewMatrix, 0,
-                    0, 0, 20,
-                    0, 0, 0,
-                    0f, 0f, 1f);
-        }
+        //方法内部决定是否启用强制测试视图矩阵
+        testViewMatrix();
 
         //计算变换矩阵
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0);
@@ -145,6 +140,16 @@ public class World {
         Matrix.setIdentityM(scaleMatrix, 0);
         Matrix.scaleM(scaleMatrix, 0, scaleFactor, scaleFactor, scaleFactor);
         Matrix.multiplyMM(mMVPMatrix, 0, mMVPMatrix, 0, scaleMatrix, 0);
+    }
+
+    private void testViewMatrix() {
+        int testFlag = 0;
+        if (testFlag == 1) {
+            Matrix.setLookAtM(mViewMatrix, 0,
+                    0, 0, 20,
+                    0, 0, 0,
+                    0f, 0f, 1f);
+        }
     }
 
     /**
@@ -219,7 +224,6 @@ public class World {
     }
 
     public void setInitDirectionXYZ(float directionX, float directionY, float directionZ) {
-        float radiusDirXYZ = (float) Math.sqrt(Math.pow(directionX, 2) + Math.pow(directionY, 2) + Math.pow(directionZ, 2));
         float radiusDirXY = (float) Math.sqrt(Math.pow(directionX, 2) + Math.pow(directionY, 2));
 
         float unitDirX = directionX * directionRadius / radiusDirXY;

@@ -143,10 +143,10 @@ public class DiffuseLightCube extends WorldObject {
     public void draw(float[] MVPMatrix) {
         GLES20.glUseProgram(mProgram);
 
-        float[] effectMatrix = MatrixHelper.multiplyMM(MVPMatrix, getWorldMatrix());
+        float[] effectMatrix = MatrixHelper.multiplyMM(MVPMatrix, getModelMatrix());
         GLES20.glUniformMatrix4fv(mMatrixHandler, 1, false, effectMatrix, 0);
 
-        GLES20.glUniformMatrix4fv(mModelMatrixHandler, 1, false, getWorldMatrix(), 0);
+        GLES20.glUniformMatrix4fv(mModelMatrixHandler, 1, false, getModelMatrix(), 0);
 
         GLES20.glEnableVertexAttribArray(mLightColorHandler);
         GLES20.glUniform3f(mLightColorHandler, 1.0f, 1.0f, 1.0f);

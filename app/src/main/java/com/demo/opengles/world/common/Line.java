@@ -112,7 +112,7 @@ public class Line extends WorldObject {
     public void draw(float[] MVPMatrix) {
         GLES20.glUseProgram(mProgram);
 
-        float[] effectMatrix = MatrixHelper.multiplyMM(MVPMatrix, getWorldMatrix());
+        float[] effectMatrix = MatrixHelper.multiplyMM(MVPMatrix, getModelMatrix());
         GLES20.glUniformMatrix4fv(mMatrixHandler, 1, false, effectMatrix, 0);
 
         GLES20.glEnableVertexAttribArray(mPositionHandle);
