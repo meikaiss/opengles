@@ -39,10 +39,10 @@ Android Camera2 API详解
 8、opengl中的向量都认为是竖向量。
      A和B可以是向量或矩阵。
      A左乘B，那么A在左，B在右；
-     A右乘B，那么A在顺，B在左；
+     A右乘B，那么A在右，B在左；
 
      左乘和右乘只是确认谁在左边，谁在右边，但要求左边的列数一定要等于右边的行数
 
 
-
-
+9、opengl非常详细全面的资料
+    https://learnopengl-cn.github.io/

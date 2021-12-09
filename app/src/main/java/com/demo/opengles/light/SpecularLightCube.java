@@ -85,7 +85,7 @@ public class SpecularLightCube extends WorldObject {
     //漫反射光的强度
     private float lightStrong = 0.8f;
     //光源xy坐标
-    private float lightPosXY = 25;
+    private float lightPosXY = 50;
 
     private int COORDS_PER_VERTEX = 3;  //每个顶点有3个数字来表示它的坐标
     private int COORDS_PER_COLOR = 4;  //每个颜色值有4个数字来表示它的内容
@@ -164,8 +164,8 @@ public class SpecularLightCube extends WorldObject {
         float testValueZ = 20f;
         //设置镜面反射光源位置
         GLES20.glUniform3f(mLightPosHandler, testValueXY, testValueXY, testValueZ);
-        //设置观察点的位置
-        GLES20.glUniform3f(mViewPosHandler, -testValueXY, -testValueXY, testValueZ);
+        //设置观察点的位置（必须与相机位置相同，才能得到符合物理世界规律的图像）
+        GLES20.glUniform3f(mViewPosHandler, -20, -20, 20);
 
         /**
          * 外部设置了specularCube.setScale(10f, 10f, 10f);来放大10倍
@@ -174,7 +174,6 @@ public class SpecularLightCube extends WorldObject {
          * 因此当 testValueXY 值较小时，镜面反射的光几乎无法射到人眼位置
          *
          */
-
         GLES20.glUniform1f(mSpecularStrongHandler, lightStrong);
 
         GLES20.glEnableVertexAttribArray(mPositionHandle);

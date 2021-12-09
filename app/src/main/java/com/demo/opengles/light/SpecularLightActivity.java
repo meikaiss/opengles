@@ -3,6 +3,7 @@ package com.demo.opengles.light;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
@@ -25,6 +26,7 @@ public class SpecularLightActivity extends BaseActivity {
     private GLSurfaceView glSurfaceView;
     private SeekBar seekBar;
     private SeekBar seekBarXY;
+    private TextView tvPosXY;
 
     private MoveControlView moveControlView;
     private DirectionControlView directionControlView;
@@ -54,13 +56,16 @@ public class SpecularLightActivity extends BaseActivity {
         });
 
         seekBarXY = findViewById(R.id.seek_bar_xy);
-        seekBarXY.setProgress(25);
+        seekBarXY.setProgress(50);
         seekBarXY.setOnSeekBarChangeListener(new OnSeekBarChangeListenerImpl() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 specularCube.setLightPosXY(progress);
+                tvPosXY.setText(String.valueOf(progress));
             }
         });
+
+        tvPosXY = findViewById(R.id.tv_pos_xy);
 
         moveControlView = findViewById(R.id.move_control_view);
         moveControlView.setOnMoveListener(new MoveControlView.OnMoveListener() {
