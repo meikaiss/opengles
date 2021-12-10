@@ -11,14 +11,12 @@ varying vec3 specular;
 varying vec4 vColor;
 
 void main() {
-    gl_Position = uMatrix * aPosition;
+    gl_Position = uMatrix * uModelMatrix * aPosition;
 
     vec3 fragPos = vec3(uModelMatrix * aPosition);
-    //fragPos = vec3(gl_Position);
 
     //顶点的单位法线
     vec3 unitNormal = normalize(vec3(uModelMatrix * vec4(aNormal, 1.0)));
-    //unitNormal = normalize(vec3(uMatrix * vec4(aNormal, 1.0)));
 
     //从顶点到光源的单位向量
     vec3 lightDir = normalize(uLightPos - fragPos);
@@ -34,7 +32,7 @@ void main() {
 
         一个物体的反光度越高，反射光的能力越强，散射得越少，高光点就会越小。
     */
-    float shininess = 32.0;
+    float shininess = 256.0;
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
 
     specular = uSpecularStrength * spec * uLightColor;

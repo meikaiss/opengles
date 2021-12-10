@@ -6,7 +6,6 @@ import android.opengl.GLES20;
 
 import com.demo.opengles.util.MathUtil;
 import com.demo.opengles.util.OpenGLESUtil;
-import com.demo.opengles.world.MatrixHelper;
 import com.demo.opengles.world.base.WorldObject;
 
 import java.nio.ByteBuffer;
@@ -85,7 +84,7 @@ public class SpecularLightCube extends WorldObject {
     //漫反射光的强度
     private float lightStrong = 0.8f;
     //光源xy坐标
-    private float lightPosXY = 50;
+    private float lightPosXY = 20;
 
     private int COORDS_PER_VERTEX = 3;  //每个顶点有3个数字来表示它的坐标
     private int COORDS_PER_COLOR = 4;  //每个颜色值有4个数字来表示它的内容
@@ -152,17 +151,15 @@ public class SpecularLightCube extends WorldObject {
     public void draw(float[] MVPMatrix) {
         GLES20.glUseProgram(mProgram);
 
-        float[] effectMatrix = MatrixHelper.multiplyMM(MVPMatrix, getModelMatrix());
-        GLES20.glUniformMatrix4fv(mMatrixHandler, 1, false, effectMatrix, 0);
+        GLES20.glUniformMatrix4fv(mMatrixHandler, 1, false, MVPMatrix, 0);
 
         GLES20.glUniformMatrix4fv(mModelMatrixHandler, 1, false, getModelMatrix(), 0);
 
-        GLES20.glEnableVertexAttribArray(mLightColorHandler);
         GLES20.glUniform3f(mLightColorHandler, 1.0f, 1.0f, 1.0f);
 
         float testValueXY = lightPosXY;
         float testValueZ = 20f;
-        //设置镜面反射光源位置
+        //设置镜面反射光源位置(光源为点光源，即从一点发出的万向光)
         GLES20.glUniform3f(mLightPosHandler, testValueXY, testValueXY, testValueZ);
         //设置观察点的位置（必须与相机位置相同，才能得到符合物理世界规律的图像）
         GLES20.glUniform3f(mViewPosHandler, -20, -20, 20);

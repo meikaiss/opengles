@@ -1,7 +1,11 @@
 package com.demo.opengles.light;
 
+import android.annotation.SuppressLint;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
+import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -46,6 +50,8 @@ public class SpecularLightActivity extends BaseActivity {
         glSurfaceView.setEGLContextClientVersion(2);
         glSurfaceView.setEGLConfigChooser(new AntiConfigChooser());
 
+        initTouchListener();
+
         seekBar = findViewById(R.id.seek_bar);
         seekBar.setProgress(80);
         seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListenerImpl() {
@@ -56,7 +62,7 @@ public class SpecularLightActivity extends BaseActivity {
         });
 
         seekBarXY = findViewById(R.id.seek_bar_xy);
-        seekBarXY.setProgress(50);
+        seekBarXY.setProgress(20);
         seekBarXY.setOnSeekBarChangeListener(new OnSeekBarChangeListenerImpl() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -116,7 +122,7 @@ public class SpecularLightActivity extends BaseActivity {
                 axis.change(gl, width, height);
                 specularCube.change(gl, width, height);
 
-                specularCube.setScale(10f, 10f, 10f);
+//                specularCube.setScale(10f, 10f, 10f);
             }
 
             @Override
@@ -129,6 +135,39 @@ public class SpecularLightActivity extends BaseActivity {
         });
 
         glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+    }
+
+
+    @SuppressLint("ClickableViewAccessibility")
+    private void initTouchListener() {
+        ScaleGestureDetector scaleGestureDetector = new ScaleGestureDetector(this, new ScaleGestureDetector.OnScaleGestureListener() {
+            @Override
+            public boolean onScale(ScaleGestureDetector detector) {
+                /**
+                 * 每一次Move所计算出的scale是针对上一次消费掉的Move事件的触摸位置，此方法返回true表示已消费，返回false表示未消费
+                 */
+                float scaleFactor = detector.getScaleFactor();
+                world.onScale(scaleFactor);
+                return true;
+            }
+
+            @Override
+            public boolean onScaleBegin(ScaleGestureDetector detector) {
+                return true;
+            }
+
+            @Override
+            public void onScaleEnd(ScaleGestureDetector detector) {
+            }
+        });
+        scaleGestureDetector.setQuickScaleEnabled(true);
+
+        glSurfaceView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return scaleGestureDetector.onTouchEvent(event);
+            }
+        });
     }
 
 }

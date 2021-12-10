@@ -2,7 +2,6 @@ package com.demo.opengles.world.game;
 
 import android.opengl.GLES20;
 import android.opengl.Matrix;
-import android.util.Log;
 
 import javax.microedition.khronos.opengles.GL10;
 
@@ -13,7 +12,6 @@ import javax.microedition.khronos.opengles.GL10;
  */
 public class World {
     private static final String TAG = "World";
-    private static final float openglIdentitySize = 1.0f; //opengl归一化坐标系的标准宽高，通常定义为1.0
 
     private int viewWidth;
     private int viewHeight;
@@ -79,7 +77,7 @@ public class World {
 
     private void resetWorldMatrix() {
         //计算宽高比
-        float ratio = (float) viewWidth / viewHeight * openglIdentitySize;
+        float ratio = (float) viewWidth / viewHeight;
         /**
          * 设置透视投影，用于创建一个锥形视景体
          * 需要注意的是 near 和 far 变量的值必须要大于 0。因为它们都是相对于视点的距离，也就是照相机的距离。
@@ -125,7 +123,7 @@ public class World {
                 centerX, centerY, centerZ,
                 upX, upY, upZ);
 
-        if (eyeX - centerX == 0 && eyeY - centerY == 0 && upX == 0 && upY == 0) {
+        if (direction[0] == 0 && direction[1] == 0 && upX == 0 && upY == 0) {
             throw new IllegalStateException("观察方向不能与相机上方向平行，在矩阵数据模型上也不存在这种情况");
         }
 
