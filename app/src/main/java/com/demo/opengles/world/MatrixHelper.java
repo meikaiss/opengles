@@ -22,4 +22,33 @@ public class MatrixHelper {
         }
     }
 
+    /**
+     * 根据模型矩阵和视图矩阵计算法线矩阵
+     *
+     * @param modelMatrix 4x4的矩阵
+     * @param viewMatrix  4x4的矩阵
+     * @return 法线矩阵
+     */
+    public static float[] invertTransposeMatrix(float[] modelMatrix, float[] viewMatrix) {
+        float[] modelViewMatrix = new float[16];
+        Matrix.multiplyMM(modelViewMatrix, 0, modelMatrix, 0, viewMatrix, 0);
+
+        return invertTransposeMatrix(modelViewMatrix);
+    }
+
+
+    /**
+     * @param matrix 4x4矩阵
+     * @return 法线矩阵
+     */
+    public static float[] invertTransposeMatrix(float[] matrix) {
+        float[] invertMatrix = new float[16];
+        Matrix.invertM(invertMatrix, 0, matrix, 0);
+
+        float[] transposeMatrix = new float[16];
+        Matrix.transposeM(transposeMatrix, 0, invertMatrix, 0);
+
+        return transposeMatrix;
+    }
+
 }

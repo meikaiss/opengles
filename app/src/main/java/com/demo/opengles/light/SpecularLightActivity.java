@@ -111,8 +111,8 @@ public class SpecularLightActivity extends BaseActivity {
                 axis.create();
                 specularCube.create();
 
-                world.eyeXYZ(-20, -20, 20);
-                world.setInitDirectionXYZ(20, 20, -20);
+                world.eyeXYZ(-5, -5, 5);
+                world.setInitDirectionXYZ(5, 5, -5);
             }
 
             @Override
@@ -130,7 +130,7 @@ public class SpecularLightActivity extends BaseActivity {
                 world.draw();
                 point.draw2(gl, world.getMVPMatrix());
                 axis.draw(world.getMVPMatrix());
-                specularCube.draw(world.getMVPMatrix());
+                specularCube.draw(world.getProjectMatrix(), world.getViewMatrix());
             }
         });
 

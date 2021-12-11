@@ -6,6 +6,7 @@ import android.opengl.GLES20;
 
 import com.demo.opengles.util.MathUtil;
 import com.demo.opengles.util.OpenGLESUtil;
+import com.demo.opengles.world.MatrixHelper;
 import com.demo.opengles.world.base.WorldObject;
 
 import java.nio.ByteBuffer;
@@ -65,8 +66,10 @@ public class SpecularLightCube extends WorldObject {
 
     private int mProgram;
 
-    private int mMatrixHandler;
+    private int mProjectMatrixHandler;
+    private int mViewMatrixHandler;
     private int mModelMatrixHandler;
+    private int mModelViewInvertTransposeMatrix;
     private int mLightColorHandler;
     private int mLightPosHandler;
     private int mViewPosHandler;
@@ -84,7 +87,7 @@ public class SpecularLightCube extends WorldObject {
     //漫反射光的强度
     private float lightStrong = 0.8f;
     //光源xy坐标
-    private float lightPosXY = 20;
+    private float lightPosXY = 5;
 
     private int COORDS_PER_VERTEX = 3;  //每个顶点有3个数字来表示它的坐标
     private int COORDS_PER_COLOR = 4;  //每个颜色值有4个数字来表示它的内容
@@ -133,8 +136,11 @@ public class SpecularLightCube extends WorldObject {
         GLES20.glAttachShader(mProgram, fragmentShaderIns);
         GLES20.glLinkProgram(mProgram);
 
-        mMatrixHandler = GLES20.glGetUniformLocation(mProgram, "uMatrix");
+        mProjectMatrixHandler = GLES20.glGetUniformLocation(mProgram, "uProjectMatrix");
+        mViewMatrixHandler = GLES20.glGetUniformLocation(mProgram, "uViewMatrix");
         mModelMatrixHandler = GLES20.glGetUniformLocation(mProgram, "uModelMatrix");
+        mModelViewInvertTransposeMatrix = GLES20.glGetUniformLocation(mProgram, "uModelViewInvertTransposeMatrix");
+
         mLightColorHandler = GLES20.glGetUniformLocation(mProgram, "uLightColor");
         mLightPosHandler = GLES20.glGetUniformLocation(mProgram, "uLightPos");
         mViewPosHandler = GLES20.glGetUniformLocation(mProgram, "uViewPosLoc");
@@ -149,20 +155,26 @@ public class SpecularLightCube extends WorldObject {
     }
 
     public void draw(float[] MVPMatrix) {
+
+    }
+
+    public void draw(float[] projectMatrix, float[] viewMatrix) {
         GLES20.glUseProgram(mProgram);
 
-        GLES20.glUniformMatrix4fv(mMatrixHandler, 1, false, MVPMatrix, 0);
-
+        GLES20.glUniformMatrix4fv(mProjectMatrixHandler, 1, false, projectMatrix, 0);
+        GLES20.glUniformMatrix4fv(mViewMatrixHandler, 1, false, viewMatrix, 0);
         GLES20.glUniformMatrix4fv(mModelMatrixHandler, 1, false, getModelMatrix(), 0);
+        float[] invertTransposeMatrix = MatrixHelper.invertTransposeMatrix(getModelMatrix(), viewMatrix);
+        GLES20.glUniformMatrix4fv(mModelViewInvertTransposeMatrix, 1, false, invertTransposeMatrix, 0);
 
         GLES20.glUniform3f(mLightColorHandler, 1.0f, 1.0f, 1.0f);
 
         float testValueXY = lightPosXY;
-        float testValueZ = 20f;
+        float testValueZ = 5;
         //设置镜面反射光源位置(光源为点光源，即从一点发出的万向光)
         GLES20.glUniform3f(mLightPosHandler, testValueXY, testValueXY, testValueZ);
         //设置观察点的位置（必须与相机位置相同，才能得到符合物理世界规律的图像）
-        GLES20.glUniform3f(mViewPosHandler, -20, -20, 20);
+        GLES20.glUniform3f(mViewPosHandler, -5, -5, 5);
 
         /**
          * 外部设置了specularCube.setScale(10f, 10f, 10f);来放大10倍

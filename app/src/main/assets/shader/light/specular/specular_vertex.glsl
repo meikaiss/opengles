@@ -1,28 +1,34 @@
-uniform mat4 uMatrix;
+uniform mat4 uProjectMatrix;
+uniform mat4 uViewMatrix;
 uniform mat4 uModelMatrix;
+uniform mat4 uModelViewInvertTransposeMatrix;//模型矩阵 * 视图矩阵 的 逆矩阵 的 转置矩阵
+
 uniform vec3 uLightColor;
 uniform vec3 uLightPos;
-uniform vec3 uViewPosLoc;
 uniform float uSpecularStrength;//镜面反射强度
+
+uniform vec3 uViewPosLoc;
+
 attribute vec4 aPosition;
 attribute vec3 aNormal;
 attribute vec4 aColor;
+
 varying vec3 specular;
 varying vec4 vColor;
 
 void main() {
-    gl_Position = uMatrix * uModelMatrix * aPosition;
+    gl_Position = uProjectMatrix * uViewMatrix * uModelMatrix * aPosition;
 
-    vec3 fragPos = vec3(uModelMatrix * aPosition);
+    vec3 modelPos = vec3(uModelMatrix * aPosition);
 
     //顶点的单位法线
     vec3 unitNormal = normalize(vec3(uModelMatrix * vec4(aNormal, 1.0)));
 
     //从顶点到光源的单位向量
-    vec3 lightDir = normalize(uLightPos - fragPos);
+    vec3 lightDir = normalize(uLightPos - modelPos);
 
     //观察点和顶点的单位向量
-    vec3 viewDir = normalize(uViewPosLoc - fragPos);
+    vec3 viewDir = normalize(uViewPosLoc - modelPos);
     //调用opengl-shader内置函数reflect，计算光的反射向量
     vec3 reflectDir = reflect(-lightDir, unitNormal);
     /**

@@ -54,6 +54,14 @@ public class World {
         return mMVPMatrix;
     }
 
+    public float[] getProjectMatrix() {
+        return mProjectMatrix;
+    }
+
+    public float[] getViewMatrix() {
+        return mViewMatrix;
+    }
+
     public void create() {
         GLES20.glClearColor(0f, 0f, 0f, 1.0f);
         GLES20.glEnable(GLES20.GL_TEXTURE_2D);
