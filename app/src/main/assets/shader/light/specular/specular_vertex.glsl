@@ -10,19 +10,24 @@ uniform float uSpecularStrength;//镜面反射强度
 uniform vec3 uViewPosLoc;
 
 attribute vec4 aPosition;
-attribute vec3 aNormal;
+attribute vec4 aNormal;
 attribute vec4 aColor;
 
 varying vec3 specular;
 varying vec4 vColor;
 
+// 边界值处理
+vec3 clampCoordinate(vec3 coordinate) {
+    return vec3(clamp(coordinate.x, 0.0, 1.0), clamp(coordinate.y, 0.0, 1.0), clamp(coordinate.z, 0.0, 1.0));
+}
+
 void main() {
     gl_Position = uProjectMatrix * uViewMatrix * uModelMatrix * aPosition;
 
-    vec3 modelPos = vec3(uModelMatrix * aPosition);
+    vec3 modelPos = vec3(aPosition);
 
     //顶点的单位法线
-    vec3 unitNormal = normalize(vec3(uModelMatrix * vec4(aNormal, 1.0)));
+    vec3 unitNormal = normalize(vec3(aNormal));
 
     //从顶点到光源的单位向量
     vec3 lightDir = normalize(uLightPos - modelPos);
@@ -38,10 +43,12 @@ void main() {
 
         一个物体的反光度越高，反射光的能力越强，散射得越少，高光点就会越小。
     */
-    float shininess = 256.0;
+    float shininess = 64.0;
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
 
     specular = uSpecularStrength * spec * uLightColor;
+
+    specular = clampCoordinate(specular);
 
     vColor = aColor;
 }

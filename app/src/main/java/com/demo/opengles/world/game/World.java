@@ -142,17 +142,17 @@ public class World {
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0);
 
         //放大缩小世界
-        float[] scaleMatrix = new float[16];
-        Matrix.setIdentityM(scaleMatrix, 0);
-        Matrix.scaleM(scaleMatrix, 0, scaleFactor, scaleFactor, scaleFactor);
-        Matrix.multiplyMM(mMVPMatrix, 0, mMVPMatrix, 0, scaleMatrix, 0);
+//        float[] scaleMatrix = new float[16];
+//        Matrix.setIdentityM(scaleMatrix, 0);
+//        Matrix.scaleM(scaleMatrix, 0, scaleFactor, scaleFactor, scaleFactor);
+//        Matrix.multiplyMM(mMVPMatrix, 0, mMVPMatrix, 0, scaleMatrix, 0);
     }
 
     private void testViewMatrix() {
         int testFlag = 0;
         if (testFlag == 1) {
             Matrix.setLookAtM(mViewMatrix, 0,
-                    0, 0, 20,
+                    3, 3, 3,
                     0, 0, 0,
                     0f, 0f, 1f);
         }

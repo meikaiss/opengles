@@ -35,6 +35,13 @@ public class SpecularLightCube extends WorldObject {
             1.0f, -1.0f, 0.0f,
             1.0f, 1.0f, 0.0f,
             -1.0f, 1.0f, 0.0f,
+
+            1.0f, -1.0f, 1.0f,
+            1.0f, -1.0f, -1.0f,
+            1.0f, 1.0f, -1.0f,
+            1.0f, 1.0f, -1.0f,
+            1.0f, 1.0f, 1.0f,
+            1.0f, -1.0f, 1.0f,
     };
 
     /**
@@ -42,16 +49,30 @@ public class SpecularLightCube extends WorldObject {
      * 因为此例中我们只绘制一个正方形，因此各个顶点的法向量都是Z轴正方向
      */
     final float normalCoords[] = {
-            0f, 0f, 1f,
-            0f, 0f, 1f,
-            0f, 0f, 1f,
-            0f, 0f, 1f,
-            0f, 0f, 1f,
-            0f, 0f, 1f,
+            0f, 0f, -1f,
+            0f, 0f, -1f,
+            0f, 0f, -1f,
+            0f, 0f, -1f,
+            0f, 0f, -1f,
+            0f, 0f, -1f,
+
+            1f, 0f, 0f,
+            1f, 0f, 0f,
+            1f, 0f, 0f,
+            1f, 0f, 0f,
+            1f, 0f, 0f,
+            1f, 0f, 0f,
     };
 
     //4个顶点的颜色，与顶点坐标一一对应
     float color[] = {
+            1f, 0f, 0f, 1f,
+            1f, 0f, 0f, 1f,
+            1f, 0f, 0f, 1f,
+            1f, 0f, 0f, 1f,
+            1f, 0f, 0f, 1f,
+            1f, 0f, 0f, 1f,
+
             1f, 0f, 0f, 1f,
             0f, 1f, 0f, 1f,
             0f, 0f, 1f, 1f,
@@ -87,7 +108,7 @@ public class SpecularLightCube extends WorldObject {
     //漫反射光的强度
     private float lightStrong = 0.8f;
     //光源xy坐标
-    private float lightPosXY = 5;
+    private float lightPosXY = 3;
 
     private int COORDS_PER_VERTEX = 3;  //每个顶点有3个数字来表示它的坐标
     private int COORDS_PER_COLOR = 4;  //每个颜色值有4个数字来表示它的内容
@@ -169,12 +190,10 @@ public class SpecularLightCube extends WorldObject {
 
         GLES20.glUniform3f(mLightColorHandler, 1.0f, 1.0f, 1.0f);
 
-        float testValueXY = lightPosXY;
-        float testValueZ = 5;
         //设置镜面反射光源位置(光源为点光源，即从一点发出的万向光)
-        GLES20.glUniform3f(mLightPosHandler, testValueXY, testValueXY, testValueZ);
+        GLES20.glUniform3f(mLightPosHandler, lightPosXY, 0, 3);
         //设置观察点的位置（必须与相机位置相同，才能得到符合物理世界规律的图像）
-        GLES20.glUniform3f(mViewPosHandler, -5, -5, 5);
+        GLES20.glUniform3f(mViewPosHandler, -lightPosXY, 0, 3);
 
         /**
          * 外部设置了specularCube.setScale(10f, 10f, 10f);来放大10倍

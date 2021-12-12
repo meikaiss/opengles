@@ -15,7 +15,6 @@ import com.demo.opengles.R;
 import com.demo.opengles.egl.AntiConfigChooser;
 import com.demo.opengles.main.BaseActivity;
 import com.demo.opengles.sdk.OnSeekBarChangeListenerImpl;
-import com.demo.opengles.world.common.Point;
 import com.demo.opengles.world.control.DirectionControlView;
 import com.demo.opengles.world.control.JumpControlView;
 import com.demo.opengles.world.control.MoveControlView;
@@ -37,7 +36,6 @@ public class SpecularLightActivity extends BaseActivity {
     private JumpControlView jumpControlView;
 
     private World world = new World();
-    private Point point = new Point(activity);
     private Axis axis = new Axis(activity);
     private SpecularLightCube specularCube = new SpecularLightCube(activity);
 
@@ -62,11 +60,11 @@ public class SpecularLightActivity extends BaseActivity {
         });
 
         seekBarXY = findViewById(R.id.seek_bar_xy);
-        seekBarXY.setProgress(20);
+        seekBarXY.setProgress(3);
         seekBarXY.setOnSeekBarChangeListener(new OnSeekBarChangeListenerImpl() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                specularCube.setLightPosXY(progress);
+                specularCube.setLightPosXY(progress / 5);
                 tvPosXY.setText(String.valueOf(progress));
             }
         });
@@ -89,7 +87,7 @@ public class SpecularLightActivity extends BaseActivity {
         directionControlView.setOnDirectionListener(new DirectionControlView.OnDirectionListener() {
             @Override
             public void onDirection(int deltaX, int deltaY) {
-                world.directionChange(deltaX, 0);
+//                world.directionChange(deltaX, 0);
             }
         });
 
@@ -105,20 +103,16 @@ public class SpecularLightActivity extends BaseActivity {
             @Override
             public void onSurfaceCreated(GL10 gl, EGLConfig config) {
                 world.create();
-                point.setVertexCoord(10f, 10f, 10f);
-                point.setColor(1f, 1f, 1f, 1f);
-                point.create();
                 axis.create();
                 specularCube.create();
 
-                world.eyeXYZ(-5, -5, 5);
-                world.setInitDirectionXYZ(5, 5, -5);
+                world.eyeXYZ(3, 3, 3);
+                world.setInitDirectionXYZ(-3, -3, -3);
             }
 
             @Override
             public void onSurfaceChanged(GL10 gl, int width, int height) {
                 world.change(gl, width, height);
-                point.change(gl, width, height);
                 axis.change(gl, width, height);
                 specularCube.change(gl, width, height);
 
@@ -128,7 +122,6 @@ public class SpecularLightActivity extends BaseActivity {
             @Override
             public void onDrawFrame(GL10 gl) {
                 world.draw();
-                point.draw2(gl, world.getMVPMatrix());
                 axis.draw(world.getMVPMatrix());
                 specularCube.draw(world.getProjectMatrix(), world.getViewMatrix());
             }

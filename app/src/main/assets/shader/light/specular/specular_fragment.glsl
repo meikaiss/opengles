@@ -4,6 +4,5 @@ varying vec4 vColor;
 varying vec3 specular;
 
 void main() {
-    vec3 finalColor = specular * vec3(vColor);
-    gl_FragColor = vec4(finalColor, vColor.a);
+    gl_FragColor = vec4(specular * vec3(vColor), vColor.a);
 }
