@@ -64,6 +64,7 @@ import com.demo.opengles.record.camera2.glrecorddouble.Camera2GLSurfaceViewDoubl
 import com.demo.opengles.record.camera2.glsurfaceview.Camera2GLSurfaceView4PreviewActivity;
 import com.demo.opengles.record.camera2.surfaceview.Camera2SurfaceView4PreviewActivity;
 import com.demo.opengles.record.camera2.takepicture.Camera2TakePictureActivity;
+import com.demo.opengles.skycube.SkyCubeActivity;
 import com.demo.opengles.surface.GLSurfaceViewAlphaVideoActivity;
 import com.demo.opengles.surface.GLSurfaceViewVideoActivity;
 import com.demo.opengles.surface.GLTextureViewAlphaVideoActivity;
@@ -145,6 +146,7 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("OpenGL-冯氏光照模型-环境光", AmbientLightActivity.class));
             add(new MainItemBean("OpenGL-冯氏光照模型-漫反射光", DiffuseLightActivity.class));
             add(new MainItemBean("OpenGL-冯氏光照模型-镜面反射光", SpecularLightActivity.class));
+            add(new MainItemBean("天空盒", SkyCubeActivity.class));
         }
     };
 
