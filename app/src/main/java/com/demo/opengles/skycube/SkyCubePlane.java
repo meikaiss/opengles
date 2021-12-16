@@ -1,4 +1,4 @@
-package com.demo.opengles.world.common;
+package com.demo.opengles.skycube;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 
 import com.demo.opengles.R;
+import com.demo.opengles.util.BitmapUtil;
 import com.demo.opengles.util.OpenGLESUtil;
 import com.demo.opengles.world.MatrixHelper;
 import com.demo.opengles.world.base.WorldObject;
@@ -16,7 +17,10 @@ import java.nio.FloatBuffer;
 
 import javax.microedition.khronos.opengles.GL10;
 
-public class TexturePlane extends WorldObject {
+public class SkyCubePlane extends WorldObject {
+
+    private static final int IMAGE_RES_ID = R.mipmap.texture_skycube_4096x3072;
+    private static final int CUBE_WIDTH = 1024;
 
     private final String vertexShaderCode =
             "uniform mat4 uMatrix;\n" +
@@ -39,10 +43,10 @@ public class TexturePlane extends WorldObject {
 
     //顶点坐标
     private final float[] vertexCoords = {
-            -1.0f, 1.0f,    //左上角
-            -1.0f, -1.0f,   //左下角
-            1.0f, 1.0f,     //右上角
-            1.0f, -1.0f     //右下角
+            -1.0f, 1.0f, -1.0f,    //左上角
+            -1.0f, -1.0f, -1.0f,   //左下角
+            1.0f, 1.0f, -1.0f,     //右上角
+            1.0f, -1.0f, -1.0f     //右下角
     };
 
     //纹理坐标
@@ -66,14 +70,14 @@ public class TexturePlane extends WorldObject {
     private int glACoordinate;
     private int glUTexture;
 
-    private static Bitmap textureBmp;
+    private Bitmap textureBmp;
     private int textureId;
 
-    private static int COORDS_PER_VERTEX = 2; //每个顶点有2个float数字表示其坐标
+    private static int COORDS_PER_VERTEX = 3; //每个顶点有2个float数字表示其坐标
     private final int vertexCount = vertexCoords.length / COORDS_PER_VERTEX; //顶点个数
     private final int vertexStride = COORDS_PER_VERTEX * 4; //每个顶点的步长， 每个float四个字节
 
-    public TexturePlane(Context context) {
+    public SkyCubePlane(Context context) {
         super(context);
     }
 
@@ -104,7 +108,8 @@ public class TexturePlane extends WorldObject {
         glUTexture = GLES20.glGetUniformLocation(mProgram, "uTexture");
 
         if (textureBmp == null) {
-            textureBmp = BitmapFactory.decodeResource(context.getResources(), R.mipmap.flat);
+            textureBmp = BitmapFactory.decodeResource(context.getResources(), IMAGE_RES_ID);
+            textureBmp = BitmapUtil.cropBitmapCustom(textureBmp, 0, CUBE_WIDTH, CUBE_WIDTH, CUBE_WIDTH);
         }
         textureId = OpenGLESUtil.createBitmapTextureId(textureBmp, GLES20.GL_TEXTURE0);
     }

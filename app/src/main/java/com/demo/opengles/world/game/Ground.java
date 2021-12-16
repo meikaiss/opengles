@@ -3,7 +3,7 @@ package com.demo.opengles.world.game;
 import android.content.Context;
 
 import com.demo.opengles.world.base.WorldObject;
-import com.demo.opengles.world.common.TexturePlane;
+import com.demo.opengles.world.common.PlaneTexture;
 
 import javax.microedition.khronos.opengles.GL10;
 
@@ -12,11 +12,11 @@ import javax.microedition.khronos.opengles.GL10;
  */
 public class Ground extends WorldObject {
 
-    private TexturePlane flat;
+    private PlaneTexture flat;
 
     public Ground(Context context) {
         super(context);
-        flat = new TexturePlane(context);
+        flat = new PlaneTexture(context);
     }
 
     @Override

@@ -20,7 +20,6 @@ public class BitmapUtil {
         /**裁剪关键步骤*/
         Bitmap cropBitmap = Bitmap.createBitmap(srcBitmap, firstPixelX, firstPixelY, needWidth, needHeight);
 
-
         return cropBitmap;
     }
 
