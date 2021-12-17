@@ -11,6 +11,10 @@ public abstract class WorldObject extends GLObject {
     public float translateY;
     public float translateZ;
 
+    public float rotationX;
+    public float rotationY;
+    public float rotationZ;
+
     private float[] translateMatrix;
     private float[] scaleMatrix;
     private float[] rotateMatrix;
@@ -40,18 +44,18 @@ public abstract class WorldObject extends GLObject {
         Matrix.translateM(translateMatrix, 0, translateX, translateY, translateZ);
     }
 
-    public void setRotate(float a, float x, float y, float z) {
+    public void setRotate(float angle, float x, float y, float z) {
         rotateMatrix = new float[16];
         Matrix.setIdentityM(rotateMatrix, 0);
-        Matrix.rotateM(rotateMatrix, 0, a, x, y, z);
+        Matrix.rotateM(rotateMatrix, 0, angle, x, y, z);
     }
 
-    public void addRotate(float a, float x, float y, float z) {
-        if (rotateMatrix == null) {
-            rotateMatrix = new float[16];
-        }
-        Matrix.setIdentityM(rotateMatrix, 0);
-        Matrix.rotateM(rotateMatrix, 0, a, x, y, z);
+    public void addRotate(float angle, float x, float y, float z) {
+        float[] rotateMatrixTemp = new float[16];
+        Matrix.setIdentityM(rotateMatrixTemp, 0);
+        Matrix.rotateM(rotateMatrixTemp, 0, angle, x, y, z);
+
+        Matrix.multiplyMM(rotateMatrix, 0, rotateMatrix, 0, rotateMatrixTemp, 0);
     }
 
     public void setScale(float x, float y, float z) {

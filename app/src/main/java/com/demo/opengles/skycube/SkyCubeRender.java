@@ -15,6 +15,10 @@ public class SkyCubeRender implements GLSurfaceView.Renderer {
     private Axis axis;
     private SkyCube skyCube;
 
+    public World getWorld() {
+        return world;
+    }
+
     public SkyCubeRender(Activity activity) {
         axis = new Axis(activity);
         skyCube = new SkyCube(activity);
@@ -36,7 +40,6 @@ public class SkyCubeRender implements GLSurfaceView.Renderer {
         axis.change(gl, width, height);
         skyCube.change(gl, width, height);
 
-
     }
 
     @Override
@@ -46,7 +49,4 @@ public class SkyCubeRender implements GLSurfaceView.Renderer {
         skyCube.draw(world.getMVPMatrix());
     }
 
-    public void onScale(float scaleFactorParam) {
-        world.onScale(scaleFactorParam);
-    }
 }

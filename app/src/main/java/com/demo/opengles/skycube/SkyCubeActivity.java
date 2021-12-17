@@ -50,7 +50,7 @@ public class SkyCubeActivity extends BaseActivity {
         moveControlView.setOnMoveListener(new MoveControlView.OnMoveListener() {
             @Override
             public void onMove(int deltaX, int deltaY) {
-
+                render.getWorld().moveXYChange(deltaX, deltaY);
             }
         });
 
@@ -58,7 +58,7 @@ public class SkyCubeActivity extends BaseActivity {
         directionControlView.setOnDirectionListener(new DirectionControlView.OnDirectionListener() {
             @Override
             public void onDirection(int deltaX, int deltaY) {
-
+                render.getWorld().directionChange(deltaX, deltaY);
             }
         });
 
@@ -66,7 +66,7 @@ public class SkyCubeActivity extends BaseActivity {
         jumpControlView.setOnJumpListener(new JumpControlView.OnJumpListener() {
             @Override
             public void onJump(float progress) {
-
+                render.getWorld().eyeZChange((int) (progress * 100));
             }
         });
     }
@@ -80,7 +80,7 @@ public class SkyCubeActivity extends BaseActivity {
                  * 每一次Move所计算出的scale是针对上一次消费掉的Move事件的触摸位置，此方法返回true表示已消费，返回false表示未消费
                  */
                 float scaleFactor = detector.getScaleFactor();
-                render.onScale(scaleFactor);
+                render.getWorld().onScale(scaleFactor);
                 return true;
             }
 

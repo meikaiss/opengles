@@ -42,12 +42,7 @@ public class SkyCubePlane extends WorldObject {
                     "}";
 
     //顶点坐标
-    private final float[] vertexCoords = {
-            -1.0f, 1.0f, -1.0f,    //左上角
-            -1.0f, -1.0f, -1.0f,   //左下角
-            1.0f, 1.0f, -1.0f,     //右上角
-            1.0f, -1.0f, -1.0f     //右下角
-    };
+    private float[] vertexCoords;
 
     //纹理坐标
     private final float[] textureCoord = {
@@ -73,12 +68,21 @@ public class SkyCubePlane extends WorldObject {
     private Bitmap textureBmp;
     private int textureId;
 
-    private static int COORDS_PER_VERTEX = 3; //每个顶点有2个float数字表示其坐标
-    private final int vertexCount = vertexCoords.length / COORDS_PER_VERTEX; //顶点个数
-    private final int vertexStride = COORDS_PER_VERTEX * 4; //每个顶点的步长， 每个float四个字节
+    private int COORDS_PER_VERTEX = 3; //每个顶点有2个float数字表示其坐标
+    private int vertexCount; //顶点个数
+    private int vertexStride; //每个顶点的步长， 每个float四个字节
 
-    public SkyCubePlane(Context context) {
+    private int cubeIndexX = 0;
+    private int cubeIndexY = 0;
+
+    public SkyCubePlane(Context context, float[] vertexCoord, int cubeIndexX, int cubeIndexY) {
         super(context);
+        this.vertexCoords = vertexCoord;
+        this.vertexCount = vertexCoords.length / COORDS_PER_VERTEX;
+        this.vertexStride = COORDS_PER_VERTEX * 4;
+
+        this.cubeIndexX = cubeIndexX;
+        this.cubeIndexY = cubeIndexY;
     }
 
     public void create() {
@@ -109,7 +113,7 @@ public class SkyCubePlane extends WorldObject {
 
         if (textureBmp == null) {
             textureBmp = BitmapFactory.decodeResource(context.getResources(), IMAGE_RES_ID);
-            textureBmp = BitmapUtil.cropBitmapCustom(textureBmp, 0, CUBE_WIDTH, CUBE_WIDTH, CUBE_WIDTH);
+            textureBmp = BitmapUtil.cropBitmapCustom(textureBmp, CUBE_WIDTH * cubeIndexX, CUBE_WIDTH * cubeIndexY, CUBE_WIDTH, CUBE_WIDTH);
         }
         textureId = OpenGLESUtil.createBitmapTextureId(textureBmp, GLES20.GL_TEXTURE0);
     }
@@ -134,7 +138,7 @@ public class SkyCubePlane extends WorldObject {
 
         GLES20.glEnableVertexAttribArray(glACoordinate);
         GLES20.glVertexAttribPointer(glACoordinate, 2, GLES20.GL_FLOAT, false,
-                vertexStride, textureCoordBuffer);
+                2 * 4, textureCoordBuffer);
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, vertexCount);
     }
