@@ -26,6 +26,7 @@ import com.demo.opengles.gaussian.GaussianHorVerMultiActivity;
 import com.demo.opengles.gaussian.GaussianVerActivity;
 import com.demo.opengles.gaussian.GaussianVideoPlayerActivity;
 import com.demo.opengles.gaussian.GaussianViewActivity;
+import com.demo.opengles.gles3.OpenGLES3Activity;
 import com.demo.opengles.graphic.BallActivity;
 import com.demo.opengles.graphic.CircleActivity;
 import com.demo.opengles.graphic.ConeActivity;
@@ -147,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("OpenGL-冯氏光照模型-漫反射光", DiffuseLightActivity.class));
             add(new MainItemBean("OpenGL-冯氏光照模型-镜面反射光", SpecularLightActivity.class));
             add(new MainItemBean("天空盒", SkyCubeActivity.class));
+            add(new MainItemBean("openGL ES 3.0", OpenGLES3Activity.class));
         }
     };
 
