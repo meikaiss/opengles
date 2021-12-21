@@ -9,6 +9,7 @@ import android.graphics.Paint;
 import android.media.ExifInterface;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
+import android.opengl.GLES30;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.os.Build;
@@ -69,6 +70,16 @@ public class OpenGLESUtil {
         int shader = GLES20.glCreateShader(type);
         GLES20.glShaderSource(shader, code);
         GLES20.glCompileShader(shader);
+        return shader;
+    }
+
+    /**
+     * 加载Shader
+     */
+    public static int loadShader3(int type, String code) {
+        int shader = GLES30.glCreateShader(type);
+        GLES30.glShaderSource(shader, code);
+        GLES30.glCompileShader(shader);
         return shader;
     }
 
