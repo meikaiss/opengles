@@ -35,16 +35,21 @@ public class OpenGLESUtil {
      * 获取Shader代码
      */
     public static String getShaderCode(Context context, String fileName) {
+        InputStream is = null;
+        BufferedReader br = null;
         StringBuilder sb = new StringBuilder();
         try {
-            InputStream is = context.getAssets().open(fileName);
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            is = context.getAssets().open(fileName);
+            br = new BufferedReader(new InputStreamReader(is));
             String line;
             while ((line = br.readLine()) != null) {
                 sb.append(line).append("\n");
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            IOUtil.close(is);
+            IOUtil.close(br);
         }
         return sb.toString();
     }
