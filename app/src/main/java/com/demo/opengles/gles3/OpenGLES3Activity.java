@@ -94,17 +94,21 @@ public class OpenGLES3Activity extends BaseActivity {
                 GLES30.glUseProgram(mProgram);
 
                 GLES30.glEnableVertexAttribArray(aPosition);
-                GLES30.glEnableVertexAttribArray(aColor);
+                /**
+                 * 在opengles3中不再需要先获取句柄，然后通过句柄操作，而直接通过shader中的location值来操作
+                 * 当然，通过opengles2那种方式也仍然有效
+                 */
+                GLES30.glEnableVertexAttribArray(1);
 
                 GLES30.glVertexAttribPointer(aPosition, COORDS_PER_VERTEX, GLES30.GL_FLOAT, false,
                         vertexStride, vertexBuffer);
-                GLES30.glVertexAttribPointer(aColor, COORDS_PER_COLOR, GLES30.GL_FLOAT, false,
+                GLES30.glVertexAttribPointer(1, COORDS_PER_COLOR, GLES30.GL_FLOAT, false,
                         colorStride, colorBuffer);
 
                 GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, vertexCount);
 
                 GLES30.glDisableVertexAttribArray(aPosition);
-                GLES30.glDisableVertexAttribArray(aColor);
+                GLES30.glDisableVertexAttribArray(1);
             }
         });
 
