@@ -10,8 +10,6 @@ import androidx.annotation.Nullable;
 import com.demo.opengles.main.BaseActivity;
 import com.demo.opengles.util.OpenGLESUtil;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -65,21 +63,10 @@ public class OpenGLES3Activity extends BaseActivity {
         glSurfaceView.setRenderer(new GLSurfaceView.Renderer() {
             @Override
             public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-                GLES30.glClearColor(1f, 0f, 0f, 1.0f);
+                GLES30.glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 
-                ByteBuffer bb = ByteBuffer.allocateDirect(
-                        triangleCoords.length * 4); //其中4的来源是因为每一个float占用4个字节
-                bb.order(ByteOrder.nativeOrder());
-                vertexBuffer = bb.asFloatBuffer();
-                vertexBuffer.put(triangleCoords);
-                vertexBuffer.position(0);
-
-                ByteBuffer dd = ByteBuffer.allocateDirect(
-                        color.length * 4);
-                dd.order(ByteOrder.nativeOrder());
-                colorBuffer = dd.asFloatBuffer();
-                colorBuffer.put(color);
-                colorBuffer.position(0);
+                vertexBuffer = OpenGLESUtil.createFloatBuffer(triangleCoords);
+                colorBuffer = OpenGLESUtil.createFloatBuffer(color);
 
                 vertexShaderIns = OpenGLESUtil.loadShader3(GLES30.GL_VERTEX_SHADER,
                         OpenGLESUtil.getShaderCode(context, "shader/gles3/vertex.glsl"));
@@ -91,6 +78,8 @@ public class OpenGLES3Activity extends BaseActivity {
                 GLES30.glAttachShader(mProgram, fragmentShaderIns);
                 GLES30.glLinkProgram(mProgram);
 
+                aPosition = GLES30.glGetAttribLocation(mProgram, "aPosition");
+                aColor = GLES30.glGetAttribLocation(mProgram, "aColor");
             }
 
             @Override
@@ -105,16 +94,15 @@ public class OpenGLES3Activity extends BaseActivity {
                 GLES30.glUseProgram(mProgram);
 
                 GLES30.glEnableVertexAttribArray(aPosition);
-                GLES30.glVertexAttribPointer(aPosition, COORDS_PER_VERTEX,
-                        GLES30.GL_FLOAT, false,
-                        vertexStride, vertexBuffer);
-
                 GLES30.glEnableVertexAttribArray(aColor);
+
+                GLES30.glVertexAttribPointer(aPosition, COORDS_PER_VERTEX, GLES30.GL_FLOAT, false,
+                        vertexStride, vertexBuffer);
                 GLES30.glVertexAttribPointer(aColor, COORDS_PER_COLOR, GLES30.GL_FLOAT, false,
                         colorStride, colorBuffer);
 
-
                 GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, vertexCount);
+
                 GLES30.glDisableVertexAttribArray(aPosition);
                 GLES30.glDisableVertexAttribArray(aColor);
             }
