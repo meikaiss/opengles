@@ -639,4 +639,24 @@ public class OpenGLESUtil {
         GLES20.glDeleteTextures(1, new int[]{textureId}, 0);
         return true;
     }
+
+    public static int initCubeMap(int[] resourceIds, Bitmap bitmap, int cubeWidth, int[] offsetXY) {
+        int[] ids = new int[1];
+        GLES20.glGenTextures(1, ids, 0);
+        int cubeMapTextureId = ids[0];
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_CUBE_MAP, cubeMapTextureId);
+        GLES20.glTexParameterf(GLES20.GL_TEXTURE_CUBE_MAP, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+        GLES20.glTexParameterf(GLES20.GL_TEXTURE_CUBE_MAP, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+        GLES20.glTexParameterf(GLES20.GL_TEXTURE_CUBE_MAP, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT);
+        GLES20.glTexParameterf(GLES20.GL_TEXTURE_CUBE_MAP, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT);
+
+        for (int face = 0; face < 6; face++) {
+            Bitmap textureBmp = BitmapUtil.cropBitmapCustom(bitmap,
+                    cubeWidth * offsetXY[0], cubeWidth * offsetXY[1], cubeWidth, cubeWidth);
+            GLUtils.texImage2D(GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, textureBmp, 0);
+        }
+
+        return cubeMapTextureId;
+    }
+
 }
