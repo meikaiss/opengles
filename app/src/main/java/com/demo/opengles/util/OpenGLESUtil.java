@@ -640,7 +640,7 @@ public class OpenGLESUtil {
         return true;
     }
 
-    public static int initCubeMap(int[] resourceIds, Bitmap bitmap, int cubeWidth, int[] offsetXY) {
+    public static int createCubeMapTextureId(Bitmap bitmap, int cubeWidth, int[] offsetXY) {
         int[] ids = new int[1];
         GLES20.glGenTextures(1, ids, 0);
         int cubeMapTextureId = ids[0];

@@ -93,6 +93,7 @@
         <activity android:name=".light.SpecularLightActivity" />
         <activity android:name=".skycube.SkyCubeActivity" />
         <activity android:name=".gles3.OpenGLES3Activity" />
+        <activity android:name=".cubemap.CubeMapActivity" />
 
     </application>
 

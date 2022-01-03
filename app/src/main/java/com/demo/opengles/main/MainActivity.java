@@ -14,6 +14,7 @@ import com.demo.opengles.camera.Camera1GLSurfaceViewTakePhotoActivity;
 import com.demo.opengles.camera.Camera1SurfaceViewActivity;
 import com.demo.opengles.camera.Camera1TakePhotoGLSurfaceViewActivity;
 import com.demo.opengles.camera.Camera1TextureViewActivity;
+import com.demo.opengles.cubemap.CubeMapActivity;
 import com.demo.opengles.databinding.MainActivityBinding;
 import com.demo.opengles.egl.EGLActivity;
 import com.demo.opengles.egl.EGLCamera1FBOPreviewActivity;
@@ -149,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("OpenGL-冯氏光照模型-镜面反射光", SpecularLightActivity.class));
             add(new MainItemBean("天空盒", SkyCubeActivity.class));
             add(new MainItemBean("openGL ES 3.0", OpenGLES3Activity.class));
+            add(new MainItemBean("立方体纹理", CubeMapActivity.class));
         }
     };
 
