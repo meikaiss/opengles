@@ -12,7 +12,7 @@ import androidx.annotation.Nullable;
 
 import com.demo.opengles.R;
 import com.demo.opengles.main.BaseActivity;
-import com.demo.opengles.util.ShaderUtil;
+import com.demo.opengles.util.OpenGLESUtil;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -159,10 +159,9 @@ public class FrameBufferActivity extends BaseActivity {
         //解除FBO纹理绑定
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
 
-
-        int frameBufferVertexShader = ShaderUtil.loadShader(GLES20.GL_VERTEX_SHADER,
+        int frameBufferVertexShader = OpenGLESUtil.loadShader(GLES20.GL_VERTEX_SHADER,
                 vertexShaderCode);
-        int frameBufferFragmentShader = ShaderUtil.loadShader(GLES20.GL_FRAGMENT_SHADER,
+        int frameBufferFragmentShader = OpenGLESUtil.loadShader(GLES20.GL_FRAGMENT_SHADER,
                 fragmentShaderCode);
         program = GLES20.glCreateProgram();
         GLES20.glAttachShader(program, frameBufferVertexShader);

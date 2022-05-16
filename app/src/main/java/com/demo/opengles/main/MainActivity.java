@@ -16,6 +16,7 @@ import com.demo.opengles.camera.Camera1TakePhotoGLSurfaceViewActivity;
 import com.demo.opengles.camera.Camera1TextureViewActivity;
 import com.demo.opengles.cubemap.CubeMapActivity;
 import com.demo.opengles.databinding.MainActivityBinding;
+import com.demo.opengles.earth.EarthActivity;
 import com.demo.opengles.egl.EGLActivity;
 import com.demo.opengles.egl.EGLCamera1FBOPreviewActivity;
 import com.demo.opengles.egl.EGLCamera1FBOPreviewWaterMarkActivity;
@@ -151,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
             add(new MainItemBean("天空盒", SkyCubeActivity.class));
             add(new MainItemBean("openGL ES 3.0", OpenGLES3Activity.class));
             add(new MainItemBean("立方体纹理", CubeMapActivity.class));
+            add(new MainItemBean("地球仪", EarthActivity.class));
         }
     };
 
