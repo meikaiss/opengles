@@ -57,6 +57,9 @@ public class EarthRenderer implements GLSurfaceView.Renderer {
     public float eyeX = 2f;
     public float eyeY = 2f;
     public float eyeZ = 2f;
+    public float angleX = -65f;
+    public float angleY = 0f;
+    public float angleZ = 0f;
 
     public EarthRenderer(Context context) {
         this.context = context;
@@ -187,10 +190,15 @@ public class EarthRenderer implements GLSurfaceView.Renderer {
         //透视投影矩阵/视锥
         Matrix.perspectiveM(mProjectMatrix, 0, 60, ratio, 1f, 300f);
         //设置相机位置
+        eyeX = 0f;
+        eyeY = 0f;
+        eyeZ = 3f;
         Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, 0.0f, 0.0f, 0f, 0f, 1f, 0f);
         //模型矩阵
         Matrix.setIdentityM(mModelMatrix, 0);
-//        Matrix.rotateM(mModelMatrix, 0, 40, 1, 0, 0);
+        Matrix.rotateM(mModelMatrix, 0, angleX, 1, 0, 0);
+        Matrix.rotateM(mModelMatrix, 0, angleY, 0, 1, 0);
+        Matrix.rotateM(mModelMatrix, 0, angleZ, 0, 0, 1);
 
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0);
         Matrix.multiplyMM(mMVPMatrix, 0, mMVPMatrix, 0, mModelMatrix, 0);

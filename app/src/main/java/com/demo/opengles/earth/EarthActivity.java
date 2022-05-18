@@ -48,6 +48,27 @@ public class EarthActivity extends BaseActivity {
             renderer.eyeZ += 0.1f;
             glSurfaceView.requestRender();
         }
+        /////////////////////////////////////////////////////////////////////////////////
+        if (view.getId() == R.id.btn_rx_d) {
+            renderer.angleX -= 5f;
+            glSurfaceView.requestRender();
+        } else if (view.getId() == R.id.btn_rx_a) {
+            renderer.angleX += 5f;
+            glSurfaceView.requestRender();
+        } else if (view.getId() == R.id.btn_ry_d) {
+            renderer.angleY -= 5f;
+            glSurfaceView.requestRender();
+        } else if (view.getId() == R.id.btn_ry_a) {
+            renderer.angleY += 5f;
+            glSurfaceView.requestRender();
+        } else if (view.getId() == R.id.btn_rz_d) {
+            renderer.angleZ -= 5f;
+            glSurfaceView.requestRender();
+        } else if (view.getId() == R.id.btn_rz_a) {
+            renderer.angleZ += 5f;
+            glSurfaceView.requestRender();
+        }
+
     }
 
 }
